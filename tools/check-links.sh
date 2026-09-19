@@ -17,15 +17,26 @@ PAGE="${1:-${HERE}/index.html}"
 mapfile -t urls < <(grep -oE 'https?://[^"'"'"' <)]+' "${PAGE}" | sed 's/[.,]$//' | sort -u)
 [ "${#urls[@]}" -gt 0 ] || { echo "::error::no links found in ${PAGE}" >&2; exit 1; }
 
+# An apt archive root is not a document: GitHub Pages serves no directory index, so `<pages>/deb`
+# answers 404 while being a perfectly good `deb …` line. Check what apt itself fetches first — the
+# signed index — which also proves the archive is really there and really signed.
+probe_for() {
+  case "$1" in
+    */deb) printf '%s/dists/stable/InRelease' "$1" ;;
+    *)     printf '%s' "$1" ;;
+  esac
+}
+
 failed=0
 for url in "${urls[@]}"; do
+  probe="$(probe_for "${url}")"
   # -L because every github.com address redirects at least once, and a repository that was renamed
   # redirects too — which is a link that works, and the reason this is not a HEAD-and-expect-200.
-  code="$(curl -sSL -o /dev/null -w '%{http_code}' --retry 2 --retry-delay 3 --max-time 30 "${url}" || echo 000)"
+  code="$(curl -sSL -o /dev/null -w '%{http_code}' --retry 2 --retry-delay 3 --max-time 30 "${probe}" || echo 000)"
   if [ "${code}" = "200" ]; then
-    printf 'ok   %s\n' "${url}"
+    printf 'ok   %s\n' "${probe}"
   else
-    printf 'FAIL %s (HTTP %s)\n' "${url}" "${code}"
+    printf 'FAIL %s (HTTP %s)\n' "${probe}" "${code}"
     failed=$((failed + 1))
   fi
 done

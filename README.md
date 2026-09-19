@@ -5,7 +5,18 @@ Studio, the `botmaker` CLI, the dashboard, remote-server, the two Android apps �
 repositories as *what is published*.
 
 It exists because every project already has its own Pages site and all of them are findable only if
-you already know the repository name.
+you already know the repository name. Its first card installs **everything at once** — every BotMaker
+repository added, then all four packages in one `dnf install` or `apt-get install`, with the upgrade
+commands beside them.
+
+## It is also the stylesheet for the project pages
+
+`assets/style.css` and `assets/copy.js` are linked by the four project pages as well, each of which
+generates its own HTML from its own `build-repo.sh`. They are served from this same origin — every
+project site is a path under `botmakerdev.github.io` — so linking them costs no availability those
+pages did not already have, and the look is one file instead of five copies that drift. The
+stylesheet therefore covers **both** markups: the hero and card grid here, and a project page's plain
+column. A project page picks up a change at its next release, since that is when its HTML is written.
 
 ## What this repository is not
 
