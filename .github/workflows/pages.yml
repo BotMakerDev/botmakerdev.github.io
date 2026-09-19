@@ -1,0 +1,53 @@
+name: pages
+
+# Three triggers, one job. The schedule is what keeps the versions honest between pushes: a release
+# cut in any of the six repositories changes this page without anyone touching this one, and nobody
+# should have to remember that. workflow_dispatch is for wanting it now.
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '17 6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Generate the page
+        env:
+          # Every repository read is public, but an authenticated call has a rate limit a daily cron
+          # cannot exhaust, and the default token already has read access to this organization.
+          GH_TOKEN: ${{ github.token }}
+        run: tools/build-site.sh
+
+      - name: Check every address on it
+        run: tools/check-links.sh
+
+      - name: Show what changed
+        run: git --no-pager diff --stat -- index.html || true
+
+      - uses: actions/configure-pages@v6
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          # The whole checkout: index.html plus assets/. The generator and the catalog ride along,
+          # which is harmless and means the published tree is the readable one.
+          path: .
+
+      - id: deploy
+        uses: actions/deploy-pages@v5
