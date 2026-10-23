@@ -62,17 +62,10 @@
       "site": false
     },
     {
-      "repo": "botmaker-gallery",
-      "name": "Bot gallery",
+      "repo": "botmaker-catalog",
+      "name": "Catalog",
       "section": "publish",
-      "blurb": "The published-bot index Studio reads. Community entries are auto-merged when the gate passes; vetted entries pin a version.",
-      "site": false
-    },
-    {
-      "repo": "botmaker-plugin-registry",
-      "name": "Plugin registry",
-      "section": "publish",
-      "blurb": "The plugin index. One file per plugin id, so git itself refuses a second claim on an id.",
+      "blurb": "Every published bot and plugin, one file per entry. Checked by a machine and merged when the checks pass; ranks say who published.",
       "site": false
     }
   ]

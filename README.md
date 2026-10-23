@@ -1,8 +1,8 @@
 # botmakerdev.github.io
 
 The organization's front page: <https://botmakerdev.github.io/>. One card per installable thing —
-Studio, the `botmaker` CLI, the dashboard, remote-server, the two Android apps — plus the two data
-repositories as *what is published*.
+Studio, the `botmaker` CLI, the dashboard, remote-server, the two Android apps — plus the data
+repository, `botmaker-catalog`, as *what is published*.
 
 It exists because every project already has its own Pages site and all of them are findable only if
 you already know the repository name. Its first card installs **everything at once** — every BotMaker
