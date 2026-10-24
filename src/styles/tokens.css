@@ -1,0 +1,128 @@
+/* The two looks, as tokens. Every page — the site and the Starlight docs — styles itself from these only.
+ *
+ * Light is "Manual": warm paper, ink, Fraunces headlines, one orange, square corners.
+ * Dark is "Dark editor": charcoal (never pure black), Space Grotesk headlines, syntax colours as the palette,
+ * yellow accent, 4 px corners.
+ *
+ * The system setting picks one; the header toggle overrides it by setting data-theme on <html> (see
+ * src/lib/theme.mjs). Without JavaScript the media query alone decides.
+ */
+
+:root {
+  color-scheme: light;
+
+  --bg: #f3eee4;
+  --fg: #1d1b17;
+  --muted: #6a645a;
+  --panel: #ffffff;
+  --line: #1d1b17;
+  --line-soft: #d8d0bf;
+  --soft: #e7e0d2;
+
+  --accent: #d4550f;
+  --on-accent: #ffffff;
+  /* The accent when it is text on the page background. */
+  --accent-text: #b4460a;
+
+  /* Blocks: four kinds, and the text on them. */
+  --k1: #1d1b17;
+  --k2: #3b372f;
+  --k3: #5a5246;
+  --k4: #d4550f;
+  --k-fg: #f3eee4;
+
+  /* Java. */
+  --code-bg: #ffffff;
+  --kw: #b4460a;
+  --fn: #1d1b17;
+  --st: #4f6b22;
+
+  /* A terminal is dark in both looks. */
+  --term-bg: #1d1b17;
+  --term-fg: #e9e4d8;
+  --term-prompt: #ff8a3d;
+  --term-muted: #a39d90;
+
+  --radius: 0px;
+
+  --font-head: 'Fraunces', Georgia, serif;
+  --font-body: 'IBM Plex Sans', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+  --head-weight: 700;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+
+    --bg: #17181c;
+    --fg: #ebe9e3;
+    --muted: #a3a197;
+    --panel: #202127;
+    --line: #34353f;
+    --line-soft: #2a2b33;
+    --soft: #26272e;
+
+    --accent: #ffd23f;
+    --on-accent: #17181c;
+    --accent-text: #ffd23f;
+
+    --k1: #ffd23f;
+    --k2: #5cc8ff;
+    --k3: #ff7a59;
+    --k4: #9be37a;
+    --k-fg: #17181c;
+
+    --code-bg: #1b1c21;
+    --kw: #ffd23f;
+    --fn: #5cc8ff;
+    --st: #ff7a59;
+
+    --term-bg: #111216;
+    --term-fg: #d9d7d0;
+    --term-prompt: #ffd23f;
+    --term-muted: #8d8b84;
+
+    --radius: 4px;
+
+    --font-head: 'Space Grotesk', system-ui, sans-serif;
+    --head-weight: 700;
+  }
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  --bg: #17181c;
+  --fg: #ebe9e3;
+  --muted: #a3a197;
+  --panel: #202127;
+  --line: #34353f;
+  --line-soft: #2a2b33;
+  --soft: #26272e;
+
+  --accent: #ffd23f;
+  --on-accent: #17181c;
+  --accent-text: #ffd23f;
+
+  --k1: #ffd23f;
+  --k2: #5cc8ff;
+  --k3: #ff7a59;
+  --k4: #9be37a;
+  --k-fg: #17181c;
+
+  --code-bg: #1b1c21;
+  --kw: #ffd23f;
+  --fn: #5cc8ff;
+  --st: #ff7a59;
+
+  --term-bg: #111216;
+  --term-fg: #d9d7d0;
+  --term-prompt: #ffd23f;
+  --term-muted: #8d8b84;
+
+  --radius: 4px;
+
+  --font-head: 'Space Grotesk', system-ui, sans-serif;
+  --head-weight: 700;
+}

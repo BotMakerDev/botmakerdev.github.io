@@ -1,53 +1,49 @@
 # botmakerdev.github.io
 
-The organization's front page: <https://botmakerdev.github.io/>. One card per installable thing —
-Studio, the `botmaker` CLI, the dashboard, remote-server, the two Android apps — plus the data
-repository, `botmaker-catalog`, as *what is published*.
+The BotMaker website: <https://botmakerdev.github.io/>. Home (with a demo editor), Install, Plugins,
+Gallery and the docs, in one Astro site. Design: the umbrella's
+`docs/superpowers/specs/2026-10-24-website-design.md`; plan: `docs/superpowers/plans/2026-10-24-website.md`.
 
-It exists because every project already has its own Pages site and all of them are findable only if
-you already know the repository name. Its first card installs **everything at once** — every BotMaker
-repository added, then all four packages in one `dnf install` or `apt-get install`, with the upgrade
-commands beside them.
+## Building it
+
+```bash
+npm ci
+npm test              # node --test over test/*.test.mjs
+npm run dev           # http://localhost:4321/
+npm run build         # writes dist/
+tools/check-links.sh dist
+```
+
+CI (`.github/workflows/pages.yml`) runs the same on every push, daily at 06:17 UTC, and on demand
+(*Actions ▸ pages ▸ Run workflow*), then deploys `dist/`. The daily run is what keeps versions current
+when a release lands in a different repository. A failed fetch fails the job and deploys nothing, so the
+site already published — correct as of its own run — stays up.
+
+## Two looks
+
+`src/styles/tokens.css` holds both: "Manual" in light (warm paper, ink, Fraunces, one orange, square
+corners) and "Dark editor" in dark (charcoal, Space Grotesk, syntax colours, yellow accent). The system
+setting picks one; the header toggle overrides it and is remembered under the same `localStorage` key
+Starlight uses (`src/lib/theme.mjs`), so the docs follow the same choice. Fonts are self-hosted
+(`@fontsource`): the site makes no third-party request.
 
 ## It is also the stylesheet for the project pages
 
-`assets/style.css` and `assets/copy.js` are linked by the four project pages as well, each of which
-generates its own HTML from its own `build-repo.sh`. They are served from this same origin — every
-project site is a path under `botmakerdev.github.io` — so linking them costs no availability those
-pages did not already have, and the look is one file instead of five copies that drift. The
-stylesheet therefore covers **both** markups: the hero and card grid here, and a project page's plain
-column. A project page picks up a change at its next release, since that is when its HTML is written.
+`public/assets/style.css` and `public/assets/copy.js` are served at `/assets/style.css` and
+`/assets/copy.js`, and the four project pages link them, each generating its own HTML from its own
+`build-repo.sh`. The stylesheet covers **both** markups: a hero and card grid, and a project page's
+plain column. Do not remove a rule because this site does not use it.
 
 ## What this repository is not
 
 **It does not replace a project's own page.** `botmaker-cli`, `botmaker-studio`, `botmaker-dashboard`
-and `botmaker-remote-server` each publish their own site from their own `build-repo.sh`, carrying the
-dnf and apt repositories themselves, the signing key and the checksums. Those addresses are installed
-on people's machines. Nothing here moves them; this page links to them.
+and `botmaker-remote-server` each publish their own site at `/<repo>/` on this origin, carrying the dnf
+and apt repositories, the signing key and the checksums. Those addresses are installed on people's
+machines, so this site emits nothing under them (`test/reserved-paths.test.mjs`, run in CI after the
+build).
 
-So this repository repeats **no snippet it cannot regenerate**. The one-line `dnf install` on each
-card is derived from the address every `build-repo.sh` publishes (`<pages>/<package>.repo`); apt, the
-key and everything longer stay on the project page, where they are generated beside the artifact they
-describe.
-
-## Editing it
-
-`catalog.json` is the whole content: one object per card. A **version is never written there** — the
-generator asks GitHub for each repository's latest release, because a version typed into HTML is
-wrong the day after the next release and being right about versions is this page's only job.
-
-```bash
-tools/build-site.sh     # writes index.html; needs gh (authenticated) and jq
-tools/check-links.sh    # fetches every address the page names, including the ones in the snippets
-```
-
-Both run in CI on every push, daily at 06:17 UTC, and on demand (*Actions ▸ pages ▸ Run workflow*).
-The daily run is what keeps the page current when a release lands in a different repository. A failed
-fetch fails the job and deploys nothing, so the page already published — correct as of its own run —
-stays up.
-
-`index.html` is generated and committed, so a fresh clone and a Pages deploy that never ran still
-serve something.
+So this repository repeats **no snippet it cannot regenerate**, and **types no version**: versions are
+fetched from each repository's latest GitHub release at build time.
 
 ## Where it sits
 

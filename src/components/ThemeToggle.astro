@@ -1,0 +1,54 @@
+---
+// Cycles the system setting → light → dark. The label says what is in effect; the <head> script has
+// already applied it before this renders, so the button only has to catch up.
+---
+
+<button class="theme-toggle" type="button" data-theme-toggle aria-label="Colour theme: system">
+  <svg viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5">
+    <circle cx="8" cy="8" r="6"></circle>
+    <path d="M8 2a6 6 0 0 1 0 12z" fill="currentColor"></path>
+  </svg>
+  <span data-theme-label>System</span>
+</button>
+
+<script>
+  import { readChoice, writeChoice, applyChoice } from '../lib/theme.mjs';
+
+  const ORDER = ['', 'light', 'dark'];
+  const LABEL = { '': 'System', light: 'Light', dark: 'Dark' };
+
+  function storage() {
+    try {
+      return window.localStorage;
+    } catch {
+      return null;
+    }
+  }
+
+  const dark = window.matchMedia('(prefers-color-scheme: dark)');
+  // Held here too, so a page whose storage throws still cycles.
+  let choice = readChoice(storage());
+
+  function show() {
+    document.querySelectorAll('[data-theme-toggle]').forEach((button) => {
+      button.setAttribute('aria-label', `Colour theme: ${LABEL[choice].toLowerCase()}`);
+      const label = button.querySelector('[data-theme-label]');
+      if (label) label.textContent = LABEL[choice];
+    });
+  }
+
+  document.querySelectorAll('[data-theme-toggle]').forEach((button) => {
+    button.addEventListener('click', () => {
+      choice = ORDER[(ORDER.indexOf(choice) + 1) % ORDER.length];
+      writeChoice(storage(), choice);
+      applyChoice(document.documentElement, choice, dark.matches);
+      show();
+    });
+  });
+
+  dark.addEventListener('change', () => {
+    if (choice === '') applyChoice(document.documentElement, '', dark.matches);
+  });
+
+  show();
+</script>

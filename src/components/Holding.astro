@@ -1,0 +1,22 @@
+---
+// A section that a later phase of the website plan fills in (docs/superpowers/plans/2026-10-24-website.md).
+// It exists now so every link in the header and footer resolves and the link check stays honest.
+import Site from '../layouts/Site.astro';
+
+interface Props {
+  title: string;
+  description: string;
+}
+
+const { title, description } = Astro.props;
+---
+
+<Site title={title} description={description}>
+  <section class="first">
+    <div class="wrap">
+      <p class="eyebrow">{title}</p>
+      <h1>{title}</h1>
+      <p class="lede">{description}</p>
+    </div>
+  </section>
+</Site>

@@ -1,8 +1,8 @@
 name: pages
 
-# Three triggers, one job. The schedule is what keeps the versions honest between pushes: a release
-# cut in any of the six repositories changes this page without anyone touching this one, and nobody
-# should have to remember that. workflow_dispatch is for wanting it now.
+# Three triggers, one job. The schedule is what keeps the versions and the catalog honest between pushes:
+# a release cut in any repository, or a listing merged in botmaker-catalog, changes this site without
+# anyone touching this one, and nobody should have to remember that. workflow_dispatch is for wanting it now.
 on:
   push:
     branches: [main]
@@ -28,26 +28,35 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - name: Generate the page
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - name: Test
+        run: npm test
+
+      - name: Build the site
         env:
           # Every repository read is public, but an authenticated call has a rate limit a daily cron
           # cannot exhaust, and the default token already has read access to this organization.
+          # A fetch that fails fails the build: nothing deploys and the site already published stays.
           GH_TOKEN: ${{ github.token }}
-        run: tools/build-site.sh
+        run: npm run build
+
+      - name: Check the build leaves the project sites' paths alone
+        run: node --test test/reserved-paths.test.mjs
 
       - name: Check every address on it
-        run: tools/check-links.sh
-
-      - name: Show what changed
-        run: git --no-pager diff --stat -- index.html || true
+        run: tools/check-links.sh dist
 
       - uses: actions/configure-pages@v6
 
       - uses: actions/upload-pages-artifact@v5
         with:
-          # The whole checkout: index.html plus assets/. The generator and the catalog ride along,
-          # which is harmless and means the published tree is the readable one.
-          path: .
+          path: dist
 
       - id: deploy
         uses: actions/deploy-pages@v5

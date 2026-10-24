@@ -1,21 +1,28 @@
 #!/usr/bin/env bash
-# Fetches every address the generated page names — links and the addresses inside its install
-# snippets alike — and fails if one of them does not answer.
+# Fetches every address the built site names — links and the addresses inside its install snippets alike —
+# and fails if one of them does not answer. Links inside the site are checked against the built files.
 #
-#   tools/check-links.sh [index.html]
+#   tools/check-links.sh [dist]
 #
-# This page is nothing but links. A repository renamed, a Pages site turned off or a `.repo` file
-# that moved must fail this job rather than fail a reader, which is why the snippets are checked and
-# not only the <a href>s: a broken `.repo` address is a `dnf install` that 404s on a machine.
+# This site is mostly links. A repository renamed, a Pages site turned off or a `.repo` file that moved
+# must fail this job rather than fail a reader, which is why the snippets are checked and not only the
+# <a href>s: a broken `.repo` address is a `dnf install` that 404s on a machine.
 set -euo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-PAGE="${1:-${HERE}/index.html}"
-[ -f "${PAGE}" ] || { echo "::error::no page at ${PAGE}" >&2; exit 1; }
+DIST="${1:-${HERE}/dist}"
+[ -d "${DIST}" ] || { echo "::error::no built site at ${DIST} (run npm run build)" >&2; exit 1; }
+
+mapfile -t pages < <(find "${DIST}" -name '*.html' | sort)
+[ "${#pages[@]}" -gt 0 ] || { echo "::error::no pages in ${DIST}" >&2; exit 1; }
 
 # Both forms in one sweep: href="…" and a bare address inside a <pre><code> snippet.
-mapfile -t urls < <(grep -oE 'https?://[^"'"'"' <)]+' "${PAGE}" | sed 's/[.,]$//' | sort -u)
-[ "${#urls[@]}" -gt 0 ] || { echo "::error::no links found in ${PAGE}" >&2; exit 1; }
+mapfile -t urls < <(cat "${pages[@]}" | grep -oE 'https?://[^"'"'"' <)]+' | sed 's/[.,]$//' \
+  | grep -vE '^https?://(www\.)?w3\.org/' | sort -u)
+
+# The site's own pages and files: every href or src starting with one slash.
+mapfile -t locals < <(cat "${pages[@]}" | grep -oE '(href|src)="/[^/"][^"]*"|(href|src)="/"' \
+  | sed -E 's/^(href|src)="//; s/"$//; s/[?#].*$//' | sort -u)
 
 # An apt archive root is not a document: GitHub Pages serves no directory index, so `<pages>/deb`
 # answers 404 while being a perfectly good `deb …` line. Check what apt itself fetches first — the
@@ -41,8 +48,20 @@ for url in "${urls[@]}"; do
   fi
 done
 
+for path in "${locals[@]}"; do
+  file="${DIST}${path}"
+  [[ "${path}" == */ ]] && file="${file}index.html"
+  if [ -f "${file}" ]; then
+    printf 'ok   %s\n' "${path}"
+  else
+    printf 'FAIL %s (no %s)\n' "${path}" "${file#"${HERE}"/}"
+    failed=$((failed + 1))
+  fi
+done
+
+total=$(( ${#urls[@]} + ${#locals[@]} ))
 if [ "${failed}" -gt 0 ]; then
-  echo "::error::${failed} of ${#urls[@]} addresses on the page do not answer"
+  echo "::error::${failed} of ${total} addresses on the site do not answer"
   exit 1
 fi
-echo "${#urls[@]} addresses, all answering"
+echo "${total} addresses, all answering"
