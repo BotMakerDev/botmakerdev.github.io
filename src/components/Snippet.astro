@@ -1,0 +1,11 @@
+---
+// A command to copy. /assets/copy.js adds the Copy button when JavaScript runs; without it the text stays as
+// selectable as it was.
+interface Props {
+  code: string;
+}
+
+const { code } = Astro.props;
+---
+
+<div class="snippet"><pre><code>{code}</code></pre></div>

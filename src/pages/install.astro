@@ -1,5 +1,219 @@
 ---
-import Holding from '../components/Holding.astro';
+// Studio for the visitor's system, then the other tools, then everything in one go. Every version is fetched
+// and every snippet derived (src/lib/versions.mjs, src/lib/tools.mjs): nothing here is typed by hand.
+import Site from '../layouts/Site.astro';
+import Snippet from '../components/Snippet.astro';
+import Rich from '../components/Rich.astro';
+import data from '../data/tools.json';
+import { OWNER, latestTag } from '../lib/versions.mjs';
+import { PAGES, allInOne, assertOneSigningKey, dnfSnippet, downloadSnippet } from '../lib/tools.mjs';
+
+const token = process.env.GH_TOKEN;
+
+// A version is shown for what you download, and only for that: a repository that cuts no release would make
+// `releases/latest` a guaranteed 404.
+const tools = await Promise.all(
+  data.tools.map(async (tool) => ({
+    ...tool,
+    version: tool.package || tool.asset ? await latestTag(tool.repo, { token }) : undefined,
+  })),
+);
+
+const studio = tools.find((tool) => tool.repo === 'botmaker-studio');
+if (!studio?.package) throw new Error('tools.json has no packaged botmaker-studio entry');
+const others = tools.filter((tool) => tool !== studio);
+
+const everything = allInOne(tools);
+await assertOneSigningKey(tools.filter((tool) => tool.package).map((tool) => tool.repo));
+
+const repoUrl = (tool) => `https://github.com/${OWNER}/${tool.repo}`;
+const studioRelease = `${repoUrl(studio)}/releases/latest`;
+const studioPage = `${PAGES}/${studio.repo}/`;
+// Phase 5 of the website plan points this at the tutorial once the docs exist.
+const firstProgram = '/docs/';
+
+const systems = [
+  { id: 'linux', name: 'Linux', note: 'Fedora, RHEL · Debian, Ubuntu · AppImage' },
+  { id: 'windows', name: 'Windows', note: 'Windows 10 and 11 · .msi installer' },
+  { id: 'macos', name: 'macOS', note: 'Apple Silicon · .dmg' },
+];
 ---
 
-<Holding title="Install" description="Studio for Linux, Windows and macOS, and the other BotMaker tools." />
+<Site title="Install" description="Install BotMaker Studio on Linux, Windows or macOS, and the other BotMaker tools.">
+  <section class="first">
+    <div class="wrap">
+      <p class="eyebrow">Install · Studio {studio.version}</p>
+      <h1>Get Studio.</h1>
+      <p class="lede">Pick your system. On Linux, Studio then updates with the rest of your system.</p>
+
+      <div class="systems" role="tablist" aria-label="Your system" data-systems hidden>
+        {systems.map((system) => (
+          <button type="button" role="tab" id={`tab-${system.id}`} aria-controls={`sys-${system.id}`}
+                  aria-selected="false" tabindex="-1" data-system={system.id}>
+            <span class="system-name">{system.name}</span>
+            <span class="note">{system.note}</span>
+          </button>
+        ))}
+      </div>
+
+      <div class="system" id="sys-linux" role="tabpanel" aria-labelledby="tab-linux" data-panel="linux">
+        <h2 class="system-title">Linux</h2>
+        <ol class="steps">
+          <li>
+            <h3>Add the repository and install</h3>
+            <Snippet code={dnfSnippet(studio)} />
+            <p class="note">
+              Fedora and RHEL. For Debian and Ubuntu, the apt line and the signing key are
+              on <a href={studioPage}>Studio's project page</a>. The AppImage and the archives are
+              on <a href={studioRelease}>the latest release</a>.
+            </p>
+          </li>
+          <li>
+            <h3>Open Studio</h3>
+            <p>BotMaker Studio is in your applications. Each later version arrives with your system updates.</p>
+          </li>
+          <li>
+            <h3>Make your first program</h3>
+            <p><a href={firstProgram}>Your first program →</a></p>
+          </li>
+        </ol>
+      </div>
+
+      <div class="system" id="sys-windows" role="tabpanel" aria-labelledby="tab-windows" data-panel="windows">
+        <h2 class="system-title">Windows</h2>
+        <ol class="steps">
+          <li>
+            <h3>Download the installer</h3>
+            <p>The <code>.msi</code> installer for 64-bit Windows is on <a href={studioRelease}>Studio's latest
+              release</a>, {studio.version}.</p>
+          </li>
+          <li>
+            <h3>Run it, then open Studio</h3>
+            <p>It brings its own Java. BotMaker Studio is then in the Start menu.</p>
+          </li>
+          <li>
+            <h3>Make your first program</h3>
+            <p><a href={firstProgram}>Your first program →</a></p>
+          </li>
+        </ol>
+      </div>
+
+      <div class="system" id="sys-macos" role="tabpanel" aria-labelledby="tab-macos" data-panel="macos">
+        <h2 class="system-title">macOS</h2>
+        <ol class="steps">
+          <li>
+            <h3>Download the disk image</h3>
+            <p>The <code>.dmg</code> for Apple Silicon is on <a href={studioRelease}>Studio's latest release</a>,
+              {studio.version}.</p>
+          </li>
+          <li>
+            <h3>Open it the first time</h3>
+            <p>Drag BotMaker Studio to Applications. It is not signed yet, so macOS stops the first launch: open
+              System Settings ▸ Privacy &amp; Security and choose <em>Open Anyway</em>.</p>
+          </li>
+          <li>
+            <h3>Make your first program</h3>
+            <p><a href={firstProgram}>Your first program →</a></p>
+          </li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <section id="tools">
+    <div class="wrap">
+      <h2>The other tools</h2>
+      <p class="lede">For publishing from a terminal, for maintainers, and for watching a run from a phone.</p>
+      <div class="cards">
+        {others.map((tool) => (
+          <article class="card">
+            <h3>{tool.name}</h3>
+            {tool.version && <p class="version">{tool.version}</p>}
+            <p><Rich text={tool.blurb} /></p>
+            {tool.package && (
+              <>
+                <Snippet code={dnfSnippet(tool)} />
+                <p class="note">apt, the signing key and the checksums are on the project page.</p>
+              </>
+            )}
+            {!tool.package && tool.asset && (
+              <Snippet code={downloadSnippet(tool)} />
+            )}
+            {tool.also && <p class="note"><Rich text={tool.also} /></p>}
+            <p class="links">
+              {tool.site !== false && <a href={`${PAGES}/${tool.repo}/`}>Project page</a>}
+              <a href={`${repoUrl(tool)}/releases`}>Releases</a>
+              <a href={repoUrl(tool)}>Source</a>
+            </p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section id="everything">
+    <div class="wrap">
+      <h2>Everything, in one go</h2>
+      <p class="lede">
+        Adds every BotMaker repository, then installs the {everything.names.length} packaged tools. Drop any name
+        from the last line to leave that one out. One key signs all of them, so apt needs one keyring.
+      </p>
+      <div class="two">
+        <div>
+          <h3>Fedora · RHEL</h3>
+          <Snippet code={everything.dnf} />
+        </div>
+        <div>
+          <h3>Debian · Ubuntu</h3>
+          <Snippet code={everything.apt} />
+        </div>
+      </div>
+      <p class="note">
+        Upgrading is your package manager's job from here: <code>sudo dnf upgrade</code>,
+        or <code>{'sudo apt-get update && sudo apt-get upgrade'}</code>. These repositories carry the latest release only;
+        every older version stays on its repository's Releases page. The Android apps are not here: a phone
+        installs them from the cards above.
+      </p>
+      <p class="note">Versions on this page are read from each repository's latest release when the site is built.</p>
+    </div>
+  </section>
+
+  <script is:inline src="/assets/copy.js" defer></script>
+</Site>
+
+<script>
+  import { systemOf } from '../lib/system.mjs';
+
+  // Tabs only with JavaScript: without it the three systems are listed one after the other, each with its title.
+  const list = document.querySelector<HTMLElement>('[data-systems]');
+  if (list) {
+    const tabs = [...list.querySelectorAll<HTMLButtonElement>('[role="tab"]')];
+    const panels = [...document.querySelectorAll<HTMLElement>('[data-panel]')];
+
+    const show = (system: string, focus = false) => {
+      for (const tab of tabs) {
+        const on = tab.dataset.system === system;
+        tab.setAttribute('aria-selected', String(on));
+        tab.tabIndex = on ? 0 : -1;
+        if (on && focus) tab.focus();
+      }
+      for (const panel of panels) panel.hidden = panel.dataset.panel !== system;
+    };
+
+    tabs.forEach((tab, i) => {
+      tab.addEventListener('click', () => show(tab.dataset.system!));
+      tab.addEventListener('keydown', (event) => {
+        // Alt+Left is the browser's Back: a held modifier is never ours.
+        if (event.altKey || event.ctrlKey || event.metaKey) return;
+        const to = { ArrowRight: i + 1, ArrowLeft: i - 1, Home: 0, End: tabs.length - 1 }[event.key];
+        if (to === undefined) return;
+        event.preventDefault();
+        show(tabs[(to + tabs.length) % tabs.length].dataset.system!, true);
+      });
+    });
+
+    const platform = (navigator as Navigator & { userAgentData?: { platform?: string } }).userAgentData?.platform;
+    list.hidden = false;
+    show(systemOf(platform ?? navigator.platform));
+  }
+</script>

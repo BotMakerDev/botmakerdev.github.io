@@ -1,0 +1,58 @@
+{
+  "_comment": [
+    "The tools /install/ lists, and the only file to edit when that changes. Studio opens the page; every other",
+    "entry is a card below it, and every entry with a `package` joins the install-everything block.",
+    "",
+    "A `repo` is a BotMakerDev repository. The build asks GitHub for its latest release and writes that",
+    "version into the page; a version is never typed here, because a typed version is wrong the day after the",
+    "next release.",
+    "",
+    "`package` names the dnf/apt package a repository publishes, and is also the basename of the `.repo` file",
+    "its own Pages site serves (`<pages>/<repo>/<package>.repo` — the shape every build-repo.sh writes). Omit it",
+    "for something that is not installed from a repository; then `asset` names the release asset to download",
+    "instead. `site: false` for a repository that publishes no Pages site.",
+    "",
+    "`blurb` and `also` are plain text: `backticks` mark code, and nothing else is markup."
+  ],
+  "tools": [
+    {
+      "repo": "botmaker-studio",
+      "name": "BotMaker Studio",
+      "blurb": "The IDE: snap blocks together and get real Java, run it, publish it.",
+      "package": "botmaker-studio"
+    },
+    {
+      "repo": "botmaker-cli",
+      "name": "botmaker (CLI)",
+      "blurb": "The command: new plugins and bots, validate, run, publish, release, doctor. One jar, every system.",
+      "package": "botmaker",
+      "also": "No install at all: `jbang botmaker@BotMakerDev`."
+    },
+    {
+      "repo": "botmaker-dashboard",
+      "name": "BotMaker Dashboard",
+      "blurb": "The maintainer's window: module pins, release history, the Release tab, the catalog.",
+      "package": "botmaker-dashboard"
+    },
+    {
+      "repo": "botmaker-remote-server",
+      "name": "Remote Server",
+      "blurb": "Serves the tmux session `claude` as terminals over WebSocket, on the Tailscale address only.",
+      "package": "botmaker-remote-server"
+    },
+    {
+      "repo": "botmaker-pilot",
+      "name": "BotPilot (Android)",
+      "blurb": "The phone app for the SDK's Remote Pilot: pair by QR, watch the run, take over.",
+      "asset": "botpilot.apk",
+      "site": false
+    },
+    {
+      "repo": "botmaker-remote",
+      "name": "BotMaker Remote (Android)",
+      "blurb": "The phone client for Remote Server: session list, terminal, quick replies, notifications.",
+      "asset": "botmaker-remote.apk",
+      "site": false
+    }
+  ]
+}

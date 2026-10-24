@@ -1,0 +1,12 @@
+---
+// A line of tools.json: `backticks` become <code>, everything else lands as text.
+import { withCode } from '../lib/tools.mjs';
+
+interface Props {
+  text: string;
+}
+
+const parts = withCode(Astro.props.text);
+---
+
+{parts.map((part) => (part.code ? <code>{part.text}</code> : part.text))}
