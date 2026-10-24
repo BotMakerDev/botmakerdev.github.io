@@ -1,5 +1,17 @@
 ---
+// Home: the hero with the demo editor (src/demo/), how blocks and code relate, the way to Plugins and the
+// Gallery, and making a plugin. The demo's starting state is drawn here too, so the page reads without
+// JavaScript; src/demo/editor.mjs takes over from it.
 import Site from '../layouts/Site.astro';
+import { BLOCKS, CLASS, PLUGINS } from '../demo/blocks.mjs';
+import { START, flat, toJava, tokens } from '../demo/program.mjs';
+
+const lines = toJava(START).lines;
+const start = flat(START);
+const loop = start[0];
+// Phase 5 of the website plan points these at the tutorial and the plugin guide once the docs exist.
+const firstProgram = '/docs/';
+const pluginGuide = '/docs/';
 ---
 
 <Site description="BotMaker Studio is a Scratch-like Java IDE: snap blocks together and get real Java, with no ceiling when you outgrow the blocks.">
@@ -12,8 +24,126 @@ import Site from '../layouts/Site.astro';
       </p>
       <div class="ctas">
         <a class="btn primary" href="/install/">Download Studio</a>
-        <a class="btn" href="/docs/">Your first program</a>
+        <a class="btn" href={firstProgram}>Your first program</a>
+        <span class="note">Linux · Windows · macOS · free, public domain (CC0 1.0)</span>
+      </div>
+
+      <figure class="demo" data-demo>
+        <div class="editor" data-editor>
+          <div class="bar">
+            <span class="file">{CLASS}.java · a demo, nothing runs for real</span>
+            <span class="controls" data-controls hidden>
+              {PLUGINS.filter((plugin) => plugin.id !== 'core').map((plugin) => (
+                <label class="toggle"><input type="checkbox" data-plugin={plugin.id} /> {plugin.name}</label>
+              ))}
+              <button type="button" class="run" data-run>▶ Run</button>
+            </span>
+          </div>
+          <div class="panes">
+            <div class="palette" data-palette>
+              <p class="grp">Studio</p>
+              {Object.values(BLOCKS).filter((block) => block.plugin === 'core').map((block) => (
+                <span class={`blk k-${block.category}`}>{block.label}</span>
+              ))}
+              <p class="hint">The demo needs JavaScript to add blocks and run.</p>
+            </div>
+            <ol class="stage" data-stage tabindex="-1" aria-label="Your program, as blocks">
+              <li>
+                <div class="line"><span class={`blk k-${BLOCKS[loop.block].category}`}>{BLOCKS[loop.block].label} <span class="chip">{loop.value}</span></span></div>
+                <ol>
+                  {start.slice(1).map((placed) => (
+                    <li><div class="line"><span class={`blk k-${BLOCKS[placed.block].category}`}>{BLOCKS[placed.block].label} <span class="chip">{placed.value}</span></span></div></li>
+                  ))}
+                </ol>
+              </li>
+            </ol>
+            <div class="java" data-java role="region" aria-label="Your program, as Java" tabindex="0">
+              {lines.map((line) => (
+                <div class="ln">{line ? tokens(line).map((part) => (part.kind ? <span class={part.kind}>{part.text}</span> : part.text)) : ' '}</div>
+              ))}
+            </div>
+            <div class="game" data-game hidden role="img"
+                 aria-label="A pretend game, with what the SDK draws over it while the program runs: the match boxes and where it clicked.">
+              <div class="scene" aria-hidden="true">
+                <div class="hud"><span data-screen>HOME</span><span>gold <span data-gold data-value="12450">12,450</span></span></div>
+                <div class="thing collect" data-picture="COLLECT"><span class="box"><span>COLLECT · 0.97</span></span></div>
+                <div class="thing battle" data-picture="BATTLE"><span class="box"><span>BATTLE · 0.93</span></span></div>
+                <span class="ripple" data-ripple></span>
+              </div>
+              <p class="note">The SDK's run overlay: what the program sees, drawn while it runs.</p>
+            </div>
+          </div>
+          <div class="console" data-console role="log" aria-label="Console">
+            <span class="o">The program prints Hello! three times.</span>
+          </div>
+        </div>
+        <figcaption class="caption">Fig. 1 — Tick a plugin: its blocks join the palette, its imports join the Java.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <p class="eyebrow">How it works</p>
+      <h2>Blocks are not a toy version of the code.<br />They are the code.</h2>
+      <div class="three">
+        <div>
+          <span class="num">01</span>
+          <h3>Snap</h3>
+          <p>Drag blocks from the palette. Studio writes plain Java as you go: no hidden format, no export step.</p>
+        </div>
+        <div>
+          <span class="num">02</span>
+          <h3>Open the code</h3>
+          <p>Switch to the Java any time. Change a line and the blocks follow. Use whichever is faster.</p>
+        </div>
+        <div>
+          <span class="num">03</span>
+          <h3>No ceiling</h3>
+          <p>A normal Maven project: any Java library, any other IDE, history built in. Your program outlives the editor.</p>
+        </div>
       </div>
     </div>
   </section>
+
+  <section>
+    <div class="wrap teaser">
+      <a class="tcard" href="/plugins/">
+        <p class="eyebrow">Plugins</p>
+        <h2>Studio learns new fields.</h2>
+        <p>A plugin brings its blocks, its value editors and its windows. The SDK plugin, for one, turns Studio into a workshop for game bots.</p>
+        <span class="go">What plugins add →</span>
+      </a>
+      <a class="tcard" href="/gallery/">
+        <p class="eyebrow">Gallery</p>
+        <h2>Start from someone's program.</h2>
+        <p>Every published bot is a starting point that keeps getting its author's updates.</p>
+        <span class="go">Open the gallery →</span>
+      </a>
+    </div>
+  </section>
+
+  <section class="last">
+    <div class="wrap build">
+      <div>
+        <p class="eyebrow">Build your own</p>
+        <h2>Make a plugin. Publish anything.</h2>
+        <p class="lede">One command makes the project, one publishes it. A machine checks it, and it is listed in the catalog when the checks pass.</p>
+        <div class="ctas"><a class="btn" href={pluginGuide}>Plugin guide</a></div>
+      </div>
+      <pre class="term"><code><span class="p">$</span> botmaker plugin new weather
+<span class="p">$</span> cd weather
+<span class="p">$</span> mvn verify
+<span class="o"># the example's tests pass unedited</span>
+<span class="p">$</span> botmaker plugin publish
+<span class="o"># tag, release, open the catalog pull request</span></code></pre>
+    </div>
+  </section>
 </Site>
+
+<script>
+  import { mount } from '../demo/editor.mjs';
+
+  const root = document.querySelector<HTMLElement>('[data-demo]');
+  if (root) mount(root);
+</script>

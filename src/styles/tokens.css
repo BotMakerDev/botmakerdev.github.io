@@ -28,7 +28,8 @@
   --k1: #1d1b17;
   --k2: #3b372f;
   --k3: #5a5246;
-  --k4: #d4550f;
+  /* The orange one shade darker than --accent: light text on #d4550f is under AA at block size. */
+  --k4: #b4460a;
   --k-fg: #f3eee4;
 
   /* Java. */
