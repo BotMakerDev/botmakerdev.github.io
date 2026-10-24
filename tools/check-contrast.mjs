@@ -22,7 +22,7 @@ export const PAIRS = [
   ['accent-text', 'bg', 4.5, 'links, eyebrows'],
   ['accent-text', 'panel', 4.5, 'links in a card'],
   ['accent-text', 'soft', 4.5, 'a docs link around inline code'],
-  ['accent-text', 'accent 16% bg', 4.5, 'Starlight\'s --sl-color-accent-low: a focused search result, a badge'],
+  ['accent-text', 'accent 16% bg', 4.5, 'Starlight\'s --sl-color-accent-low: a focused search result'],
   ['on-accent', 'accent-fill', 4.5, 'a primary button, Run, the skip link'],
   ['k-fg', 'k1', 4.5, 'a block of the first kind'],
   ['k-fg', 'k2', 4.5, 'a block of the second kind'],

@@ -59,7 +59,8 @@ test('unticking a plugin removes its blocks, inside a loop too, and its imports'
   const lines = java(program);
   assert.ok(!lines.some((line) => line.startsWith('import ')));
   assert.ok(!lines.some((line) => /Navigate|ImageClicker|Wait/.test(line)));
-  assert.deepEqual(flat(program).map((placed) => placed.block), ['while', 'print']);
+  // The sample loop's own Print is Studio's, so it stays with the one added.
+  assert.deepEqual(flat(program).map((placed) => placed.block), ['while', 'print', 'print']);
 });
 
 test('Basics: a duration is written the way Basics writes one, and two do not share a name', () => {

@@ -8,8 +8,9 @@
 //     types and their editors. DURATION is written Duration.ofMillis(n) and TIME LocalTime.of(h, m, s); with it
 //     on, the variable blocks (BlockCatalog.declareBlock, labelled by the type) offer those types.
 //   sdk — botmaker-sdk/src/main/java/com/botmaker/sdk/api: @Palette classes screens/Navigate (to(Screen)),
-//     vision/ImageClicker (click(ImageTemplate)), time/Wait (seconds(double), its @PaletteDefault) and
-//     console/Debug (log(String)). Studio's menu labels them Class.method (StatementMenu.facadeCall). A bot's
+//     vision/ImageClicker (click(ImageTemplate)) and time/Wait (seconds(double), its @PaletteDefault); not
+//     console/Debug, which has not been offered since 2026-09-30, so the sample loop prints with Studio's own
+//     Print. Studio's menu labels them Class.method (StatementMenu.facadeCall). A bot's
 //     pictures and screens are constants of its own Pictures and Screens classes in <package>.plugins.sdk, as
 //     the SDK's sample bot has them (src/test/resources/samplebot).
 //
@@ -55,7 +56,7 @@ const clock = { '07:30': '7, 30, 0', '00:00': '0, 0, 0' };
 export const BLOCKS = {
   print: {
     id: 'print', plugin: 'core', label: 'Print', category: 'output',
-    values: ['"Hello!"', '"Done"'],
+    values: ['"Hello!"', '"Done"', '"collected"'],
     java: (v) => `System.out.println(${v});`,
     run: (v) => v.slice(1, -1),
   },
@@ -107,12 +108,5 @@ export const BLOCKS = {
     java: (v) => `Wait.seconds(${v});`,
     imports: [`${SDK}.time.Wait`],
     run: (v) => `waited ${v} s`,
-  },
-  log: {
-    id: 'log', plugin: 'sdk', label: 'Debug.log', category: 'game',
-    values: ['"collected"', '"one more"'],
-    java: (v) => `Debug.log(${v});`,
-    imports: [`${SDK}.console.Debug`],
-    run: (v) => v.slice(1, -1),
   },
 };

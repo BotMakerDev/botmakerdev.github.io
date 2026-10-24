@@ -33,7 +33,7 @@ const SAMPLE = [{
     { block: 'click', value: 'COLLECT' },
     { block: 'wait', value: '2' },
     { block: 'click', value: 'BATTLE' },
-    { block: 'log', value: '"collected"' },
+    { block: 'print', value: '"collected"' },
   ],
 }];
 

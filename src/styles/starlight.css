@@ -93,18 +93,6 @@ site-search > button:hover { border-color: var(--accent); color: var(--fg); }
 dialog[aria-label] { border-radius: var(--radius); }
 .sl-menu-button { border-radius: var(--radius); }
 
-/* "Coming": a page that is only its title and what it will cover. */
-.sl-badge.coming {
-  background: transparent;
-  color: var(--accent-text);
-  border: 1px solid currentColor;
-  border-radius: var(--radius);
-  font-family: var(--font-mono);
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-
 /* The docs index: each group a short ruled list. */
 .groups { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 40px; }
 /* Starlight spaces each block after the first; in a grid that drops every column but the first. */
