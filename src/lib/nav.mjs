@@ -9,7 +9,8 @@ export const SECTIONS = [
   { href: '/gallery/', label: 'Gallery' },
 ];
 
-export const GITHUB = 'https://github.com/BotMakerDev';
+// The header's GitHub button: Studio's repository, the app the site is about (2026-10-24, the user's call).
+export const GITHUB = 'https://github.com/BotMakerDev/botmaker-studio';
 
 export const GUIDES = {
   firstProgram: '/docs/tutorials/first-program/',
