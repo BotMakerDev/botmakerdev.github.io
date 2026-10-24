@@ -6,14 +6,14 @@ import Site from '../layouts/Site.astro';
 import { RANK_LABEL, loadCatalog } from '../lib/catalog.mjs';
 import { WRITTEN } from '../lib/written.mjs';
 import { toRows } from '../scripts/gallery.mjs';
+import { GUIDES } from '../lib/nav.mjs';
 
 const catalog = await loadCatalog();
 // Every catalog plugin has a page (plugins/[id].astro), and so has every written one.
 const pages = new Set([...WRITTEN.keys(), ...(catalog.ok ? catalog.plugins.map((plugin) => plugin.id) : [])]);
 const rows = toRows(catalog, pages);
 const bots = rows.filter((row) => row.kind === 'bot').length;
-// Phase 5 of the website plan points this at "Publish a bot" once the docs exist.
-const publishGuide = '/docs/';
+const publishGuide = GUIDES.publishBot;
 ---
 
 <Site title="Gallery" description="Every published BotMaker bot and plugin, read from the catalog.">

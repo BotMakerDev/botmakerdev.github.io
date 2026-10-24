@@ -1,0 +1,17 @@
+---
+// The bottom of the docs menu on a phone: what the header holds on a wide screen.
+import ThemeSelect from 'virtual:starlight/components/ThemeSelect';
+import { GITHUB, SECTIONS, isCurrent } from '../../lib/nav.mjs';
+
+const path = Astro.url.pathname;
+---
+
+<div class="docs-more">
+  <nav class="sections" aria-label="Site">
+    {SECTIONS.map((s) => (
+      <a href={s.href} aria-current={isCurrent(path, s.href) ? 'page' : undefined}>{s.label}</a>
+    ))}
+  </nav>
+  <a class="gh" href={GITHUB}>GitHub</a>
+  <ThemeSelect />
+</div>

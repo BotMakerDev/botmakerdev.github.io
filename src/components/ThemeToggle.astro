@@ -3,7 +3,7 @@
 // already applied it before this renders, so the button only has to catch up.
 ---
 
-<button class="theme-toggle" type="button" data-theme-toggle aria-label="Colour theme: system">
+<button class="theme-toggle" type="button" data-theme-toggle aria-label="Colour theme: system" hidden>
   <svg viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5">
     <circle cx="8" cy="8" r="6"></circle>
     <path d="M8 2a6 6 0 0 1 0 12z" fill="currentColor"></path>
@@ -38,6 +38,7 @@
   }
 
   document.querySelectorAll('[data-theme-toggle]').forEach((button) => {
+    button.hidden = false;
     button.addEventListener('click', () => {
       choice = ORDER[(ORDER.indexOf(choice) + 1) % ORDER.length];
       writeChoice(storage(), choice);

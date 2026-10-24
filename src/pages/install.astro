@@ -6,16 +6,15 @@ import Snippet from '../components/Snippet.astro';
 import Rich from '../components/Rich.astro';
 import data from '../data/tools.json';
 import { OWNER, latestTag } from '../lib/versions.mjs';
+import { GUIDES } from '../lib/nav.mjs';
 import { PAGES, allInOne, assertOneSigningKey, dnfSnippet, downloadSnippet } from '../lib/tools.mjs';
-
-const token = process.env.GH_TOKEN;
 
 // A version is shown for what you download, and only for that: a repository that cuts no release would make
 // `releases/latest` a guaranteed 404.
 const tools = await Promise.all(
   data.tools.map(async (tool) => ({
     ...tool,
-    version: tool.package || tool.asset ? await latestTag(tool.repo, { token }) : undefined,
+    version: tool.package || tool.asset ? await latestTag(tool.repo) : undefined,
   })),
 );
 
@@ -29,8 +28,7 @@ await assertOneSigningKey(tools.filter((tool) => tool.package).map((tool) => too
 const repoUrl = (tool) => `https://github.com/${OWNER}/${tool.repo}`;
 const studioRelease = `${repoUrl(studio)}/releases/latest`;
 const studioPage = `${PAGES}/${studio.repo}/`;
-// Phase 5 of the website plan points this at the tutorial once the docs exist.
-const firstProgram = '/docs/';
+const firstProgram = GUIDES.firstProgram;
 
 const systems = [
   { id: 'linux', name: 'Linux', note: 'Fedora, RHEL · Debian, Ubuntu · AppImage' },

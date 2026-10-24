@@ -544,56 +544,7 @@ section.last { border-bottom: 0; }
 }
 .empty p { color: var(--muted); max-width: 460px; margin: 10px auto 18px; }
 
-/* ---------- header ---------- */
-
-header.top {
-  border-bottom: 1px solid var(--line);
-  position: sticky;
-  top: 0;
-  background: var(--bg);
-  z-index: 10;
-}
-header.top .wrap {
-  display: flex;
-  align-items: center;
-  gap: 8px 22px;
-  min-height: 60px;
-  font-size: 14px;
-  flex-wrap: wrap;
-}
-.logo {
-  font-family: var(--font-head);
-  font-weight: 700;
-  font-size: 19px;
-  text-decoration: none;
-  margin-right: auto;
-}
-.logo i { font-style: normal; color: var(--accent-text); }
-header.top nav { display: flex; gap: 22px; }
-header.top nav a { text-decoration: none; color: var(--muted); padding: 4px 0; }
-header.top nav a:hover, header.top nav a[aria-current='page'] { color: var(--fg); }
-header.top nav a[aria-current='page'] { box-shadow: 0 2px 0 var(--accent); }
-.gh {
-  border: 1px solid var(--line);
-  padding: 5px 12px;
-  border-radius: var(--radius);
-  text-decoration: none;
-}
-
-.theme-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background: transparent;
-  color: var(--fg);
-  padding: 5px 10px;
-  font: 12px var(--font-mono);
-  cursor: pointer;
-}
-.theme-toggle svg { width: 14px; height: 14px; }
-.theme-toggle:hover { border-color: var(--accent); }
+/* The header is header.css's: the docs wear it too. */
 
 /* ---------- footer ---------- */
 
@@ -623,10 +574,4 @@ footer.bottom .wrap > span:first-child { margin-right: auto; }
   .palette .grp { flex-basis: 100%; }
   .palette .hint { margin: 0; padding-top: 4px; }
   .stage { border-right: 0; border-bottom: 1px solid var(--line-soft); }
-}
-
-@media (max-width: 560px) {
-  /* Row one: logo, GitHub, toggle. Row two: the four sections. */
-  header.top nav { order: 3; width: 100%; gap: 18px; padding-bottom: 8px; }
-  .logo { margin-right: auto; }
 }

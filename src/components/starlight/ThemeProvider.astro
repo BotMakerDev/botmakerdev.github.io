@@ -1,0 +1,8 @@
+---
+// Starlight's provider reads localStorage unguarded, so a private window with blocked site data throws before
+// the page paints. The site's own head script replaces it: the same key, the same data-theme, every access
+// guarded (src/lib/theme.mjs).
+import { bootScript } from '../../lib/theme.mjs';
+---
+
+<script is:inline set:html={bootScript()} />

@@ -29,6 +29,25 @@ mapfile -t urls < <(page_text | grep -oE 'https?://[^"'"'"' <)]+' | sed 's/[.,]$
 mapfile -t locals < <(page_text | grep -oE '(href|src)="/[^/"][^"]*"|(href|src)="/"' \
   | sed -E 's/^(href|src)="//; s/"$//; s/[?#].*$//' | sort -u)
 
+# The docs name their own pages by full address too (the canonical link, og:url). Those are this build's pages,
+# checked against the built files: fetched, they would answer for the site already published, or 404 before it
+# is. The project sites under the same origin (every tool in src/data/tools.json without "site": false) are other
+# repositories' and stay fetched.
+SELF='https://botmakerdev.github.io'
+PROJECTS="^/($(node -e 'const t = require(process.argv[1]).tools;
+  console.log(t.filter((x) => x.site !== false).map((x) => x.repo).join("|"))' "${HERE}/src/data/tools.json"))(/|$)"
+remote=()
+for url in "${urls[@]}"; do
+  path="${url#"${SELF}"}"
+  if [ "${path}" != "${url}" ] && [[ "${path}" == /* ]] && ! [[ "${path}" =~ ${PROJECTS} ]]; then
+    locals+=("${path%%[?#]*}")
+  else
+    remote+=("${url}")
+  fi
+done
+urls=("${remote[@]}")
+[ "${#locals[@]}" -eq 0 ] || mapfile -t locals < <(printf '%s\n' "${locals[@]}" | sort -u)
+
 # An apt archive root is not a document: GitHub Pages serves no directory index, so `<pages>/deb`
 # answers 404 while being a perfectly good `deb …` line. Check what apt itself fetches first — the
 # signed index — which also proves the archive is really there and really signed.
@@ -55,7 +74,13 @@ done
 
 for path in "${locals[@]}"; do
   file="${DIST}${path}"
-  [[ "${path}" == */ ]] && file="${file}index.html"
+  # A page is its folder's index.html; the one exception is Starlight's 404, which names itself /404/ and is
+  # 404.html, the file Pages serves for a miss.
+  if [ "${path}" = '/404/' ]; then
+    file="${DIST}/404.html"
+  elif [[ "${path}" == */ ]]; then
+    file="${file}index.html"
+  fi
   if [ -f "${file}" ]; then
     printf 'ok   %s\n' "${path}"
   else

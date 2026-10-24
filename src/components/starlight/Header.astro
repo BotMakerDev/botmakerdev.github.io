@@ -1,0 +1,12 @@
+---
+// Starlight's header replaced by the site's, with Starlight's search in it. Under 50rem the sections, GitHub
+// and the toggle move into the docs menu (MobileMenuFooter.astro), next to the sidebar.
+import Search from 'virtual:starlight/components/Search';
+import SiteBar from '../SiteBar.astro';
+---
+
+<div class="docs-bar">
+  <SiteBar>
+    <Search slot="search" />
+  </SiteBar>
+</div>

@@ -1,26 +1,9 @@
 ---
-import ThemeToggle from './ThemeToggle.astro';
-
-const SECTIONS = [
-  { href: '/install/', label: 'Install' },
-  { href: '/docs/', label: 'Docs' },
-  { href: '/plugins/', label: 'Plugins' },
-  { href: '/gallery/', label: 'Gallery' },
-];
-
-const path = Astro.url.pathname;
-const current = (href: string) => path === href || path.startsWith(href);
+import SiteBar from './SiteBar.astro';
 ---
 
 <header class="top">
   <div class="wrap">
-    <a class="logo" href="/">Bot<i>Maker</i></a>
-    <nav aria-label="Site">
-      {SECTIONS.map((s) => (
-        <a href={s.href} aria-current={current(s.href) ? 'page' : undefined}>{s.label}</a>
-      ))}
-    </nav>
-    <a class="gh" href="https://github.com/BotMakerDev">GitHub</a>
-    <ThemeToggle />
+    <SiteBar />
   </div>
 </header>

@@ -1,0 +1,115 @@
+/* Starlight wearing the site's two looks. Every --sl-* colour is a token, or a mix of two, so the one rule below
+ * follows tokens.css through both themes — Starlight's own light and dark values are in its cascade layers,
+ * which unlayered rules like these always beat. What Starlight draws with a radius takes the look's (square in
+ * Manual, 4 px in Dark editor), and headings take the look's headline face. */
+
+:root {
+  --sl-font: var(--font-body);
+  --sl-font-mono: var(--font-mono);
+  --sl-nav-height: 60px;
+
+  /* Starlight's scale runs from "white" (the strongest text) to "black" (the page), whatever the theme. */
+  --sl-color-white: var(--fg);
+  --sl-color-gray-1: color-mix(in srgb, var(--fg) 88%, var(--bg));
+  --sl-color-gray-2: color-mix(in srgb, var(--fg) 78%, var(--bg));
+  --sl-color-gray-3: var(--muted);
+  --sl-color-gray-4: color-mix(in srgb, var(--fg) 40%, var(--bg));
+  --sl-color-gray-5: var(--line-soft);
+  --sl-color-gray-6: var(--soft);
+  --sl-color-gray-7: color-mix(in srgb, var(--soft) 50%, var(--bg));
+  --sl-color-black: var(--bg);
+
+  --sl-color-accent-low: color-mix(in srgb, var(--accent) 16%, var(--bg));
+  --sl-color-accent: var(--accent);
+  --sl-color-accent-high: var(--accent-text);
+
+  --sl-color-text: var(--fg);
+  --sl-color-text-accent: var(--accent-text);
+  --sl-color-text-invert: var(--on-accent);
+  --sl-color-bg: var(--bg);
+  --sl-color-bg-nav: var(--bg);
+  --sl-color-bg-sidebar: var(--bg);
+  --sl-color-bg-inline-code: var(--soft);
+  --sl-color-bg-accent: var(--accent);
+  --sl-color-hairline-light: var(--line-soft);
+  --sl-color-hairline: var(--line-soft);
+  --sl-color-hairline-shade: var(--line);
+
+  /* Flat, like the site: a border where Starlight would float a shadow. */
+  --sl-shadow-sm: none;
+  --sl-shadow-md: none;
+}
+
+body { background: var(--bg); }
+
+/* Headlines in the look's face. */
+#_top,
+.sl-markdown-content :is(h1, h2, h3, h4, h5) {
+  font-family: var(--font-head);
+  font-weight: var(--head-weight);
+  letter-spacing: -0.01em;
+  color: var(--fg);
+}
+
+/* Plain links only: Starlight's link buttons and cards colour their own. */
+.sl-markdown-content a:not(.sl-link-button, .sl-link-card a) { color: var(--accent-text); }
+.sl-markdown-content a:not(.sl-link-button, .sl-link-card a):hover { color: var(--fg); }
+.sl-markdown-content :not(pre) > code {
+  border-radius: var(--radius);
+  border: 1px solid var(--line-soft);
+  padding: 0.05em 0.3em;
+}
+
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* The sidebar: group names in the mono face, the current page as an accent bar rather than a filled pill. */
+.sidebar-content summary .group-label .large,
+.sidebar-content .large {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+.sidebar-content ul a[aria-current='page'],
+.sidebar-content ul a[aria-current='page']:hover,
+.sidebar-content ul a[aria-current='page']:focus {
+  background: transparent;
+  color: var(--fg);
+  font-weight: 600;
+  box-shadow: inset 3px 0 0 var(--accent);
+  border-radius: 0;
+}
+
+site-search > button,
+.sl-markdown-content .starlight-aside,
+.sl-markdown-content table,
+.pagination-links a,
+.sl-link-card {
+  border-radius: var(--radius);
+}
+site-search > button { border-color: var(--line); background: transparent; color: var(--muted); }
+site-search > button:hover { border-color: var(--accent); color: var(--fg); }
+dialog[aria-label] { border-radius: var(--radius); }
+.sl-menu-button { border-radius: var(--radius); }
+
+/* "Coming": a page that is only its title and what it will cover. */
+.sl-badge.coming {
+  background: transparent;
+  color: var(--accent-text);
+  border: 1px solid currentColor;
+  border-radius: var(--radius);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* The docs index: each group a short ruled list. */
+.groups { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 40px; }
+/* Starlight spaces each block after the first; in a grid that drops every column but the first. */
+.sl-markdown-content .groups > section { margin: 0; border-top: 1px solid var(--line); padding-top: 4px; }
+.groups h2 { font-size: var(--sl-text-xl); margin-top: 0.5rem; }
+.groups ul { list-style: none; padding: 0; }
+.groups li { margin: 0.35rem 0; }
+@media (max-width: 50rem) { .groups { grid-template-columns: minmax(0, 1fr); } }

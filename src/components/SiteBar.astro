@@ -1,0 +1,17 @@
+---
+// The header's contents, shared by the site's header and the docs' (which puts Starlight's search in the slot).
+import ThemeToggle from './ThemeToggle.astro';
+import { GITHUB, SECTIONS, isCurrent } from '../lib/nav.mjs';
+
+const path = Astro.url.pathname;
+---
+
+<a class="logo" href="/">Bot<i>Maker</i></a>
+<nav class="sections" aria-label="Site">
+  {SECTIONS.map((s) => (
+    <a href={s.href} aria-current={isCurrent(path, s.href) ? 'page' : undefined}>{s.label}</a>
+  ))}
+</nav>
+<slot name="search" />
+<a class="gh" href={GITHUB}>GitHub</a>
+<ThemeToggle />

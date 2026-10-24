@@ -4,11 +4,11 @@
 import Site from '../../layouts/Site.astro';
 import { RANK_LABEL, loadCatalog } from '../../lib/catalog.mjs';
 import { WRITTEN } from '../../lib/written.mjs';
+import { GUIDES } from '../../lib/nav.mjs';
 
 const catalog = await loadCatalog();
 const written = [...WRITTEN.values()].map((file) => file.frontmatter);
-// Phase 5 of the website plan points this at the plugin guide once the docs exist.
-const pluginGuide = '/docs/';
+const pluginGuide = GUIDES.makePlugin;
 ---
 
 <Site title="Plugins" description="What plugins add to BotMaker Studio's blocks, and every plugin in the catalog.">

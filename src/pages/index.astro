@@ -6,13 +6,13 @@ import Site from '../layouts/Site.astro';
 import Figure from '../components/Figure.astro';
 import { BLOCKS, CLASS, PLUGINS } from '../demo/blocks.mjs';
 import { START, flat, toJava, tokens } from '../demo/program.mjs';
+import { GUIDES } from '../lib/nav.mjs';
 
 const lines = toJava(START).lines;
 const start = flat(START);
 const loop = start[0];
-// Phase 5 of the website plan points these at the tutorial and the plugin guide once the docs exist.
-const firstProgram = '/docs/';
-const pluginGuide = '/docs/';
+const firstProgram = GUIDES.firstProgram;
+const pluginGuide = GUIDES.makePlugin;
 ---
 
 <Site description="BotMaker Studio is a Scratch-like Java IDE: snap blocks together and get real Java, with no ceiling when you outgrow the blocks.">
