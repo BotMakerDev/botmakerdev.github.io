@@ -7,7 +7,9 @@ import Rich from '../components/Rich.astro';
 import data from '../data/tools.json';
 import { OWNER, latestTag } from '../lib/versions.mjs';
 import { GUIDES } from '../lib/nav.mjs';
-import { PAGES, allInOne, assertOneSigningKey, dnfSnippet, downloadSnippet } from '../lib/tools.mjs';
+import {
+  allInOne, aptSnippet, appImageSnippet, assertOneSigningKey, dnfSnippet, download, downloadSnippet,
+} from '../lib/tools.mjs';
 
 // A version is shown for what you download, and only for that: a repository that cuts no release would make
 // `releases/latest` a guaranteed 404.
@@ -26,8 +28,11 @@ const everything = allInOne(tools);
 await assertOneSigningKey(tools.filter((tool) => tool.package).map((tool) => tool.repo));
 
 const repoUrl = (tool) => `https://github.com/${OWNER}/${tool.repo}`;
-const studioRelease = `${repoUrl(studio)}/releases/latest`;
-const studioPage = `${PAGES}/${studio.repo}/`;
+const studioRelease = `${repoUrl(studio)}/releases/tag/${encodeURIComponent(studio.version)}`;
+const checksums = `${repoUrl(studio)}/releases/download/${encodeURIComponent(studio.version)}/checksums_sha256.txt`;
+const appImage = download(studio, 'linux');
+const msi = download(studio, 'windows');
+const dmg = download(studio, 'macos');
 const firstProgram = GUIDES.firstProgram;
 
 const systems = [
@@ -58,17 +63,24 @@ const systems = [
         <h2 class="system-title">Linux</h2>
         <ol class="steps">
           <li>
-            <h3>Add the repository and install</h3>
+            <h3>Install it for your distribution</h3>
+            <h4 class="distro">Fedora · RHEL · CentOS Stream</h4>
             <Snippet code={dnfSnippet(studio)} />
-            <p class="note">
-              Fedora and RHEL. For Debian and Ubuntu, the apt line and the signing key are
-              on <a href={studioPage}>Studio's project page</a>. The AppImage and the archives are
-              on <a href={studioRelease}>the latest release</a>.
-            </p>
+            <h4 class="distro">Debian · Ubuntu · Linux Mint · Pop!_OS</h4>
+            <Snippet code={aptSnippet(studio)} />
+            <h4 class="distro">Any other distribution: the AppImage</h4>
+            <div class="ctas download">
+              <a class="btn primary" href={appImage.url}>Download the AppImage</a>
+              <span class="note">x86-64 · {studio.version}</span>
+            </div>
+            <p class="note">Or from a terminal, which also makes it runnable and starts it:</p>
+            <Snippet code={appImageSnippet(appImage)} />
+            <p class="note">The AppImage needs no root and updates itself from inside Studio.</p>
           </li>
           <li>
             <h3>Open Studio</h3>
-            <p>BotMaker Studio is in your applications. Each later version arrives with your system updates.</p>
+            <p>BotMaker Studio is in your applications. Installed with dnf or apt, each later version arrives with
+              your system updates.</p>
           </li>
           <li>
             <h3>Make your first program</h3>
@@ -82,8 +94,10 @@ const systems = [
         <ol class="steps">
           <li>
             <h3>Download the installer</h3>
-            <p>The <code>.msi</code> installer for 64-bit Windows is on <a href={studioRelease}>Studio's latest
-              release</a>, {studio.version}.</p>
+            <div class="ctas download">
+              <a class="btn primary" href={msi.url}>Download for Windows</a>
+              <span class="note"><code>.msi</code> · 64-bit · {studio.version}</span>
+            </div>
           </li>
           <li>
             <h3>Run it, then open Studio</h3>
@@ -101,8 +115,10 @@ const systems = [
         <ol class="steps">
           <li>
             <h3>Download the disk image</h3>
-            <p>The <code>.dmg</code> for Apple Silicon is on <a href={studioRelease}>Studio's latest release</a>,
-              {studio.version}.</p>
+            <div class="ctas download">
+              <a class="btn primary" href={dmg.url}>Download for macOS</a>
+              <span class="note"><code>.dmg</code> · Apple Silicon · {studio.version}</span>
+            </div>
           </li>
           <li>
             <h3>Open it the first time</h3>
@@ -115,6 +131,11 @@ const systems = [
           </li>
         </ol>
       </div>
+
+      <p class="note">
+        Every file of {studio.version}, the portable archives among them, is on <a href={studioRelease}>its release
+        page</a>, with <a href={checksums}>the SHA-256 checksums</a>.
+      </p>
     </div>
   </section>
 
@@ -130,8 +151,10 @@ const systems = [
             <p><Rich text={tool.blurb} /></p>
             {tool.package && (
               <>
+                <h4 class="distro">Fedora · RHEL</h4>
                 <Snippet code={dnfSnippet(tool)} />
-                <p class="note">apt, the signing key and the checksums are on the project page.</p>
+                <h4 class="distro">Debian · Ubuntu</h4>
+                <Snippet code={aptSnippet(tool)} />
               </>
             )}
             {!tool.package && tool.asset && (
@@ -139,7 +162,6 @@ const systems = [
             )}
             {tool.also && <p class="note"><Rich text={tool.also} /></p>}
             <p class="links">
-              {tool.site !== false && <a href={`${PAGES}/${tool.repo}/`}>Project page</a>}
               <a href={`${repoUrl(tool)}/releases`}>Releases</a>
               <a href={repoUrl(tool)}>Source</a>
             </p>

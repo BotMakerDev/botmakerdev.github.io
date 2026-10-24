@@ -1,7 +1,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { dnfSnippet, downloadSnippet, allInOne, assertOneSigningKey, withCode } from '../src/lib/tools.mjs';
+import {
+  dnfSnippet, aptSnippet, download, appImageSnippet, downloadSnippet, allInOne, assertOneSigningKey, withCode,
+} from '../src/lib/tools.mjs';
 import { systemOf } from '../src/lib/system.mjs';
 
 const pages = 'https://botmakerdev.github.io';
@@ -12,6 +14,34 @@ test('the dnf snippet is derived from the repository and the package', () => {
     dnfSnippet({ pages, repo: 'botmaker-studio', package: 'botmaker-studio' }),
     'sudo curl -fsSL -o /etc/yum.repos.d/botmaker-studio.repo https://botmakerdev.github.io/botmaker-studio/botmaker-studio.repo\n'
       + 'sudo dnf install botmaker-studio',
+  );
+});
+
+test('the apt snippet adds the key and the repository, then installs', () => {
+  assert.equal(
+    aptSnippet({ pages, repo: 'botmaker-studio', package: 'botmaker-studio' }),
+    'sudo install -d -m 755 /etc/apt/keyrings\n'
+      + 'sudo curl -fsSL -o /etc/apt/keyrings/botmaker.asc https://botmakerdev.github.io/botmaker-studio/botmaker.asc\n'
+      + 'echo "deb [signed-by=/etc/apt/keyrings/botmaker.asc] https://botmakerdev.github.io/botmaker-studio/deb stable main"'
+      + ' | sudo tee /etc/apt/sources.list.d/botmaker-studio.list\n'
+      + 'sudo apt-get update && sudo apt-get install botmaker-studio',
+  );
+});
+
+test('a one-click download is the tagged release file, named from its pattern', () => {
+  const studio = { repo: 'botmaker-studio', version: 'v1.6.0', downloads: { windows: 'BotMaker-Studio-{version}-windows-x64.msi' } };
+  assert.deepEqual(download(studio, 'windows'), {
+    name: 'BotMaker-Studio-v1.6.0-windows-x64.msi',
+    url: 'https://github.com/BotMakerDev/botmaker-studio/releases/download/v1.6.0/BotMaker-Studio-v1.6.0-windows-x64.msi',
+  });
+  assert.throws(() => download(studio, 'macos'), /names no macos download for botmaker-studio/);
+  assert.throws(() => download({ ...studio, version: undefined }, 'windows'), /no version read/);
+});
+
+test('the AppImage snippet downloads, makes runnable and starts the file', () => {
+  assert.equal(
+    appImageSnippet({ name: 'A.AppImage', url: 'https://example.org/A.AppImage' }),
+    'curl -fLO https://example.org/A.AppImage\nchmod +x A.AppImage\n./A.AppImage',
   );
 });
 

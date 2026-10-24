@@ -63,8 +63,12 @@ for url in "${urls[@]}"; do
   probe="$(probe_for "${url}")"
   # -L because every github.com address redirects at least once, and a repository that was renamed
   # redirects too — which is a link that works, and the reason this is not a HEAD-and-expect-200.
-  code="$(curl -sSL -o /dev/null -w '%{http_code}' --retry 2 --retry-delay 3 --max-time 30 "${probe}" || echo 000)"
-  if [ "${code}" = "200" ]; then
+  # A release file (the install page's Download buttons) is hundreds of megabytes: only its first byte is asked
+  # for, which the file's host answers with 206.
+  range=()
+  [[ "${probe}" == */releases/download/* ]] && range=(-r 0-0)
+  code="$(curl -sSL "${range[@]}" -o /dev/null -w '%{http_code}' --retry 2 --retry-delay 3 --max-time 30 "${probe}" || echo 000)"
+  if [ "${code}" = "200" ] || { [ "${#range[@]}" -gt 0 ] && [ "${code}" = "206" ]; }; then
     printf 'ok   %s\n' "${probe}"
   else
     printf 'FAIL %s (HTTP %s)\n' "${probe}" "${code}"

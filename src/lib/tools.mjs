@@ -13,14 +13,50 @@ export const PAGES = 'https://botmakerdev.github.io';
 
 const KEYRING = '/etc/apt/keyrings/botmaker.asc';
 
+const dnfRepoLine = (pages, { repo, package: name }) =>
+  `sudo curl -fsSL -o /etc/yum.repos.d/${name}.repo ${pages}/${repo}/${name}.repo`;
+const aptKeyLines = (pages, { repo }) =>
+  ['sudo install -d -m 755 /etc/apt/keyrings', `sudo curl -fsSL -o ${KEYRING} ${pages}/${repo}/botmaker.asc`];
+const aptSourceLine = (pages, { repo, package: name }) =>
+  `echo "deb [signed-by=${KEYRING}] ${pages}/${repo}/deb stable main" | sudo tee /etc/apt/sources.list.d/${name}.list`;
+
 /** Adds a tool's dnf repository and installs its package. */
 export function dnfSnippet({ pages = PAGES, repo, package: name }) {
-  return `sudo curl -fsSL -o /etc/yum.repos.d/${name}.repo ${pages}/${repo}/${name}.repo\nsudo dnf install ${name}`;
+  return `${dnfRepoLine(pages, { repo, package: name })}\nsudo dnf install ${name}`;
+}
+
+/** Adds the signing key and a tool's apt repository, then installs its package. */
+export function aptSnippet({ pages = PAGES, repo, package: name }) {
+  return [
+    ...aptKeyLines(pages, { repo }),
+    aptSourceLine(pages, { repo, package: name }),
+    `sudo apt-get update && sudo apt-get install ${name}`,
+  ].join('\n');
 }
 
 /** Downloads a release asset of the latest release. */
 export function downloadSnippet({ repo, asset }) {
   return `curl -fLO https://github.com/${OWNER}/${repo}/releases/latest/download/${asset}`;
+}
+
+/**
+ * The address of the file a tool's release attaches for one system (tools.json `downloads`), at the version the
+ * build read. The tagged address, not `latest/download`: the file's name carries the version, so the two must
+ * come from the same release.
+ *
+ * @returns {{name: string, url: string}}
+ */
+export function download({ repo, version, downloads }, system) {
+  const pattern = downloads?.[system];
+  if (!pattern) throw new Error(`tools.json names no ${system} download for ${repo}`);
+  if (!version) throw new Error(`no version read for ${repo}`);
+  const name = pattern.replaceAll('{version}', version);
+  return { name, url: `https://github.com/${OWNER}/${repo}/releases/download/${encodeURIComponent(version)}/${name}` };
+}
+
+/** Downloads an AppImage, makes it runnable and starts it. */
+export function appImageSnippet({ name, url }) {
+  return `curl -fLO ${url}\nchmod +x ${name}\n./${name}`;
 }
 
 /**
@@ -34,14 +70,12 @@ export function allInOne(tools, { pages = PAGES } = {}) {
   if (packaged.length === 0) throw new Error('no packaged tool in tools.json');
   const names = packaged.map((t) => t.package);
   const dnf = [
-    ...packaged.map((t) => `sudo curl -fsSL -o /etc/yum.repos.d/${t.package}.repo ${pages}/${t.repo}/${t.package}.repo`),
+    ...packaged.map((t) => dnfRepoLine(pages, t)),
     `sudo dnf install ${names.join(' ')}`,
   ];
   const apt = [
-    'sudo install -d -m 755 /etc/apt/keyrings',
-    `sudo curl -fsSL -o ${KEYRING} ${pages}/${packaged[0].repo}/botmaker.asc`,
-    ...packaged.map((t) =>
-      `echo "deb [signed-by=${KEYRING}] ${pages}/${t.repo}/deb stable main" | sudo tee /etc/apt/sources.list.d/${t.package}.list`),
+    ...aptKeyLines(pages, packaged[0]),
+    ...packaged.map((t) => aptSourceLine(pages, t)),
     `sudo apt-get update && sudo apt-get install ${names.join(' ')}`,
   ];
   return { dnf: dnf.join('\n'), apt: apt.join('\n'), names };
