@@ -3,6 +3,7 @@
 // Gallery, and making a plugin. The demo's starting state is drawn here too, so the page reads without
 // JavaScript; src/demo/editor.mjs takes over from it.
 import Site from '../layouts/Site.astro';
+import Figure from '../components/Figure.astro';
 import { BLOCKS, CLASS, PLUGINS } from '../demo/blocks.mjs';
 import { START, flat, toJava, tokens } from '../demo/program.mjs';
 
@@ -103,6 +104,8 @@ const pluginGuide = '/docs/';
           <p>A normal Maven project: any Java library, any other IDE, history built in. Your program outlives the editor.</p>
         </div>
       </div>
+      <Figure n={2} caption="Studio: a program as blocks, and the same program as Java beside it."
+              alt="BotMaker Studio with a program open, its blocks on the left and its Java on the right." />
     </div>
   </section>
 

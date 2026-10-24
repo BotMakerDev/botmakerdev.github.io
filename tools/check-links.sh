@@ -16,12 +16,17 @@ DIST="${1:-${HERE}/dist}"
 mapfile -t pages < <(find "${DIST}" -name '*.html' | sort)
 [ "${#pages[@]}" -gt 0 ] || { echo "::error::no pages in ${DIST}" >&2; exit 1; }
 
+# The pages' text without the bodies of their scripts: a script builds addresses from parts
+# (`https://github.com/${repo}`), which are not addresses, and the one whole address in one, the catalog's, is
+# fetched by the build itself. The opening tags stay, so a script's src is still checked.
+page_text() { perl -0777 -pe 's#(<script\b[^>]*>).*?</script>#$1</script>#gs' "${pages[@]}"; }
+
 # Both forms in one sweep: href="…" and a bare address inside a <pre><code> snippet.
-mapfile -t urls < <(cat "${pages[@]}" | grep -oE 'https?://[^"'"'"' <)]+' | sed 's/[.,]$//' \
+mapfile -t urls < <(page_text | grep -oE 'https?://[^"'"'"' <)]+' | sed 's/[.,]$//' \
   | grep -vE '^https?://(www\.)?w3\.org/' | sort -u)
 
 # The site's own pages and files: every href or src starting with one slash.
-mapfile -t locals < <(cat "${pages[@]}" | grep -oE '(href|src)="/[^/"][^"]*"|(href|src)="/"' \
+mapfile -t locals < <(page_text | grep -oE '(href|src)="/[^/"][^"]*"|(href|src)="/"' \
   | sed -E 's/^(href|src)="//; s/"$//; s/[?#].*$//' | sort -u)
 
 # An apt archive root is not a document: GitHub Pages serves no directory index, so `<pages>/deb`

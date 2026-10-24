@@ -1,5 +1,82 @@
 ---
-import Holding from '../components/Holding.astro';
+// Every bot and plugin in the catalog. The list is built here, so it reads without JavaScript; with it,
+// src/scripts/gallery.mjs adds the search and the kind filter, and re-reads the catalog so a listing merged since
+// this build shows. The rows below are the same markup as its renderRow.
+import Site from '../layouts/Site.astro';
+import { RANK_LABEL, loadCatalog } from '../lib/catalog.mjs';
+import { WRITTEN } from '../lib/written.mjs';
+import { toRows } from '../scripts/gallery.mjs';
+
+const catalog = await loadCatalog();
+// Every catalog plugin has a page (plugins/[id].astro), and so has every written one.
+const pages = new Set([...WRITTEN.keys(), ...(catalog.ok ? catalog.plugins.map((plugin) => plugin.id) : [])]);
+const rows = toRows(catalog, pages);
+const bots = rows.filter((row) => row.kind === 'bot').length;
+// Phase 5 of the website plan points this at "Publish a bot" once the docs exist.
+const publishGuide = '/docs/';
 ---
 
-<Holding title="Gallery" description="Every published bot and plugin, read from the catalog." />
+<Site title="Gallery" description="Every published BotMaker bot and plugin, read from the catalog.">
+  <section class="first last" data-gallery data-rows={JSON.stringify(rows)} data-pages={JSON.stringify([...pages])}
+           data-ok={String(catalog.ok)}>
+    <div class="wrap">
+      <p class="eyebrow">Gallery · read from the catalog</p>
+      <h1>Start from<br /><em>someone's program.</em></h1>
+      <p class="lede">
+        Open any bot in Studio. It stays linked to its author, so their updates reach you, and you can publish your
+        own version.
+      </p>
+      <p class="note">To open one: in Studio, choose New Project, then the bot.</p>
+
+      <div class="gfilters" data-controls hidden>
+        <label class="vh" for="gallery-search">Search bots and plugins</label>
+        <input id="gallery-search" type="search" placeholder="Search bots and plugins" autocomplete="off" data-search />
+        <div class="kinds" role="group" aria-label="Show">
+          <button type="button" class="pill" data-kind="all" aria-pressed="true">All</button>
+          <button type="button" class="pill" data-kind="bots" aria-pressed="false">Bots</button>
+          <button type="button" class="pill" data-kind="plugins" aria-pressed="false">Plugins</button>
+        </div>
+        <p class="note count" aria-live="polite" data-count></p>
+      </div>
+
+      <div class="empty" data-unreadable hidden={catalog.ok}>
+        <h3>The catalog could not be read.</h3>
+        <p>The list of bots and plugins is in the catalog repository on <a href="https://github.com/BotMakerDev/botmaker-catalog">GitHub</a>.</p>
+      </div>
+
+      <ul class="glist" data-list hidden={rows.length === 0}>
+        {rows.map((row) => (
+          <li class="grow">
+            <div class="gmain">
+              <p class="gname"><b>{row.page ? <a href={row.page}>{row.name}</a> : row.name}</b> <span class="kind">{row.kind === 'bot' ? 'Bot' : 'Plugin'}</span></p>
+              {row.description && <p class="d">{row.description}</p>}
+              {row.forkOf && <p class="note">based on <a href={`https://github.com/${row.forkOf}`}>{row.forkOf}</a></p>}
+            </div>
+            <span class="tag">{row.tag}</span>
+            <span class={`rank ${row.rank}`}>{RANK_LABEL[row.rank]}</span>
+            <span class="stars"><span aria-hidden="true">★ </span>{row.stars}<span class="vh">{row.stars === 1 ? ' star' : ' stars'}</span></span>
+            <a class="btn sm" href={`https://github.com/${row.repo}`}>Repository</a>
+          </li>
+        ))}
+      </ul>
+
+      <p class="note" data-none hidden>Nothing matches. Try another word, or All.</p>
+
+      <div class="empty" data-nobots hidden={!catalog.ok || bots > 0}>
+        <h3>No bots yet.</h3>
+        <p>
+          The catalog is new. The first bot listed here could be yours: publish it from Studio, or
+          run <code>botmaker bot publish</code> in its folder.
+        </p>
+        <a class="btn primary" href={publishGuide}>How to publish</a>
+      </div>
+    </div>
+  </section>
+</Site>
+
+<script>
+  import { mount } from '../scripts/gallery.mjs';
+
+  const root = document.querySelector('[data-gallery]');
+  if (root instanceof HTMLElement) mount(root);
+</script>

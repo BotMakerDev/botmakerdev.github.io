@@ -1,0 +1,28 @@
+---
+// A numbered figure: a real Studio screenshot, in the light and the dark theme when both exist, the one matching
+// the page's theme shown. Until it is shot, a captioned box says which screenshot goes here, so an owed one is
+// visible on the page and in the recap, never a mockup passed off as Studio.
+interface Props {
+  /** The light-theme screenshot; none yet renders the placeholder. */
+  src?: string;
+  /** The dark-theme one; without it, src shows in both themes. */
+  srcDark?: string;
+  alt: string;
+  caption: string;
+  n: number;
+}
+
+const { src, srcDark, alt, caption, n } = Astro.props;
+---
+
+<figure class="fig">
+  {src ? (
+    <>
+      <img src={src} alt={alt} class={srcDark ? 'only-light' : undefined} loading="lazy" />
+      {srcDark && <img src={srcDark} alt={alt} class="only-dark" loading="lazy" />}
+    </>
+  ) : (
+    <div class="owed" role="img" aria-label={alt}><span>Screenshot owed: {caption}</span></div>
+  )}
+  <figcaption class="caption">Fig. {n} — {caption}</figcaption>
+</figure>

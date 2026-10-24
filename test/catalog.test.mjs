@@ -50,6 +50,14 @@ test('a repository that is not owner/name is left out', () => {
   assert.deepEqual(readCatalog(json).plugins.map((p) => p.id), ['com.botmaker.sdk']);
 });
 
+test('a plugin id that cannot name a page is left out', () => {
+  for (const id of ['../../etc', 'a/b', '..', 'with space']) {
+    const json = v4();
+    json.plugins[0].id = id;
+    assert.deepEqual(readCatalog(json).plugins.map((p) => p.id), ['com.botmaker.sdk'], id);
+  }
+});
+
 test('a description is kept as the text it is', () => {
   const json = v4();
   json.plugins[0].description = '<script>alert(1)</script>';

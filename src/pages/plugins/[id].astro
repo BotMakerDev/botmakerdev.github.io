@@ -1,0 +1,70 @@
+---
+// One page per plugin: every plugin the catalog lists, and every one with a page written by hand
+// (src/lib/written.mjs). A written page is its file; any other is generated from its catalog row. The releases
+// come from the catalog, so they show only when it reads.
+import Site from '../../layouts/Site.astro';
+import Figure from '../../components/Figure.astro';
+import { RANK_LABEL, loadCatalog } from '../../lib/catalog.mjs';
+import { WRITTEN } from '../../lib/written.mjs';
+
+export async function getStaticPaths() {
+  const catalog = await loadCatalog();
+  const listed = catalog.ok ? catalog.plugins : [];
+  const ids = new Set([...WRITTEN.keys(), ...listed.map((plugin) => plugin.id)]);
+  return [...ids].map((id) => ({
+    params: { id },
+    props: { plugin: listed.find((p) => p.id === id), written: WRITTEN.get(id) },
+  }));
+}
+
+const { plugin, written } = Astro.props;
+const front = written?.frontmatter;
+const Content = written?.Content;
+const name = front?.name ?? plugin.name;
+const repo = plugin?.repo ?? front.repo;
+const lede = front?.summary ?? plugin.description;
+const features = front?.features ?? [];
+---
+
+<Site title={name} description={lede || `${name}, a BotMaker plugin.`}>
+  <section class="first">
+    <div class="wrap">
+      <p class="eyebrow"><a href="/plugins/">Plugins</a> / {name}</p>
+      <h1>{front ? <>{front.headline}<br /><em>{front.emphasis}</em></> : name}</h1>
+      {lede && <p class="lede">{lede}</p>}
+      <div class="ctas">
+        <a class="btn" href={`https://github.com/${repo}`}>Repository</a>
+        <span class="note">
+          {plugin ? `${RANK_LABEL[plugin.rank]} plugin · ${plugin.newest.tag} · ` : ''}add it in a project's Plugins &amp; Libraries
+        </span>
+      </div>
+      {Content && <div class="prose"><Content /></div>}
+      {features.length > 0 && (
+        <div class="feat">
+          {features.map((feature, i) => (
+            <div>
+              <Figure n={i + 1} caption={feature.title} alt={feature.alt} src={feature.src} srcDark={feature.srcDark} />
+              <h3>{feature.title}</h3>
+              <p>{feature.text}</p>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  </section>
+
+  {plugin && (
+    <section class="last">
+      <div class="wrap">
+        <p class="eyebrow">From the catalog</p>
+        <h2>Releases</h2>
+        <p class="note">Newest first. Each release is pinned to the commit it was built from.</p>
+        <ol class="releases">
+          {plugin.releases.map((release) => (
+            <li><span class="tag">{release.tag}</span> <code>{release.commit.slice(0, 7)}</code></li>
+          ))}
+        </ol>
+      </div>
+    </section>
+  )}
+</Site>

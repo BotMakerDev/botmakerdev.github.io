@@ -1,5 +1,95 @@
 ---
-import Holding from '../../components/Holding.astro';
+// What a plugin can add to Studio, then every plugin in the catalog. When the catalog does not read, the plugins
+// with a written page are still listed, without a release or a rank.
+import Site from '../../layouts/Site.astro';
+import { RANK_LABEL, loadCatalog } from '../../lib/catalog.mjs';
+import { WRITTEN } from '../../lib/written.mjs';
+
+const catalog = await loadCatalog();
+const written = [...WRITTEN.values()].map((file) => file.frontmatter);
+// Phase 5 of the website plan points this at the plugin guide once the docs exist.
+const pluginGuide = '/docs/';
 ---
 
-<Holding title="Plugins" description="What plugins add to Studio's blocks, and every plugin in the catalog." />
+<Site title="Plugins" description="What plugins add to BotMaker Studio's blocks, and every plugin in the catalog.">
+  <section class="first">
+    <div class="wrap">
+      <p class="eyebrow">Plugins</p>
+      <h1>Plugins teach Studio<br /><em>new tricks.</em></h1>
+      <p class="lede">
+        Studio on its own knows Java. A plugin brings a whole field with it, and everything it adds is still Java
+        you can read.
+      </p>
+      <div class="caps">
+        <div class="cap">
+          <h3>New blocks</h3>
+          <p>A palette group of its own, its calls as blocks.</p>
+          <div class="demo"><span class="blk k-game">ImageClicker.click</span><span class="blk k-game">Navigate.to</span></div>
+        </div>
+        <div class="cap">
+          <h3>Value editors</h3>
+          <p>Pick a picture, a duration, a screen, instead of typing it.</p>
+          <div class="demo"><span class="picker">5 min ▾</span><span class="picker"><span class="thumb"></span> COLLECT</span></div>
+        </div>
+        <div class="cap">
+          <h3>Windows of their own</h3>
+          <p>Maps, canvases and recorders that edit your program for you.</p>
+          <div class="demo mono">HOME → SHOP → BATTLE</div>
+        </div>
+        <div class="cap">
+          <h3>Overlays while it runs</h3>
+          <p>See what your program sees: matches, steps and timings, drawn live.</p>
+          <div class="demo"><span class="mono match">COLLECT · 0.97</span></div>
+        </div>
+        <div class="cap">
+          <h3>Assistant tools</h3>
+          <p>Claude can drive the plugin's features in Studio, and you see every change.</p>
+          <div class="demo mono">“add a step that opens the chest”</div>
+        </div>
+        <div class="cap">
+          <h3>Upgrades that repair</h3>
+          <p>A plugin changes; Studio carries your program over and marks what to check.</p>
+          <div class="demo mono">2 values reset · @Refactor</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="last">
+    <div class="wrap">
+      <p class="eyebrow">In the catalog</p>
+      <h2>Every plugin you can add today.</h2>
+      {!catalog.ok && (
+        <p class="unreadable">
+          The catalog could not be read, so releases are not shown. It is
+          on <a href="https://github.com/BotMakerDev/botmaker-catalog">GitHub</a>.
+        </p>
+      )}
+      <ul class="plist">
+        {catalog.ok
+          ? catalog.plugins.map((plugin) => (
+              <li class="prow">
+                <div><b><a href={`/plugins/${plugin.id}/`}>{plugin.name}</a></b><p class="d">{plugin.description}</p></div>
+                <span class="tag">{plugin.newest.tag}</span>
+                <span class={`rank ${plugin.rank}`}>{RANK_LABEL[plugin.rank]}</span>
+                <a class="btn sm" href={`/plugins/${plugin.id}/`} aria-label={`Read more about ${plugin.name}`}>Read more</a>
+              </li>
+            ))
+          : written.map((front) => (
+              <li class="prow">
+                <div><b><a href={`/plugins/${front.id}/`}>{front.name}</a></b><p class="d">{front.summary}</p></div>
+                <span></span>
+                <span></span>
+                <a class="btn sm" href={`/plugins/${front.id}/`} aria-label={`Read more about ${front.name}`}>Read more</a>
+              </li>
+            ))}
+        <li class="prow">
+          <div><b class="next">Yours next</b><p class="d">A plugin is a small Java library. <code>botmaker plugin new</code> starts one.</p></div>
+          <span></span>
+          <span class="rank community">{RANK_LABEL.community}</span>
+          <a class="btn sm" href={pluginGuide}>Guide</a>
+        </li>
+      </ul>
+    </div>
+  </section>
+</Site>
