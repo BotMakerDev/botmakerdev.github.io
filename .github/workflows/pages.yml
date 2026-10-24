@@ -38,6 +38,9 @@ jobs:
       - name: Test
         run: npm test
 
+      - name: Check every text colour is AA in both looks
+        run: node tools/check-contrast.mjs
+
       # Versions are read off github.com's release pages, not the REST API, so no token is needed.
       # A fetch that fails fails the build: nothing deploys and the site already published stays.
       - name: Build the site

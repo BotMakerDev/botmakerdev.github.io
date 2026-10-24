@@ -8,17 +8,23 @@ Gallery and the docs, in one Astro site. Design: the umbrella's
 
 ```bash
 npm ci
-npm test              # node --test over test/*.test.mjs
-npm run dev           # http://localhost:4321/
-npm run build         # writes dist/
+npm test                       # node --test over test/*.test.mjs
+node tools/check-contrast.mjs  # every text colour AA in both looks, from tokens.css
+npm run dev                    # http://localhost:4321/
+npm run build                  # writes dist/
+npx astro preview              # serves dist/ at http://localhost:4321/
 tools/check-links.sh dist
 ```
 
 `CATALOG_FILE=test/fixtures/catalog-v4.json npm run build` reads a local catalog instead of
-botmaker-catalog's `main`, for a preview while the live one is not schema 4 yet.
+botmaker-catalog's `main`, for a preview while the live one is not schema 4 yet. After a change to how code
+blocks render (Expressive Code), build clean: `rm -rf dist .astro node_modules/.astro` first, or a stale content
+cache keeps the old renders and their stylesheet 404s.
 
-CI (`.github/workflows/pages.yml`) runs the same on every push, daily at 06:17 UTC, and on demand
-(*Actions ▸ pages ▸ Run workflow*), then deploys `dist/`. The daily run is what keeps versions current
+CI (`.github/workflows/pages.yml`) runs, in order: the tests, the contrast check, the build, the check that
+nothing is emitted under a project site's path (`test/reserved-paths.test.mjs`) and the link check, which
+fetches every address the pages name, the install snippets' and the Download buttons' included. It runs on
+every push, daily at 06:17 UTC, and on demand (*Actions ▸ pages ▸ Run workflow*), then deploys `dist/`. The daily run is what keeps versions current
 when a release lands in a different repository. A failed fetch fails the job and deploys nothing, so the
 site already published — correct as of its own run — stays up.
 
@@ -27,7 +33,8 @@ site already published — correct as of its own run — stays up.
 - `src/data/tools.json`: the tools `/install/` lists, the only file to edit when that changes.
 - `src/lib/versions.mjs`: each tool's version, from its repository's latest GitHub release.
 - `src/lib/tools.mjs`: the dnf, apt and download snippets, derived from the addresses every project page
-  publishes, and the check that one key signs every packaged repository.
+  publishes, the Download buttons' release files (`downloads` in `tools.json`), and the check that one key
+  signs every packaged repository.
 - `src/lib/catalog.mjs`: botmaker-catalog's `catalog.json`, schema 4 only. Another schema shows as "the
   catalog could not be read"; a catalog that does not answer fails the build.
 

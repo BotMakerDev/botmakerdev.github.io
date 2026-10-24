@@ -1,6 +1,6 @@
 // The docs' code blocks in the two looks: Expressive Code's themes, made from the Java colours tokens.css gives the
 // home page's demo (--code-bg, --kw, --fn, --st). Expressive Code needs literal colours to work out contrast, so
-// they are repeated here; a change to those tokens changes these too.
+// they are repeated here; a change to those tokens changes these too (test/contrast.test.mjs fails until it does).
 
 const theme = (name, type, c) => ({
   name,
@@ -18,7 +18,7 @@ const theme = (name, type, c) => ({
 });
 
 export const MANUAL = theme('botmaker-manual', 'light', {
-  bg: '#ffffff', fg: '#1d1b17', muted: '#6a645a', kw: '#b4460a', fn: '#1d1b17', st: '#4f6b22', num: '#b4460a',
+  bg: '#ffffff', fg: '#1d1b17', muted: '#645e54', kw: '#9c3d09', fn: '#1d1b17', st: '#4f6b22', num: '#9c3d09',
 });
 
 export const DARK_EDITOR = theme('botmaker-dark-editor', 'dark', {

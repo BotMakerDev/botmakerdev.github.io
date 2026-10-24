@@ -13,16 +13,19 @@
 
   --bg: #f3eee4;
   --fg: #1d1b17;
-  --muted: #6a645a;
+  --muted: #645e54;
   --panel: #ffffff;
   --line: #1d1b17;
   --line-soft: #d8d0bf;
   --soft: #e7e0d2;
 
   --accent: #d4550f;
+  /* The accent under text (a primary button, Run): neither white nor ink reaches AA on #d4550f, so it is one shade
+   * darker, as --k4 is. */
+  --accent-fill: #b4460a;
   --on-accent: #ffffff;
-  /* The accent when it is text on the page background. */
-  --accent-text: #b4460a;
+  /* The accent when it is text: on the page, on --soft (a link around inline code) and on Starlight's accent tint. */
+  --accent-text: #9c3d09;
 
   /* Blocks: four kinds, and the text on them. */
   --k1: #1d1b17;
@@ -34,7 +37,9 @@
 
   /* Java. */
   --code-bg: #ffffff;
-  --kw: #b4460a;
+  /* The demo's line being run: every syntax colour stays AA on it. */
+  --code-live: #f9e3d6;
+  --kw: #9c3d09;
   --fn: #1d1b17;
   --st: #4f6b22;
 
@@ -65,6 +70,7 @@
     --soft: #26272e;
 
     --accent: #ffd23f;
+    --accent-fill: #ffd23f;
     --on-accent: #17181c;
     --accent-text: #ffd23f;
 
@@ -75,6 +81,7 @@
     --k-fg: #17181c;
 
     --code-bg: #1b1c21;
+    --code-live: #33302a;
     --kw: #ffd23f;
     --fn: #5cc8ff;
     --st: #ff7a59;
@@ -103,6 +110,7 @@
   --soft: #26272e;
 
   --accent: #ffd23f;
+  --accent-fill: #ffd23f;
   --on-accent: #17181c;
   --accent-text: #ffd23f;
 
@@ -113,6 +121,7 @@
   --k-fg: #17181c;
 
   --code-bg: #1b1c21;
+  --code-live: #33302a;
   --kw: #ffd23f;
   --fn: #5cc8ff;
   --st: #ff7a59;
