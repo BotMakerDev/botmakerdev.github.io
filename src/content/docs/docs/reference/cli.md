@@ -26,7 +26,7 @@ botmaker bot new [--dir=<path>] [--from=<owner/repo>] [--tag=<tag>] [--package=<
 ```
 
 Create a bot project. With no `--from` it writes a blank project: a pom and one `main()`. With `--from` it clones
-that bot at its newest release, linked to its author by the git remote `original`.
+that bot at its newest release, linked to its author by the git remote `upstream`.
 
 | Option | |
 |---|---|
