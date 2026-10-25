@@ -1,6 +1,6 @@
 ---
 title: Run a bot
-description: Download a bot's .bmk file from the Gallery and run it in BotMaker, without editing anything.
+description: Open a bot from the Gallery in BotMaker, or its .bmk file, and run it without editing anything.
 sidebar:
   order: 3
 ---
@@ -14,15 +14,21 @@ ready to run. You do not need to edit it, or to know Java.
 depend on your system (screen capture, reading text, mouse and keyboard) come from the installed BotMaker. The same
 file opens on Linux, Windows and macOS.
 
-## Get the file
+## Open it from the Gallery
 
-In the [Gallery](/gallery/), a bot whose author published a file has a **Download** button. A bot without one was
-released without a file: start a project from it in Studio instead (**＋ New bot**, then the bot). When the author
-deleted the release, its card says "This release is no longer available."
+In the [Gallery](/gallery/), a bot whose author published a file has an **Open in Studio** button. It hands the bot
+to BotMaker, which gets the file itself: nothing lands in your downloads. Your browser may ask first whether to open
+BotMaker; allow it. If nothing opens, the card says "Didn't open? Install BotMaker Studio": BotMaker is not
+installed, or, on Windows, it has not been started once since it was installed (its first start registers the
+links).
 
-## Open it
+A bot without the button was released without a file: start a project from it in Studio instead (**＋ New bot**,
+then the bot). When the author deleted the release, its card says "This release is no longer available."
 
-BotMaker opens on the bot list. Drop the `.bmk` anywhere on it, or start BotMaker with the file:
+## Or open the file
+
+Beside the button, **Download .bmk** gets the file itself, to keep or to give to someone. BotMaker opens on the bot
+list. Drop the `.bmk` anywhere on it, or start BotMaker with the file:
 
 ```bash
 botmaker-studio --open=firestone-1.0.0.bmk
@@ -52,5 +58,6 @@ linked to them, so their later versions can still be merged in.
 
 ## Where it is kept
 
-An opened bot is unpacked into BotMaker's data folder, one folder per version, for running only. **Remove** on its
-card deletes it; its settings stay, and opening its file again brings it back.
+An opened bot is unpacked into BotMaker's data folder, for running only. Only its newest version is kept: once a
+newer one opens and passes its check, the older one is deleted. **Remove** on its card deletes it; its settings stay,
+and opening it again brings it back.

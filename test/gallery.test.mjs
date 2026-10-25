@@ -2,7 +2,9 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { readCatalog } from '../src/lib/catalog.mjs';
-import { downloadLabel, filterRows, letterOf, mergeLive, renderRow, toRows } from '../src/scripts/gallery.mjs';
+import {
+  OPEN_WAIT_MS, downloadLabel, filterRows, letterOf, mergeLive, renderRow, toRows, watchOpen,
+} from '../src/scripts/gallery.mjs';
 
 const v4 = () => JSON.parse(readFileSync(new URL('./fixtures/catalog-v4.json', import.meta.url), 'utf8'));
 
@@ -114,7 +116,7 @@ test('a row shows the rank, the newest tag, the fork it is based on, the stars a
 const SHA = 'b'.repeat(64);
 const bmkBot = { ...farmBot, releases: [{ tag: 'v1.2.0', commit: 'abc1234', plugins: [], bmkSha256: SHA }] };
 
-test('a bot row with a .bmk shows Download and the line to install BotMaker; its icon lies over its letter', () => {
+test('a bot row with a .bmk shows Open in Studio, Download .bmk, the install line and a hidden "Didn\'t open?"', () => {
   const json = v4();
   json.bots.push(bmkBot);
   const catalog = readCatalog(json);
@@ -123,9 +125,16 @@ test('a bot row with a .bmk shows Download and the line to install BotMaker; its
   const el = renderRow(stubDocument(), row);
   const nodes = all(el);
   const hrefs = nodes.filter((node) => node.tagName === 'A').map((a) => a.attributes.href);
-  assert.ok(hrefs.includes(row.download));
-  assert.ok(hrefs.includes('/install/'));
-  assert.ok(el.textContent.includes('Opens in BotMaker'));
+  const open = nodes.find((node) => node.tagName === 'A' && node.textContent === 'Open in Studio');
+  assert.equal(open.attributes.href, 'botmaker://run/someone/farm-bot');
+  assert.equal(open.attributes['data-open'], 'someone/farm-bot');
+  assert.equal(nodes.find((node) => node.attributes?.href === row.download).textContent, 'Download .bmk');
+  assert.ok(el.textContent.includes('Needs BotMaker Studio'));
+  const missed = nodes.find((node) => node.attributes?.['data-missed'] === 'someone/farm-bot');
+  assert.equal(missed.attributes.hidden, '');
+  assert.equal(missed.textContent, 'Didn\'t open? Install BotMaker Studio');
+  assert.equal(all(missed).find((node) => node.tagName === 'A').attributes.href, '/install/');
+  assert.equal(hrefs.filter((href) => href === '/install/').length, 2);
   const img = nodes.find((node) => node.tagName === 'IMG');
   assert.equal(img.attributes.src, 'https://raw.githubusercontent.com/someone/farm-bot/abc1234/icon.png');
   assert.equal(img.attributes.alt, '');
@@ -140,9 +149,11 @@ test('a bot whose release is gone says so and links nothing; one with no .bmk sh
   const [gone, plain] = toRows(catalog);
   const goneEl = renderRow(stubDocument(), gone);
   assert.ok(goneEl.textContent.includes('This release is no longer available.'));
-  assert.ok(!all(goneEl).some((node) => node.tagName === 'A' && node.textContent === 'Download'));
+  assert.ok(!all(goneEl).some((node) => node.tagName === 'A' && node.textContent.startsWith('Download')));
+  assert.ok(!goneEl.textContent.includes('Open in Studio'));
   const plainEl = renderRow(stubDocument(), plain);
   assert.ok(!plainEl.textContent.includes('Download'));
+  assert.ok(!plainEl.textContent.includes('Open in Studio'));
   assert.ok(!plainEl.textContent.includes('no longer available'));
 });
 
@@ -166,8 +177,47 @@ test('Download names the file\'s release when the newest one has no .bmk', () =>
   const json = v4();
   json.bots.push({ ...farmBot, releases: [{ tag: 'v1.3.0', commit: 'def5678', plugins: [] }, ...bmkBot.releases] });
   const [row] = toRows(readCatalog(json));
-  assert.equal(downloadLabel(row), 'Download v1.2.0');
-  assert.equal(downloadLabel({ ...row, bmkTag: 'v1.3.0' }), 'Download');
+  assert.equal(downloadLabel(row), 'Download .bmk (v1.2.0)');
+  assert.equal(downloadLabel({ ...row, bmkTag: 'v1.3.0' }), 'Download .bmk');
+});
+
+// A window and a document whose events and one timer the test fires by hand.
+function fakePage() {
+  const listeners = new Map();
+  const on = (name, fn) => listeners.set(name, fn);
+  const off = (name) => listeners.delete(name);
+  const page = {
+    timer: null,
+    win: { addEventListener: on, removeEventListener: off, setTimeout: (fn, ms) => { page.timer = { fn, ms }; } },
+    doc: { visibilityState: 'visible', addEventListener: on, removeEventListener: off },
+    fire: (name) => listeners.get(name)?.(),
+    listeners,
+  };
+  return page;
+}
+
+test('Open in Studio says "Didn\'t open?" only when the page kept the focus and stayed visible', () => {
+  const quiet = fakePage();
+  let missed = 0;
+  watchOpen(quiet.win, quiet.doc, () => missed++);
+  assert.equal(quiet.timer.ms, OPEN_WAIT_MS);
+  quiet.timer.fn();
+  assert.equal(missed, 1);
+  assert.equal(quiet.listeners.size, 0);
+
+  const blurred = fakePage();
+  watchOpen(blurred.win, blurred.doc, () => missed++);
+  blurred.fire('blur');
+  blurred.timer.fn();
+  assert.equal(missed, 1);
+
+  const hidden = fakePage();
+  watchOpen(hidden.win, hidden.doc, () => missed++);
+  hidden.doc.visibilityState = 'hidden';
+  hidden.fire('visibilitychange');
+  hidden.doc.visibilityState = 'visible';
+  hidden.timer.fn();
+  assert.equal(missed, 1);
 });
 
 test('the re-read keeps what the build found of the icon at the same tag, and shows a newer one unchecked', () => {

@@ -5,7 +5,7 @@
 import Site from '../layouts/Site.astro';
 import { RANK_LABEL, loadCatalog, withFiles } from '../lib/catalog.mjs';
 import { WRITTEN } from '../lib/written.mjs';
-import { GONE, INSTALL, downloadLabel, toRows } from '../scripts/gallery.mjs';
+import { GONE, INSTALL, downloadLabel, openLink, toRows } from '../scripts/gallery.mjs';
 import { GUIDES } from '../lib/nav.mjs';
 
 // Each bot's .bmk and icon are looked up, so a card offers only a file that is there.
@@ -28,8 +28,8 @@ const publishGuide = GUIDES.publishBot;
         own version.
       </p>
       <p class="note">
-        To run one, download it and open the file in BotMaker (<a href={GUIDES.runBot}>how</a>). To change one: in
-        Studio, choose New Project, then the bot.
+        To run one, choose Open in Studio (<a href={GUIDES.runBot}>how</a>). To change one: in Studio, choose New
+        Project, then the bot.
       </p>
 
       <div class="gfilters" data-controls hidden>
@@ -59,7 +59,10 @@ const publishGuide = GUIDES.publishBot;
               {row.description && <p class="d">{row.description}</p>}
               {row.forkOf && <p class="note">based on <a href={`https://github.com/${row.forkOf}`}>{row.forkOf}</a></p>}
               {row.download ? (
-                <p class="gget"><a class="btn sm primary" href={row.download}>{downloadLabel(row)}</a> <span class="note">Opens in BotMaker — <a href={INSTALL}>install it first</a></span></p>
+                <>
+                  <p class="gget"><a class="btn sm primary" href={openLink(row.repo)} data-open={row.repo}>Open in Studio</a> <a class="gfile" href={row.download}>{downloadLabel(row)}</a> <span class="note" data-missed={row.repo} hidden>Didn't open? <a href={INSTALL}>Install BotMaker Studio</a></span></p>
+                  <p class="note gneeds">Needs <a href={INSTALL}>BotMaker Studio</a></p>
+                </>
               ) : row.gone && <p class="note">{GONE}</p>}
             </div>
             <span class="tag">{row.tag}</span>

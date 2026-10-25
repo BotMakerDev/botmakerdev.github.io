@@ -16,15 +16,47 @@ import { CATALOG_URL, RANK_LABEL, readCatalog } from '../lib/catalog-read.mjs';
  *   bmkTag?: string, bmkSha256?: string, download?: string, gone?: true}} Row
  */
 
-/** The Download button's text: it names the file's release when that is not the newest one the row shows. */
-export const downloadLabel = (row) => (row.bmkTag && row.bmkTag !== row.tag ? `Download ${row.bmkTag}` : 'Download');
+/** The Download link's text: it names the file's release when that is not the newest one the row shows. */
+export const downloadLabel = (row) => (row.bmkTag && row.bmkTag !== row.tag
+  ? `Download .bmk (${row.bmkTag})` : 'Download .bmk');
+
+/**
+ * The link Open in Studio follows: an installed Studio registers `botmaker://` and gets the catalog's file itself,
+ * so nothing lands in the reader's downloads (2026-10-25, the user's call).
+ */
+export const openLink = (repo) => `botmaker://run/${repo}`;
 
 const pagePath = (id) => `/plugins/${id}/`;
 const repoUrl = (repo) => `https://github.com/${repo}`;
 
-/** The install page, which the Download line sends to: a `.bmk` opens only where BotMaker is installed. */
+/** The install page, which the Open line sends to: a link or a `.bmk` opens only where BotMaker is installed. */
 export const INSTALL = '/install/';
 export const GONE = 'This release is no longer available.';
+
+/** How long a click on Open in Studio waits for the page to lose focus before it says Studio did not open. */
+export const OPEN_WAIT_MS = 1500;
+
+/**
+ * Calls `onMissed` when a `botmaker://` link seems to have opened nothing. A page cannot ask whether an app took the
+ * link; an app that did takes the focus (and a browser that asks first takes it too), while a scheme no app
+ * registered leaves the page as it was. So no `blur`, and still visible after `ms`, is a miss.
+ *
+ * @param {Pick<Window, 'addEventListener' | 'removeEventListener' | 'setTimeout'>} win
+ * @param {Pick<Document, 'addEventListener' | 'removeEventListener' | 'visibilityState'>} doc
+ * @param {() => void} onMissed
+ */
+export function watchOpen(win, doc, onMissed, ms = OPEN_WAIT_MS) {
+  let left = false;
+  const leave = () => { left = true; };
+  const hidden = () => { if (doc.visibilityState !== 'visible') left = true; };
+  win.addEventListener('blur', leave);
+  doc.addEventListener('visibilitychange', hidden);
+  win.setTimeout(() => {
+    win.removeEventListener('blur', leave);
+    doc.removeEventListener('visibilitychange', hidden);
+    if (!left && doc.visibilityState === 'visible') onMissed();
+  }, ms);
+}
 
 /** The square a bot without an icon shows: its name's first letter or digit. */
 export const letterOf = (name) => (/[A-Za-z0-9]/.exec(name)?.[0] ?? '?').toUpperCase();
@@ -132,9 +164,13 @@ export function renderRow(doc, row) {
     main.append(el(doc, 'p', { class: 'note' }, 'based on ', el(doc, 'a', { href: repoUrl(row.forkOf) }, row.forkOf)));
   }
   if (row.download) {
-    main.append(el(doc, 'p', { class: 'gget' },
-      el(doc, 'a', { class: 'btn sm primary', href: row.download }, downloadLabel(row)), ' ',
-      el(doc, 'span', { class: 'note' }, 'Opens in BotMaker — ', el(doc, 'a', { href: INSTALL }, 'install it first'))));
+    main.append(
+      el(doc, 'p', { class: 'gget' },
+        el(doc, 'a', { class: 'btn sm primary', href: openLink(row.repo), 'data-open': row.repo }, 'Open in Studio'), ' ',
+        el(doc, 'a', { class: 'gfile', href: row.download }, downloadLabel(row)), ' ',
+        el(doc, 'span', { class: 'note', 'data-missed': row.repo, hidden: '' },
+          'Didn\'t open? ', el(doc, 'a', { href: INSTALL }, 'Install BotMaker Studio'))),
+      el(doc, 'p', { class: 'note gneeds' }, 'Needs ', el(doc, 'a', { href: INSTALL }, 'BotMaker Studio')));
   } else if (row.gone) {
     main.append(el(doc, 'p', { class: 'note' }, GONE));
   }
@@ -157,6 +193,8 @@ export function mount(root) {
   const filter = { query: $('search').value, kind: 'all' };
   let rows = built;
   let ok = root.dataset.ok === 'true';
+  // The bots whose Open in Studio opened nothing: their "Didn't open?" line stays through a redraw.
+  const missed = new Set();
 
   function draw() {
     const shown = filterRows(rows, filter);
@@ -164,6 +202,7 @@ export function mount(root) {
     // "No bots yet" answers an unfiltered look at the bots; a search that finds nothing says so instead.
     const noBots = ok && bots === 0 && filter.kind !== 'plugins' && !filter.query.trim();
     list.replaceChildren(...shown.map((row) => renderRow(document, row)));
+    for (const line of list.querySelectorAll('[data-missed]')) line.hidden = !missed.has(line.dataset.missed);
     list.hidden = !ok || shown.length === 0;
     $('unreadable').hidden = ok;
     $('controls').hidden = !ok;
@@ -172,6 +211,17 @@ export function mount(root) {
     $('count').textContent = ok ? `${shown.length} of ${rows.length} shown` : '';
   }
 
+  list.addEventListener('click', (event) => {
+    const link = event.target instanceof Element ? event.target.closest('[data-open]') : null;
+    if (!(link instanceof HTMLElement)) return;
+    const repo = link.dataset.open;
+    // A new try starts clean: Studio may have been installed since the last miss.
+    if (missed.delete(repo)) draw();
+    watchOpen(window, document, () => {
+      missed.add(repo);
+      draw();
+    });
+  });
   $('search').addEventListener('input', (event) => {
     filter.query = event.target.value;
     draw();
