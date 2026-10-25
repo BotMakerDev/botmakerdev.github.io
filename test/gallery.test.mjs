@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { readCatalog } from '../src/lib/catalog.mjs';
-import { filterRows, mergeLive, renderRow, toRows } from '../src/scripts/gallery.mjs';
+import { downloadLabel, filterRows, letterOf, mergeLive, renderRow, toRows } from '../src/scripts/gallery.mjs';
 
 const v4 = () => JSON.parse(readFileSync(new URL('./fixtures/catalog-v4.json', import.meta.url), 'utf8'));
 
@@ -94,7 +94,9 @@ test('description is text', () => {
   json.bots[0] = { ...farmBot, description: '<img src=x onerror=alert(1)>' };
   const [row] = toRows(readCatalog(json));
   const el = renderRow(stubDocument(), row);
-  assert.ok(!all(el).some((node) => node.tagName === 'IMG'));
+  // The bot's own icon is the one picture the row draws.
+  assert.ok(row.icon);
+  assert.ok(!all(el).some((node) => node.tagName === 'IMG' && node.attributes.src !== row.icon));
   assert.ok(el.textContent.includes('<img src=x onerror=alert(1)>'));
 });
 
@@ -107,4 +109,81 @@ test('a row shows the rank, the newest tag, the fork it is based on, the stars a
   const hrefs = all(el).filter((node) => node.tagName === 'A').map((a) => a.attributes.href);
   assert.ok(hrefs.includes('https://github.com/someone/farm-bot'));
   assert.ok(hrefs.includes('https://github.com/BotMakerDev/farm-bot'));
+});
+
+const SHA = 'b'.repeat(64);
+const bmkBot = { ...farmBot, releases: [{ tag: 'v1.2.0', commit: 'abc1234', plugins: [], bmkSha256: SHA }] };
+
+test('a bot row with a .bmk shows Download and the line to install BotMaker; its icon lies over its letter', () => {
+  const json = v4();
+  json.bots.push(bmkBot);
+  const catalog = readCatalog(json);
+  catalog.bots[0] = { ...catalog.bots[0], download: 'https://github.com/someone/farm-bot/releases/download/v1.2.0/farm-1.2.0.bmk' };
+  const [row] = toRows(catalog);
+  const el = renderRow(stubDocument(), row);
+  const nodes = all(el);
+  const hrefs = nodes.filter((node) => node.tagName === 'A').map((a) => a.attributes.href);
+  assert.ok(hrefs.includes(row.download));
+  assert.ok(hrefs.includes('/install/'));
+  assert.ok(el.textContent.includes('Opens in BotMaker'));
+  const img = nodes.find((node) => node.tagName === 'IMG');
+  assert.equal(img.attributes.src, 'https://raw.githubusercontent.com/someone/farm-bot/abc1234/icon.png');
+  assert.equal(img.attributes.alt, '');
+  assert.ok(nodes.find((node) => node.className === 'gicon').textContent.startsWith('F'));
+});
+
+test('a bot whose release is gone says so and links nothing; one with no .bmk shows neither', () => {
+  const json = v4();
+  json.bots.push(bmkBot, { ...farmBot, repo: 'someone/plain-bot' });
+  const catalog = readCatalog(json);
+  catalog.bots[0] = { ...catalog.bots[0], gone: true };
+  const [gone, plain] = toRows(catalog);
+  const goneEl = renderRow(stubDocument(), gone);
+  assert.ok(goneEl.textContent.includes('This release is no longer available.'));
+  assert.ok(!all(goneEl).some((node) => node.tagName === 'A' && node.textContent === 'Download'));
+  const plainEl = renderRow(stubDocument(), plain);
+  assert.ok(!plainEl.textContent.includes('Download'));
+  assert.ok(!plainEl.textContent.includes('no longer available'));
+});
+
+test('the re-read keeps a Download only for the release the build looked up', () => {
+  const json = v4();
+  json.bots.push(bmkBot);
+  const catalog = readCatalog(json);
+  const url = 'https://github.com/someone/farm-bot/releases/download/v1.2.0/farm-1.2.0.bmk';
+  catalog.bots[0] = { ...catalog.bots[0], download: url };
+  const built = toRows(catalog);
+  assert.equal(mergeLive(built, readCatalog(json))[0].download, url);
+  const newer = v4();
+  newer.bots.push({ ...bmkBot, releases: [{ tag: 'v1.3.0', commit: 'def5678', plugins: [], bmkSha256: SHA }] });
+  assert.equal(mergeLive(built, readCatalog(newer))[0].download, undefined);
+  const repinned = v4();
+  repinned.bots.push({ ...bmkBot, releases: [{ ...bmkBot.releases[0], bmkSha256: 'c'.repeat(64) }] });
+  assert.equal(mergeLive(built, readCatalog(repinned))[0].download, undefined);
+});
+
+test('Download names the file\'s release when the newest one has no .bmk', () => {
+  const json = v4();
+  json.bots.push({ ...farmBot, releases: [{ tag: 'v1.3.0', commit: 'def5678', plugins: [] }, ...bmkBot.releases] });
+  const [row] = toRows(readCatalog(json));
+  assert.equal(downloadLabel(row), 'Download v1.2.0');
+  assert.equal(downloadLabel({ ...row, bmkTag: 'v1.3.0' }), 'Download');
+});
+
+test('the re-read keeps what the build found of the icon at the same tag, and shows a newer one unchecked', () => {
+  const json = withBot();
+  const catalog = readCatalog(json);
+  const { icon, ...noIcon } = catalog.bots[0];
+  const built = toRows({ ...catalog, bots: [noIcon] });
+  assert.equal(mergeLive(built, readCatalog(json))[0].icon, undefined);
+  const newer = v4();
+  newer.bots.push({ ...farmBot, releases: [{ tag: 'v1.3.0', commit: 'def5678', plugins: [] }] });
+  assert.equal(mergeLive(built, readCatalog(newer))[0].icon,
+    'https://raw.githubusercontent.com/someone/farm-bot/def5678/icon.png');
+});
+
+test('letterOf takes the first letter or digit', () => {
+  assert.equal(letterOf('farm-bot'), 'F');
+  assert.equal(letterOf('-9lives'), '9');
+  assert.equal(letterOf('---'), '?');
 });

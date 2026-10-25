@@ -16,6 +16,7 @@ export const GUIDES = {
   firstProgram: '/docs/tutorials/first-program/',
   makePlugin: '/docs/how-to/make-a-plugin/',
   publishBot: '/docs/how-to/publish-a-bot/',
+  runBot: '/docs/how-to/run-a-bot/',
 };
 
 /** Whether the page at `path` is in the section at `href`. */

@@ -28,3 +28,55 @@ export async function loadCatalog({ fetch = globalThis.fetch, file = process.env
     return { ok: false, reason: 'not JSON' };
   }
 }
+
+/**
+ * Where a bot release's `.bmk` downloads from, asked of the release's asset list on github.com (the page the
+ * release shows, not the REST API, as versions.mjs reads tags: no token, no hourly limit). The file is named after
+ * the bot's pom, which the catalog does not carry, so its address is read there.
+ *
+ * A release that is gone (the author deleted it, or the repository) or lists no `.bmk` answers `{gone: true}`; any
+ * other failure throws, and the build fails as it does when the catalog does not answer.
+ *
+ * @returns {Promise<{url: string} | {gone: true}>}
+ */
+export async function bmkDownload(repo, tag, { fetch = globalThis.fetch } = {}) {
+  const url = `https://github.com/${repo}/releases/expanded_assets/${encodeURIComponent(tag)}`;
+  const response = await fetch(url);
+  if (response.status === 404) return { gone: true };
+  if (!response.ok) throw new Error(`the release's files did not answer: HTTP ${response.status} from ${url}`);
+  // GitHub spells the repository its own way, whatever case the catalog uses.
+  const base = `/${repo}/releases/download/${encodeURIComponent(tag)}/`.toLowerCase();
+  const files = [...(await response.text()).matchAll(/href="([^"]+)"/g)]
+    .map((match) => match[1])
+    .filter((href) => href.toLowerCase().startsWith(base) && /^[A-Za-z0-9._-]+\.bmk$/.test(href.slice(base.length)));
+  // botmaker-cli names it <name>-<version>.bmk (BotFiles.fileName); another .bmk on the release is a fallback.
+  const version = tag.replace(/^v(?=\d)/, '');
+  const file = files.find((href) => href.endsWith(`-${version}.bmk`)) ?? files[0];
+  return file ? { url: `https://github.com${file}` } : { gone: true };
+}
+
+/** Whether the file at `url` is there: 404 is no, any other failure throws. */
+async function exists(url, { fetch = globalThis.fetch } = {}) {
+  const response = await fetch(url, { method: 'HEAD' });
+  if (response.status === 404) return false;
+  if (!response.ok) throw new Error(`HTTP ${response.status} from ${url}`);
+  return true;
+}
+
+/**
+ * The catalog with each bot's files looked up: `download` when its `.bmk` is there, `gone` when it no longer is, and
+ * `icon` only when the bot has an icon.png, so a card asks for no picture that is not there.
+ */
+export async function withFiles(catalog, options = {}) {
+  if (!catalog.ok) return catalog;
+  const bots = await Promise.all(catalog.bots.map(async ({ icon, ...bot }) => {
+    const found = bot.bmk ? await bmkDownload(bot.repo, bot.bmk.tag, options) : {};
+    return {
+      ...bot,
+      ...(icon && await exists(icon, options) ? { icon } : {}),
+      ...('url' in found ? { download: found.url } : {}),
+      ...('gone' in found ? { gone: true } : {}),
+    };
+  }));
+  return { ...catalog, bots };
+}

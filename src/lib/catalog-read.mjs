@@ -23,6 +23,10 @@ const REPO = /^[A-Za-z0-9-]+\/(?!\.+$)[A-Za-z0-9._-]+$/;
 // A plugin id names its page, /plugins/<id>/: a dotted name like com.botmaker.sdk, never a slash or only dots.
 const ID = /^(?!\.+$)[A-Za-z0-9._-]+$/;
 
+// A commit lands in the icon's address, and a .bmk's pin is a sha256: hex only, so neither can walk a link.
+const COMMIT = /^[0-9a-f]{7,40}$/;
+const SHA256 = /^[0-9a-f]{64}$/;
+
 const text = (value) => (typeof value === 'string' ? value : '');
 const count = (value) => (Number.isInteger(value) && value >= 0 ? value : 0);
 const isObject = (value) => value !== null && typeof value === 'object' && !Array.isArray(value);
@@ -55,18 +59,26 @@ function bot(row) {
   if (!isObject(row) || !REPO.test(text(row.repo)) || !RANKS.has(row.rank)) return null;
   const list = releases(row.releases, (r) => ({
     plugins: Array.isArray(r.plugins) ? r.plugins.filter((p) => isObject(p) && text(p.id)) : [],
+    ...(SHA256.test(text(r.bmkSha256)) ? { bmkSha256: r.bmkSha256 } : {}),
   }));
   if (list.length === 0) return null;
+  // The .bmk offered is the newest release's that has one: a release its author's folder had moved past lists none.
+  const bmk = list.find((r) => r.bmkSha256);
   return {
     repo: row.repo,
     rank: row.rank,
     description: text(row.description),
     stars: count(row.stars),
     ...(REPO.test(text(row.forkOf)) ? { forkOf: row.forkOf } : {}),
+    ...(COMMIT.test(list[0].commit) ? { icon: iconUrl(row.repo, list[0].commit) } : {}),
+    ...(bmk ? { bmk: { tag: bmk.tag, sha256: bmk.bmkSha256 } } : {}),
     newest: list[0],
     releases: list,
   };
 }
+
+/** The bot's `icon.png` at a commit; a bot without one answers 404 and its card keeps the letter. */
+export const iconUrl = (repo, commit) => `https://raw.githubusercontent.com/${repo}/${commit}/icon.png`;
 
 /**
  * Reads a parsed catalog.json.

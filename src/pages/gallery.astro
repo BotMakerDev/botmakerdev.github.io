@@ -3,12 +3,13 @@
 // src/scripts/gallery.mjs adds the search and the kind filter, and re-reads the catalog so a listing merged since
 // this build shows. The rows below are the same markup as its renderRow.
 import Site from '../layouts/Site.astro';
-import { RANK_LABEL, loadCatalog } from '../lib/catalog.mjs';
+import { RANK_LABEL, loadCatalog, withFiles } from '../lib/catalog.mjs';
 import { WRITTEN } from '../lib/written.mjs';
-import { toRows } from '../scripts/gallery.mjs';
+import { GONE, INSTALL, downloadLabel, toRows } from '../scripts/gallery.mjs';
 import { GUIDES } from '../lib/nav.mjs';
 
-const catalog = await loadCatalog();
+// Each bot's .bmk and icon are looked up, so a card offers only a file that is there.
+const catalog = await withFiles(await loadCatalog());
 // Every catalog plugin has a page (plugins/[id].astro), and so has every written one.
 const pages = new Set([...WRITTEN.keys(), ...(catalog.ok ? catalog.plugins.map((plugin) => plugin.id) : [])]);
 const rows = toRows(catalog, pages);
@@ -26,7 +27,10 @@ const publishGuide = GUIDES.publishBot;
         Open any bot in Studio. It stays linked to its author, so their updates reach you, and you can publish your
         own version.
       </p>
-      <p class="note">To open one: in Studio, choose New Project, then the bot.</p>
+      <p class="note">
+        To run one, download it and open the file in BotMaker (<a href={GUIDES.runBot}>how</a>). To change one: in
+        Studio, choose New Project, then the bot.
+      </p>
 
       <div class="gfilters" data-controls hidden>
         <label class="vh" for="gallery-search">Search bots and plugins</label>
@@ -48,9 +52,15 @@ const publishGuide = GUIDES.publishBot;
         {rows.map((row) => (
           <li class="grow">
             <div class="gmain">
+              {row.kind === 'bot' && (
+                <span class="gicon" aria-hidden="true">{row.letter}{row.icon && <img src={row.icon} alt="" width="44" height="44" loading="lazy" />}</span>
+              )}
               <p class="gname"><b>{row.page ? <a href={row.page}>{row.name}</a> : row.name}</b> <span class="kind">{row.kind === 'bot' ? 'Bot' : 'Plugin'}</span></p>
               {row.description && <p class="d">{row.description}</p>}
               {row.forkOf && <p class="note">based on <a href={`https://github.com/${row.forkOf}`}>{row.forkOf}</a></p>}
+              {row.download ? (
+                <p class="gget"><a class="btn sm primary" href={row.download}>{downloadLabel(row)}</a> <span class="note">Opens in BotMaker — <a href={INSTALL}>install it first</a></span></p>
+              ) : row.gone && <p class="note">{GONE}</p>}
             </div>
             <span class="tag">{row.tag}</span>
             <span class={`rank ${row.rank}`}>{RANK_LABEL[row.rank]}</span>

@@ -8,12 +8,38 @@
 import { CATALOG_URL, RANK_LABEL, readCatalog } from '../lib/catalog-read.mjs';
 
 /**
+ * A bot's `icon` is its icon.png's address, shown over its `letter`; `bmkTag` is the release whose `.bmk` the build
+ * looked up, `download` where it is and `gone` when it no longer is.
+ *
  * @typedef {{kind: 'bot' | 'plugin', id?: string, repo: string, name: string, description: string,
- *   rank: string, tag: string, stars: number, forkOf?: string, page?: string}} Row
+ *   rank: string, tag: string, stars: number, forkOf?: string, page?: string, icon?: string, letter?: string,
+ *   bmkTag?: string, bmkSha256?: string, download?: string, gone?: true}} Row
  */
+
+/** The Download button's text: it names the file's release when that is not the newest one the row shows. */
+export const downloadLabel = (row) => (row.bmkTag && row.bmkTag !== row.tag ? `Download ${row.bmkTag}` : 'Download');
 
 const pagePath = (id) => `/plugins/${id}/`;
 const repoUrl = (repo) => `https://github.com/${repo}`;
+
+/** The install page, which the Download line sends to: a `.bmk` opens only where BotMaker is installed. */
+export const INSTALL = '/install/';
+export const GONE = 'This release is no longer available.';
+
+/** The square a bot without an icon shows: its name's first letter or digit. */
+export const letterOf = (name) => (/[A-Za-z0-9]/.exec(name)?.[0] ?? '?').toUpperCase();
+
+function botRow(bot) {
+  const name = bot.repo.split('/')[1];
+  return {
+    kind: 'bot', name, letter: letterOf(name),
+    ...(bot.forkOf ? { forkOf: bot.forkOf } : {}),
+    ...(bot.icon ? { icon: bot.icon } : {}),
+    ...(bot.bmk ? { bmkTag: bot.bmk.tag, bmkSha256: bot.bmk.sha256 } : {}),
+    ...(bot.download ? { download: bot.download } : {}),
+    ...(bot.gone ? { gone: true } : {}),
+  };
+}
 
 /**
  * A read catalog as rows: bots first, then plugins, each in the catalog's order.
@@ -28,9 +54,7 @@ export function toRows(catalog, pages = new Set()) {
     repo: entry.repo, description: entry.description, rank: entry.rank, tag: entry.newest.tag, stars: entry.stars,
   });
   return [
-    ...catalog.bots.map((bot) => ({
-      kind: 'bot', name: bot.repo.split('/')[1], ...common(bot), ...(bot.forkOf ? { forkOf: bot.forkOf } : {}),
-    })),
+    ...catalog.bots.map((bot) => ({ ...common(bot), ...botRow(bot) })),
     ...catalog.plugins.map((plugin) => ({
       kind: 'plugin', id: plugin.id, name: plugin.name, ...common(plugin),
       ...(pages.has(plugin.id) ? { page: pagePath(plugin.id) } : {}),
@@ -52,7 +76,9 @@ export function filterRows(rows, { query = '', kind = 'all' } = {}) {
 
 /**
  * The rows after the browser's re-read: the live catalog's when it read, the built ones otherwise. A plugin keeps
- * the page link only when the build made that page.
+ * the page link only when the build made that page, and a bot its Download only when the build looked up that
+ * same release's `.bmk`: the browser cannot read github.com's release pages, so a newer one waits for the next build.
+ * A bot the build saw at the same tag keeps what it found of the icon; a newer one shows it unchecked, over its letter.
  *
  * @param {Row[]} built
  * @param {ReturnType<typeof readCatalog> | Error | undefined} live
@@ -60,7 +86,18 @@ export function filterRows(rows, { query = '', kind = 'all' } = {}) {
  */
 export function mergeLive(built, live, pages = new Set(built.filter((row) => row.page).map((row) => row.id))) {
   if (!live || live instanceof Error || !live.ok) return built;
-  return toRows(live, pages);
+  const builtBot = (row) => built.find((old) => old.kind === 'bot' && old.repo === row.repo);
+  return toRows(live, pages).map((row) => {
+    if (row.kind !== 'bot') return row;
+    const was = builtBot(row);
+    let next = row;
+    if (was && was.tag === row.tag) {
+      const { icon, ...rest } = row;
+      next = { ...rest, ...(was.icon ? { icon: was.icon } : {}) };
+    }
+    if (!row.bmkTag || was?.bmkTag !== row.bmkTag || was.bmkSha256 !== row.bmkSha256) return next;
+    return { ...next, ...(was.download ? { download: was.download } : {}), ...(was.gone ? { gone: true } : {}) };
+  });
 }
 
 function el(doc, tag, attrs = {}, ...children) {
@@ -81,12 +118,25 @@ function el(doc, tag, attrs = {}, ...children) {
  */
 export function renderRow(doc, row) {
   const name = row.page ? el(doc, 'a', { href: row.page }, row.name) : row.name;
-  const main = el(doc, 'div', { class: 'gmain' },
-    el(doc, 'p', { class: 'gname' }, el(doc, 'b', {}, name), ' ',
-      el(doc, 'span', { class: 'kind' }, row.kind === 'bot' ? 'Bot' : 'Plugin')));
+  const main = el(doc, 'div', { class: 'gmain' });
+  if (row.kind === 'bot') {
+    // The letter is under the picture: a bot with no icon.png (a 404, alt="") shows the letter, with no script.
+    const icon = el(doc, 'span', { class: 'gicon', 'aria-hidden': 'true' }, row.letter ?? '?');
+    if (row.icon) icon.append(el(doc, 'img', { src: row.icon, alt: '', width: '44', height: '44', loading: 'lazy' }));
+    main.append(icon);
+  }
+  main.append(el(doc, 'p', { class: 'gname' }, el(doc, 'b', {}, name), ' ',
+    el(doc, 'span', { class: 'kind' }, row.kind === 'bot' ? 'Bot' : 'Plugin')));
   if (row.description) main.append(el(doc, 'p', { class: 'd' }, row.description));
   if (row.forkOf) {
     main.append(el(doc, 'p', { class: 'note' }, 'based on ', el(doc, 'a', { href: repoUrl(row.forkOf) }, row.forkOf)));
+  }
+  if (row.download) {
+    main.append(el(doc, 'p', { class: 'gget' },
+      el(doc, 'a', { class: 'btn sm primary', href: row.download }, downloadLabel(row)), ' ',
+      el(doc, 'span', { class: 'note' }, 'Opens in BotMaker — ', el(doc, 'a', { href: INSTALL }, 'install it first'))));
+  } else if (row.gone) {
+    main.append(el(doc, 'p', { class: 'note' }, GONE));
   }
   return el(doc, 'li', { class: 'grow' },
     main,

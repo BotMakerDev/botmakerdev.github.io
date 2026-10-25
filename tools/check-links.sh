@@ -22,7 +22,8 @@ mapfile -t pages < <(find "${DIST}" -name '*.html' | sort)
 page_text() { perl -0777 -pe 's#(<script\b[^>]*>).*?</script>#$1</script>#gs' "${pages[@]}"; }
 
 # Both forms in one sweep: href="…" and a bare address inside a <pre><code> snippet.
-mapfile -t urls < <(page_text | grep -oE 'https?://[^"'"'"' <)]+' | sed 's/[.,]$//' \
+# An address inside an attribute's JSON (the gallery's data-rows) ends at its escaped quote.
+mapfile -t urls < <(page_text | grep -oE 'https?://[^"'"'"' <)]+' | sed 's/&quot;.*$//; s/[.,]$//' \
   | grep -vE '^https?://(www\.)?w3\.org/' | sort -u)
 
 # The site's own pages and files: every href or src starting with one slash.
