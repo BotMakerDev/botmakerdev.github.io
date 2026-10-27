@@ -23,10 +23,19 @@ the ones you are likely to change:
 |---|---|---|
 | `--group` | the Maven `groupId` | `com.example` |
 | `--package` | the Java package | `<group>.<name without punctuation>` |
-| `--plugin-id` | the plugin's id, unique in the catalog | `<group>.<name>` |
-| `--plugin-name` | the name a user reads | the name, titled |
+| `--plugin-name` | the name a user reads (the pom's `<name>`) | the name, titled |
 
-Put the project in its own GitHub repository: the catalog lists plugins by repository.
+The plugin's identity is its pom's `groupId:artifactId`; there is no separate id. The pom also says which class is
+the plugin, in one property:
+
+```xml
+<properties>
+    <botmaker.plugin>com.example.discordnotifier.plugin.ExamplePlugin</botmaker.plugin>
+</properties>
+```
+
+Rename or move that class and edit the property with it, or nothing loads. Put the project in its own GitHub
+repository: the catalog lists plugins by repository.
 
 ## 2. Check it
 
@@ -34,8 +43,8 @@ Put the project in its own GitHub repository: the catalog lists plugins by repos
 botmaker plugin validate
 ```
 
-This runs the checks the catalog runs on a plugin. A local pass is not a promise: two of the checks ask whether an
-id is already taken, which only the catalog can answer.
+This runs the checks the catalog runs on a plugin. A local pass is not a promise: the catalog also checks that the
+published pom declares the coordinate JitPack serves for your repository, which only a release can show.
 
 ## 3. Try it in Studio
 
@@ -65,4 +74,4 @@ the pull request that lists it in the [catalog](/docs/explanation/catalog/). The
 checks pass there. Studio users can then add it in **Plugins & Libraries**; until your account is ranked, Studio
 asks each of them before it first loads your plugin.
 
-To stop listing it: `botmaker plugin unpublish --id <plugin-id>`, or `--release <tag>` for one release only.
+To stop listing it: `botmaker plugin unpublish --repo <owner/name>`, or `--release <tag>` for one release only.

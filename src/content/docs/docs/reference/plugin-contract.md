@@ -26,13 +26,13 @@ instead.
 
 ## The plugin
 
-A plugin is one class, `StudioPlugin`, listed in `META-INF/services/com.botmaker.plugin.api.StudioPlugin`. The easy
-way to write one is `DeclaredPlugin`, which takes the whole plugin as one expression:
+A plugin is one jar with one class, a `public final` subclass of `DeclaredPlugin`, which takes the whole plugin as
+one expression:
 
 ```java
 public final class ExamplePlugin extends DeclaredPlugin {
     public ExamplePlugin() {
-        super(StudioPlugin.id("com.example.greetings").named("Greeter")
+        super(StudioPlugin.declare()
                 .types(ExampleTypes.class)
                 .values(ExampleValues.class)
                 .editors(() -> ExampleEditors.ALL));
@@ -40,8 +40,21 @@ public final class ExamplePlugin extends DeclaredPlugin {
 }
 ```
 
-The id is the plugin's identity: the catalog refuses a second plugin with the same one, and it never changes.
-Every step after `named` is optional:
+The jar's pom names that class, and Studio finds the plugin by nothing else:
+
+```xml
+<name>Greeter</name>
+<properties>
+    <botmaker.plugin>com.example.greetings.plugin.ExamplePlugin</botmaker.plugin>
+</properties>
+```
+
+The pom's `groupId:artifactId` is the plugin's identity and its `<name>` the name a user reads. A jar whose poms
+name two plugins, and a second jar with the same coordinate, are refused. If your build flattens the pom, keep
+`properties` (`<pomElements><properties>keep</properties></pomElements>`), or the published jar no longer says it
+is a plugin.
+
+Every step is optional:
 
 | Step | What it contributes |
 |---|---|

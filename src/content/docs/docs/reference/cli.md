@@ -72,7 +72,7 @@ List the bots the catalog lists, with their rank.
 ### plugin new
 
 ```
-botmaker plugin new [--dir=<directory>] [--group=<group>] [--package=<pkg>] [--plugin-id=<id>]
+botmaker plugin new [--dir=<directory>] [--group=<group>] [--package=<pkg>]
                     [--plugin-name=<name>] [--plugin-version=<version>] [--studio-api=<version>]
                     [--toolkit=<version>] <artifact-id>
 ```
@@ -86,8 +86,7 @@ alone is a working command line.
 | `--dir` | Where to generate. Default: the current folder. |
 | `--group` | The `groupId`. Default: `com.example`. |
 | `--package` | The Java package. Default: `<group>.<name with no punctuation>`. |
-| `--plugin-id` | The plugin's id; must be unique in the catalog. Default: `<group>.<name>`. |
-| `--plugin-name` | The name a user reads. Default: the artifact id, titled. |
+| `--plugin-name` | The name a user reads, the pom's `<name>`. Default: the artifact id, titled. |
 | `--plugin-version` | The new project's own version. Default: `0.1.0-SNAPSHOT`. |
 | `--studio-api`, `--toolkit` | The contract and toolkit versions in its pom. Default: the releases this `botmaker` was built with. |
 
@@ -97,8 +96,8 @@ alone is a working command line.
 botmaker plugin validate [--no-build] [--coordinate=<G:A:V>] [<dir>]
 ```
 
-Run the checks the catalog runs on a plugin. A local pass is not a promise the pull request passes: two checks ask
-whether an id is already claimed, which only the catalog can answer.
+Run the checks the catalog runs on a plugin. A local pass is not a promise the pull request passes: the catalog
+also checks that the published pom declares the coordinate JitPack serves for the repository.
 
 | Option | |
 |---|---|
@@ -137,7 +136,7 @@ pass. The options are those of `bot publish`, except that `--repo` must agree wi
 ### plugin unpublish
 
 ```
-botmaker plugin unpublish --id=<plugin-id> [--release=<tag>]
+botmaker plugin unpublish --repo=<owner/name> [--release=<tag>]
 ```
 
 Opens the pull request that removes the plugin's catalog entry, or with `--release` only that release.
