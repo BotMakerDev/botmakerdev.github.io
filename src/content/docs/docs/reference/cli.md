@@ -73,8 +73,8 @@ List the bots the catalog lists, with their rank.
 
 ```
 botmaker plugin new [--dir=<directory>] [--group=<group>] [--package=<pkg>]
-                    [--plugin-name=<name>] [--plugin-version=<version>] [--studio-api=<version>]
-                    [--toolkit=<version>] <artifact-id>
+                    [--plugin-name=<name>] [--plugin-version=<version>] [--parent=<version>]
+                    <artifact-id>
 ```
 
 Create a plugin project from the example plugin. Every value has a default derived from the artifact id, so the id
@@ -88,7 +88,7 @@ alone is a working command line.
 | `--package` | The Java package. Default: `<group>.<name with no punctuation>`. |
 | `--plugin-name` | The name a user reads, the pom's `<name>`. Default: the artifact id, titled. |
 | `--plugin-version` | The new project's own version. Default: `0.1.0-SNAPSHOT`. |
-| `--studio-api`, `--toolkit` | The contract and toolkit versions in its pom. Default: the releases this `botmaker` was built with. |
+| `--parent` | The `botmaker-plugin-parent` version its pom names, which pins the contract and the toolkit together. Default: the release this `botmaker` was built with. |
 
 ### plugin validate
 
