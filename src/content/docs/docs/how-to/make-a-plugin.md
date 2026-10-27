@@ -21,21 +21,27 @@ the ones you are likely to change:
 
 | Option | What it sets | Default |
 |---|---|---|
-| `--group` | the Maven `groupId` | `com.example` |
-| `--package` | the Java package | `<group>.<name without punctuation>` |
+| `--owner` | the GitHub account the repository goes under; the `groupId` is `com.github.<owner>` | the account `gh` is signed in to |
+| `--package` | the Java package | `com.github.<owner>.<name without punctuation>` |
 | `--plugin-name` | the name a user reads (the pom's `<name>`) | the name, titled |
 
-The plugin's identity is its pom's `groupId:artifactId`; there is no separate id. The pom also says which class is
-the plugin, in one property:
+The plugin's identity is its pom's `groupId:artifactId`, `com.github.<owner>:<name>`: what JitPack serves the
+repository `<owner>/<name>` as, so it never changes when you publish. There is no separate id. The pom also says
+which class is the plugin, in one property:
 
 ```xml
 <properties>
-    <botmaker.plugin>com.example.discordnotifier.plugin.ExamplePlugin</botmaker.plugin>
+    <botmaker.plugin>com.github.somedev.discordnotifier.plugin.ExamplePlugin</botmaker.plugin>
 </properties>
 ```
 
-Rename or move that class and edit the property with it, or nothing loads. Put the project in its own GitHub
-repository: the catalog lists plugins by repository.
+Rename or move that class and run `botmaker plugin declare` (or edit the property), or nothing loads; `validate`
+says so. Put the project in its own GitHub repository named like the folder: the catalog lists plugins by
+repository. The project also holds `jitpack.yml` and `.jitpack/`, how JitPack builds it; `plugin publish` keeps
+them current, so leave them as they are.
+
+To build against a newer Studio later, `botmaker plugin upgrade` moves the pom's `botmaker-plugin-parent`, which
+pins the contract, the toolkit and JavaFX together, to its newest release and checks the plugin again.
 
 ## 2. Check it
 

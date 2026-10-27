@@ -72,7 +72,7 @@ List the bots the catalog lists, with their rank.
 ### plugin new
 
 ```
-botmaker plugin new [--dir=<directory>] [--group=<group>] [--package=<pkg>]
+botmaker plugin new [--dir=<directory>] [--owner=<account>] [--package=<pkg>]
                     [--plugin-name=<name>] [--plugin-version=<version>] [--parent=<version>]
                     <artifact-id>
 ```
@@ -84,11 +84,31 @@ alone is a working command line.
 |---|---|
 | `<artifact-id>` | The Maven artifact id, and the folder's name, e.g. `discord-notifier`. |
 | `--dir` | Where to generate. Default: the current folder. |
-| `--group` | The `groupId`. Default: `com.example`. |
-| `--package` | The Java package. Default: `<group>.<name with no punctuation>`. |
+| `--owner` | The GitHub account the repository goes under; the `groupId` is `com.github.<owner>`. Default: the account `gh` is signed in to. |
+| `--package` | The Java package. Default: `com.github.<owner>.<name with no punctuation>`. |
 | `--plugin-name` | The name a user reads, the pom's `<name>`. Default: the artifact id, titled. |
 | `--plugin-version` | The new project's own version. Default: `0.1.0-SNAPSHOT`. |
 | `--parent` | The `botmaker-plugin-parent` version its pom names, which pins the contract and the toolkit together. Default: the release this `botmaker` was built with. |
+
+It also writes `jitpack.yml` and `.jitpack/build.sh`, how JitPack builds the plugin; `plugin publish` refreshes them.
+
+### plugin declare
+
+```
+botmaker plugin declare [--dir=<directory>] [--no-build] [<class>]
+```
+
+Set the pom's `botmaker.plugin` to the plugin class: the one class extending `DeclaredPlugin` directly, or the one
+named when there are several. `plugin validate` suggests it when the property is missing or names another class.
+
+### plugin upgrade
+
+```
+botmaker plugin upgrade [--dir=<directory>] [--to=<tag>]
+```
+
+Move the pom's `botmaker-plugin-parent` to its newest release (or `--to`'s), then compile and run the checks of
+`plugin validate`. The parent pins the contract, the toolkit and JavaFX together.
 
 ### plugin validate
 
@@ -130,7 +150,9 @@ botmaker plugin publish [--dir=<directory>] [--repo=<owner/name>] [--tag=<tag>] 
 
 Run in the plugin's folder. Bumps the newest `vX.Y.Z` tag (patch by default), checks the plugin, tags and releases
 it, waits for JitPack, checks the jar and opens the pull request listing it. The catalog's checks merge it when they
-pass. The options are those of `bot publish`, except that `--repo` must agree with the folder's origin. See
+pass. Before tagging it refuses a `-SNAPSHOT` parent, and commits `jitpack.yml` and `.jitpack/` when they differ from
+the ones this `botmaker` carries. The options are those of `bot publish`, except that `--repo` must agree with the
+folder's origin. See
 [Make and publish a plugin](/docs/how-to/make-a-plugin/).
 
 ### plugin unpublish
