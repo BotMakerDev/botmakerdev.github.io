@@ -120,8 +120,29 @@ Two annotations go on the bot's own code, which is why some plugins need the con
   date from the plugin's windows, rewriting only the value, never the code around it.
 
 The `meta` package holds the marks Studio and the bot's author write as the bot moves between versions:
-`@Refactor` and `@Migrate`. A plugin writes none of them. See
+`@Refactor` and `@Migrate`. A plugin writes none of them into a bot. See
 [How upgrades repair a program](/docs/explanation/upgrades/).
+
+## Changing your API
+
+Removing or reshaping a public method, constructor, field or class takes two releases:
+
+1. **Release N** keeps the old element, marked `@Deprecated(forRemoval = true)`, and adds a `@Migrate` rule for it
+   anywhere in your plugin. The rule is written the way a bot's author writes one, naming its owner with `value =`.
+   Your own build compiles it against the element that is still there.
+2. **Release N+1** deletes the element and its rule together.
+
+A plugin whose pom names `botmaker-plugin-parent` publishes a sources jar, and Studio reads your rules from it.
+Studio offers to rewrite a bot's uses of the deprecated element, and the bot compiles against both releases.
+A rule the bot's author writes for the same element wins over yours. A bot that jumps from before N straight past
+it does not see your rule, and gets Studio's starting rules to finish by hand.
+
+```java
+@Migrate(GameScreen.class)
+static GameScreen marker(@Migrate.Self GameScreen self, ImageTemplate marker) {
+    return self.markers(List.of(marker));
+}
+```
 
 ## What Studio hands a plugin
 

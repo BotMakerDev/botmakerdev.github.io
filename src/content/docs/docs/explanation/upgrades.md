@@ -5,8 +5,9 @@ sidebar:
   order: 3
 ---
 
-A plugin is free to change between releases. It may rename a method, reshape a value, or delete a whole class,
-and it says nothing about it. That freedom is what keeps plugins simple, but it means a newer release can break a
+A plugin is free to change between releases. It may rename a method, reshape a value, or delete a whole class.
+It usually keeps the old element deprecated for one release, with a `@Migrate` rule of its own that Studio
+applies for you, but it does not have to. That freedom is what keeps plugins simple, but it means a newer release can break a
 program written against an older one. This page explains how Studio carries your program across, and why it works
 the way it does.
 
@@ -86,6 +87,9 @@ expression, compiled against the new release.
 
 Studio **substitutes the rule, it never runs it**: at each use of the old element, it puts that use's own parts
 into the rule's body, and checks that the result compiles. All the rewrites go in as one version you can undo.
+
+A plugin may ship rules of its own, for elements it keeps deprecated for one release. Those are listed as
+"from <plugin>". They cannot be edited, but **Write my own** writes your rule in their place, and yours wins.
 
 **Project ▸ Migrate…** lists what the new release breaks and the rule each break has: none, seeded or written.
 **Write rule** writes a starting rule with the old signature and a body that compiles, marked
