@@ -35,7 +35,16 @@ public final class ExamplePlugin extends DeclaredPlugin {
         super(StudioPlugin.declare()
                 .types(ExampleTypes.class)
                 .values(ExampleValues.class)
-                .editors(() -> ExampleEditors.ALL));
+                .editors(ExampleEditors.class));
+    }
+}
+
+public final class ExampleEditors implements EditorHolder {
+    public static final SlotEditor GREETEE = SlotEditor.onParameter(Greetee.class).draw(() -> GreetingEditor::who);
+
+    @Override
+    public List<SlotEditor> editors() {
+        return List.of(GREETEE);
     }
 }
 ```
@@ -54,22 +63,26 @@ name two plugins, and a second jar with the same coordinate, are refused. If you
 `properties` (`<pomElements><properties>keep</properties></pomElements>`), or the published jar no longer says it
 is a plugin.
 
-Every step is optional:
+Every step is optional. Each surface is named by **holder classes**: the step's interface has one method saying what
+the holder gives, so a holder handed to the wrong step does not compile.
 
-| Step | What it contributes |
-|---|---|
-| `.types(Holder.class)` | Value types a project's values may be (`value` package): every `public static final` `PluginType` in the class. |
-| `.values(Holder.class)` | The plugin's managed values in the bot's Java (`source` package). |
-| `.editors(…)` | Editors for one value, shown where a block or a parameter needs one (`slot` package). |
-| `.toolbar(…)` | Buttons on Studio's toolbar, given as data (`toolbar` package). |
-| `.runOverlay(…)` | What is drawn over the game while the bot runs (`run` package). |
-| `.overlay(…)` | A panel in the overlay editor, beside the window the bot watches (`overlay` package). |
-| `.assistant(…)`, `.assistantGuide(…)` | Tools and a guide for the AI assistant that drives Studio (`assist` package). |
-| `.trial(…)` | The entry Studio calls to try one statement with **▶ Try**. |
+| Step | The holder implements | What it contributes |
+|---|---|---|
+| `.types(…)` | `TypeHolder`: `types()`, and `components()` for parts | Value types a project's values may be (`value` package). |
+| `.values(…)` | `ValueHolder`: `values()` | The plugin's managed values in the bot's Java (`source` package). |
+| `.editors(…)` | `EditorHolder`: `editors()`, narrowest first | Editors for one value, shown where a block or a parameter needs one (`slot` package). |
+| `.toolbar(…)` | `ToolbarHolder`: `toolbar()` | Buttons on Studio's toolbar, given as data (`toolbar` package). |
+| `.runOverlay(…)` | `RunOverlayHolder`: `runOverlay()` | What is drawn over the game while the bot runs (`run` package). |
+| `.overlay(…)` | `OverlayHolder`: `overlay()`, one holder | A panel in the overlay editor, beside the window the bot watches (`overlay` package). |
+| `.assistant(…)` | `AssistantHolder`: `tools()` | Tools for the AI assistant that drives Studio (`assist` package); `.assistantGuide(…)` adds its guide. |
+| `.trial(…)` | a method reference | The entry Studio calls to try one statement with **▶ Try**. |
+| `.onProjectOpened(…)`, `.onProjectClosing(…)` | method references | What the plugin does when a project opens and closes (below). |
 
 **Nothing is built before Studio asks.** A plugin is constructed while a project opens, and by tools that have
-no JavaFX at all, such as `botmaker plugin validate` and the catalog's checks. So each step takes a class or a
-supplier, and is read only when Studio needs that surface. Point a supplier at a `static final` list.
+no JavaFX at all, such as `botmaker plugin validate` and the catalog's checks. A holder is a concrete class with a
+constructor taking no arguments; Studio builds it the first time it needs that surface, so keep the values in
+`static final` fields and the constructor empty. The toolkit's `PluginTests.assertDeclared(MyPlugin.class)` runs
+the same check in your plugin's own `mvn verify`.
 
 ## The palette
 
@@ -112,9 +125,9 @@ The `meta` package holds the marks Studio and the bot's author write as the bot 
 
 ## What Studio hands a plugin
 
-When a project opens, Studio calls the plugin's `projectOpened(StudioServices)`, and `projectClosing()` when it
-closes; a plugin that opened a port or a process releases it there. One instance serves every project in turn,
-so keep `projectOpened` cheap: a project's opening waits on it, and an exception in it is reported without
+When a project opens, Studio calls the method given to `.onProjectOpened(…)` with the project's `StudioServices`,
+and the one given to `.onProjectClosing(…)` when it closes; a plugin that opened a port or a process releases it
+there. One instance serves every project in turn, so keep the opening step cheap: a project's opening waits on it, and an exception in it is reported without
 stopping the project from opening. `StudioServices` is what only Studio can answer:
 
 | Service | What it gives |
@@ -125,6 +138,11 @@ stopping the project from opening. `StudioServices` is what only Studio can answ
 | `pluginValues()` | Reading and changing the plugin's managed values in the bot's Java. |
 | `history()` | Studio's undo history, so a plugin's change undoes like any other. |
 | `status(…)` | A line in Studio's status bar. |
+| `log()` | The plugin's log: `info`, `warn` and `error` lines Studio shows under the plugin in **Plugins & Libraries**. |
+
+A plugin jar may also carry its changelog and icon: a plugin whose pom names `botmaker-plugin-parent` gets its
+`CHANGELOG.md` and `icon.png` copied in by the build. Studio shows the changelog's new sections when a user
+upgrades the plugin, and the icon beside its name.
 
 ## Compatibility
 

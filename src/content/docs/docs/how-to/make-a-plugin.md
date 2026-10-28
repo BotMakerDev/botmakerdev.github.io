@@ -24,6 +24,12 @@ the ones you are likely to change:
 | `--owner` | the GitHub account the repository goes under; the `groupId` is `com.github.<owner>` | the account `gh` is signed in to |
 | `--package` | the Java package | `com.github.<owner>.<name without punctuation>` |
 | `--plugin-name` | the name a user reads (the pom's `<name>`) | the name, titled |
+| `--class-prefix` | the start of each class name: `DiscordNotifierPlugin`, `DiscordNotifierTypes`, … | the name in CamelCase, less a trailing `-plugin` |
+| `--minimal` | a plugin class that declares nothing yet and its one test, instead of the Greeter example | off |
+
+Next to the sources sit `CHANGELOG.md` and `icon.png`. Studio shows the icon in **Plugins & Libraries** and the
+changelog's new sections when a user upgrades your plugin, so keep both current; replace the default puzzle piece
+with your own 64-pixel PNG. `DECLARE.md` walks through each kind of thing a plugin can declare.
 
 The plugin's identity is its pom's `groupId:artifactId`, `com.github.<owner>:<name>`: what JitPack serves the
 repository `<owner>/<name>` as, so it never changes when you publish. There is no separate id. The pom also says
@@ -31,12 +37,12 @@ which class is the plugin, in one property:
 
 ```xml
 <properties>
-    <botmaker.plugin>com.github.somedev.discordnotifier.plugin.ExamplePlugin</botmaker.plugin>
+    <botmaker.plugin>com.github.somedev.discordnotifier.plugin.DiscordNotifierPlugin</botmaker.plugin>
 </properties>
 ```
 
-Rename or move that class and run `botmaker plugin declare` (or edit the property), or nothing loads; `validate`
-says so. Put the project in its own GitHub repository named like the folder: the catalog lists plugins by
+Rename or move that class and run `botmaker plugin declare` (or edit the property), or nothing loads; the
+project's own test fails `mvn verify` until you do. Put the project in its own GitHub repository named like the folder: the catalog lists plugins by
 repository. The project also holds `jitpack.yml` and `.jitpack/`, how JitPack builds it; `plugin publish` keeps
 them current, so leave them as they are.
 
@@ -49,7 +55,8 @@ pins the contract, the toolkit and JavaFX together, to its newest release and ch
 botmaker plugin validate
 ```
 
-This runs the checks the catalog runs on a plugin. A local pass is not a promise: the catalog also checks that the
+This runs the checks the catalog runs on a plugin, among them building every holder class your plugin names, as
+Studio does. A missing changelog or icon is a warning, never a failure. A local pass is not a promise: the catalog also checks that the
 published pom declares the coordinate JitPack serves for your repository, which only a release can show.
 
 ## 3. Try it in Studio
