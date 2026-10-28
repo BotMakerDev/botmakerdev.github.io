@@ -1,5 +1,4 @@
 ---
-id: com.botmaker.sdk
 repo: BotMakerDev/botmaker-sdk
 name: BotMaker SDK
 summary: Game automation. Screens, pictures, reading text, flows and activities, the run overlay.
@@ -33,4 +32,4 @@ Everything it adds is Java in your bot: a screen is a class, a picture is a cons
 code and it reads like any other Java program.
 
 To use it, open a project's **Plugins & Libraries** and add the SDK. It brings the
-[Basics plugin](/plugins/com.botmaker.basics/) with it.
+[Basics plugin](/plugins/BotMakerDev/botmaker-plugin-basics/) with it.

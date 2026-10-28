@@ -13,7 +13,7 @@ Studio, do [Your first program](/docs/tutorials/first-program/) first: this one 
 
 1. On Studio's list of projects, press **Create New Project**.
 2. Name it `MyFirstBot` and choose **Blank**.
-3. In the *Plugins* list, tick **BotMaker SDK**. It brings the [Basics](/plugins/com.botmaker.basics/) plugin with
+3. In the *Plugins* list, tick **BotMaker SDK**. It brings the [Basics](/plugins/BotMakerDev/botmaker-plugin-basics/) plugin with
    it.
 4. Press **Create**.
 

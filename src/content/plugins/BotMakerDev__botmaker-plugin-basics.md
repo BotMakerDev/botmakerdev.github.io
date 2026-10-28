@@ -1,5 +1,4 @@
 ---
-id: com.botmaker.basics
 repo: BotMakerDev/botmaker-plugin-basics
 name: BotMaker Basics
 summary: Editors for everyday Java values. Durations, times, dates, colours, numbers and text.
@@ -19,5 +18,5 @@ duration picker; a `LocalTime` gets a clock. What it writes is the plain Java yo
 | `LocalDate`, `Color`, `ZoneOffset` | one editor each |
 | `DayOfWeek`, `Month` | their names |
 
-The [SDK plugin](/plugins/com.botmaker.sdk/) brings Basics with it. For any other project, add it in
+The [SDK plugin](/plugins/BotMakerDev/botmaker-sdk/) brings Basics with it. For any other project, add it in
 **Plugins & Libraries**.

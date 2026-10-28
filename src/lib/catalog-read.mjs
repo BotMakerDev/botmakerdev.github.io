@@ -9,19 +9,17 @@
 export const CATALOG_URL = 'https://raw.githubusercontent.com/BotMakerDev/botmaker-catalog/main/catalog.json';
 
 /** The one schema this site reads (botmaker-cli `Catalog.SCHEMA_VERSION`). */
-export const SCHEMA = 4;
+export const SCHEMA = 5;
 
 /** Each rank, as the pages name it. */
 export const RANK_LABEL = { admin: 'Official', trusted: 'Trusted', community: 'Community' };
 
 const RANKS = new Set(Object.keys(RANK_LABEL));
 
-// owner/name, the characters GitHub allows: a repository lands in links, so nothing else gets through.
-// A name made only of dots (`.`, `..`) would walk the link up a level, and GitHub forbids it anyway.
+// owner/name, the characters GitHub allows: a repository lands in links, and names a plugin's page
+// (/plugins/<owner>/<name>/), so nothing else gets through. A name made only of dots (`.`, `..`) would walk the link
+// up a level, and GitHub forbids it anyway.
 const REPO = /^[A-Za-z0-9-]+\/(?!\.+$)[A-Za-z0-9._-]+$/;
-
-// A plugin id names its page, /plugins/<id>/: a dotted name like com.botmaker.sdk, never a slash or only dots.
-const ID = /^(?!\.+$)[A-Za-z0-9._-]+$/;
 
 // A commit lands in the icon's address, and a .bmk's pin is a sha256: hex only, so neither can walk a link.
 const COMMIT = /^[0-9a-f]{7,40}$/;
@@ -39,17 +37,18 @@ function releases(list, more) {
     .map((r) => ({ tag: r.tag, commit: r.commit, ...more(r) }));
 }
 
+// A plugin is its repository since schema 5 (2026-10-27): the pom's coordinate is com.github.<owner>:<name>.
 function plugin(row) {
-  if (!isObject(row) || !ID.test(text(row.id)) || !REPO.test(text(row.repo)) || !RANKS.has(row.rank)) return null;
+  if (!isObject(row) || !REPO.test(text(row.repo)) || !RANKS.has(row.rank)) return null;
   const list = releases(row.releases, (r) => ({ minContractVersion: text(r.minContractVersion) }));
   if (list.length === 0) return null;
   return {
-    id: row.id,
     repo: row.repo,
     rank: row.rank,
     name: text(row.name) || row.repo.split('/')[1],
     description: text(row.description),
     stars: count(row.stars),
+    ...(COMMIT.test(list[0].commit) ? { icon: iconUrl(row.repo, list[0].commit) } : {}),
     newest: list[0],
     releases: list,
   };
@@ -58,7 +57,7 @@ function plugin(row) {
 function bot(row) {
   if (!isObject(row) || !REPO.test(text(row.repo)) || !RANKS.has(row.rank)) return null;
   const list = releases(row.releases, (r) => ({
-    plugins: Array.isArray(r.plugins) ? r.plugins.filter((p) => isObject(p) && text(p.id)) : [],
+    plugins: Array.isArray(r.plugins) ? r.plugins.filter((p) => isObject(p) && text(p.repo)) : [],
     ...(SHA256.test(text(r.bmkSha256)) ? { bmkSha256: r.bmkSha256 } : {}),
   }));
   if (list.length === 0) return null;
@@ -77,7 +76,10 @@ function bot(row) {
   };
 }
 
-/** The bot's `icon.png` at a commit; a bot without one answers 404 and its card keeps the letter. */
+/**
+ * A bot's or a plugin's `icon.png` at a commit, at the repository's root (a plugin's parent copies that file into
+ * its jar); one without it answers 404 and its card keeps the letter.
+ */
 export const iconUrl = (repo, commit) => `https://raw.githubusercontent.com/${repo}/${commit}/icon.png`;
 
 /**

@@ -10,7 +10,7 @@ then on it shows in the [Gallery](/gallery/) and in Studio's New Project, and an
 
 ## Before you start
 
-- The bot uses at least one plugin from the catalog (the [SDK](/plugins/com.botmaker.sdk/), for a game bot). A
+- The bot uses at least one plugin from the catalog (the [SDK](/plugins/BotMakerDev/botmaker-sdk/), for a game bot). A
   program that declares none is not a bot the catalog lists.
 - The project compiles and a class holds `main`.
 - You are signed in to GitHub with `gh` (`gh auth login`). `botmaker doctor` checks this and the other tools.

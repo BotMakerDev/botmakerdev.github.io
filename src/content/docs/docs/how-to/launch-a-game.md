@@ -5,7 +5,7 @@ sidebar:
   order: 5
 ---
 
-A bot made with the [SDK](/plugins/com.botmaker.sdk/) starts its game before it plays. It starts it the way you
+A bot made with the [SDK](/plugins/BotMakerDev/botmaker-sdk/) starts its game before it plays. It starts it the way you
 already do, through the launcher that has it: BotMaker adds no launch settings of its own. This guide picks the
 game, says which window the bot watches, and chooses where the game runs.
 

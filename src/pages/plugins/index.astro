@@ -5,6 +5,7 @@ import Site from '../../layouts/Site.astro';
 import { RANK_LABEL, loadCatalog } from '../../lib/catalog.mjs';
 import { WRITTEN } from '../../lib/written.mjs';
 import { GUIDES } from '../../lib/nav.mjs';
+import { pagePath } from '../../scripts/gallery.mjs';
 
 const catalog = await loadCatalog();
 const written = [...WRITTEN.values()].map((file) => file.frontmatter);
@@ -69,18 +70,18 @@ const pluginGuide = GUIDES.makePlugin;
         {catalog.ok
           ? catalog.plugins.map((plugin) => (
               <li class="prow">
-                <div><b><a href={`/plugins/${plugin.id}/`}>{plugin.name}</a></b><p class="d">{plugin.description}</p></div>
+                <div><b><a href={pagePath(plugin.repo)}>{plugin.name}</a></b><p class="d">{plugin.description}</p></div>
                 <span class="tag">{plugin.newest.tag}</span>
                 <span class={`rank ${plugin.rank}`}>{RANK_LABEL[plugin.rank]}</span>
-                <a class="btn sm" href={`/plugins/${plugin.id}/`} aria-label={`Read more about ${plugin.name}`}>Read more</a>
+                <a class="btn sm" href={pagePath(plugin.repo)} aria-label={`Read more about ${plugin.name}`}>Read more</a>
               </li>
             ))
           : written.map((front) => (
               <li class="prow">
-                <div><b><a href={`/plugins/${front.id}/`}>{front.name}</a></b><p class="d">{front.summary}</p></div>
+                <div><b><a href={pagePath(front.repo)}>{front.name}</a></b><p class="d">{front.summary}</p></div>
                 <span></span>
                 <span></span>
-                <a class="btn sm" href={`/plugins/${front.id}/`} aria-label={`Read more about ${front.name}`}>Read more</a>
+                <a class="btn sm" href={pagePath(front.repo)} aria-label={`Read more about ${front.name}`}>Read more</a>
               </li>
             ))}
         <li class="prow">

@@ -10,7 +10,7 @@ import { CATALOG_URL, readCatalog } from './catalog-read.mjs';
 export * from './catalog-read.mjs';
 
 /**
- * The catalog, from `file` when given (CATALOG_FILE: a local preview before the live catalog is schema 4),
+ * The catalog, from `file` when given (CATALOG_FILE: a local preview before the live catalog is schema 5),
  * else from the catalog repository's `main`.
  */
 export async function loadCatalog({ fetch = globalThis.fetch, file = process.env.CATALOG_FILE } = {}) {
@@ -64,11 +64,16 @@ async function exists(url, { fetch = globalThis.fetch } = {}) {
 }
 
 /**
- * The catalog with each bot's files looked up: `download` when its `.bmk` is there, `gone` when it no longer is, and
- * `icon` only when the bot has an icon.png, so a card asks for no picture that is not there.
+ * The catalog with each entry's files looked up: a bot's `download` when its `.bmk` is there, `gone` when it no
+ * longer is, and a bot's or a plugin's `icon` only when it has an icon.png, so a card asks for no picture that is
+ * not there.
  */
 export async function withFiles(catalog, options = {}) {
   if (!catalog.ok) return catalog;
+  const plugins = await Promise.all(catalog.plugins.map(async ({ icon, ...plugin }) => ({
+    ...plugin,
+    ...(icon && await exists(icon, options) ? { icon } : {}),
+  })));
   const bots = await Promise.all(catalog.bots.map(async ({ icon, ...bot }) => {
     const found = bot.bmk ? await bmkDownload(bot.repo, bot.bmk.tag, options) : {};
     return {
@@ -78,5 +83,5 @@ export async function withFiles(catalog, options = {}) {
       ...('gone' in found ? { gone: true } : {}),
     };
   }));
-  return { ...catalog, bots };
+  return { ...catalog, plugins, bots };
 }

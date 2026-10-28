@@ -8,10 +8,10 @@ import { WRITTEN } from '../lib/written.mjs';
 import { GONE, INSTALL, downloadLabel, openLink, toRows } from '../scripts/gallery.mjs';
 import { GUIDES } from '../lib/nav.mjs';
 
-// Each bot's .bmk and icon are looked up, so a card offers only a file that is there.
+// Each bot's .bmk and each entry's icon are looked up, so a card offers only a file that is there.
 const catalog = await withFiles(await loadCatalog());
-// Every catalog plugin has a page (plugins/[id].astro), and so has every written one.
-const pages = new Set([...WRITTEN.keys(), ...(catalog.ok ? catalog.plugins.map((plugin) => plugin.id) : [])]);
+// Every catalog plugin has a page (plugins/[owner]/[repo].astro), and so has every written one.
+const pages = new Set([...WRITTEN.keys(), ...(catalog.ok ? catalog.plugins.map((plugin) => plugin.repo) : [])]);
 const rows = toRows(catalog, pages);
 const bots = rows.filter((row) => row.kind === 'bot').length;
 const publishGuide = GUIDES.publishBot;
@@ -52,9 +52,7 @@ const publishGuide = GUIDES.publishBot;
         {rows.map((row) => (
           <li class="grow">
             <div class="gmain">
-              {row.kind === 'bot' && (
-                <span class="gicon" aria-hidden="true">{row.letter}{row.icon && <img src={row.icon} alt="" width="44" height="44" loading="lazy" />}</span>
-              )}
+              <span class="gicon" aria-hidden="true">{row.letter}{row.icon && <img src={row.icon} alt="" width="44" height="44" loading="lazy" />}</span>
               <p class="gname"><b>{row.page ? <a href={row.page}>{row.name}</a> : row.name}</b> <span class="kind">{row.kind === 'bot' ? 'Bot' : 'Plugin'}</span></p>
               {row.description && <p class="d">{row.description}</p>}
               {row.forkOf && <p class="note">based on <a href={`https://github.com/${row.forkOf}`}>{row.forkOf}</a></p>}

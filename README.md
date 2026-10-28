@@ -16,8 +16,8 @@ npx astro preview              # serves dist/ at http://localhost:4321/
 tools/check-links.sh dist
 ```
 
-`CATALOG_FILE=test/fixtures/catalog-v4.json npm run build` reads a local catalog instead of
-botmaker-catalog's `main`, for a preview while the live one is not schema 4 yet. After a change to how code
+`CATALOG_FILE=test/fixtures/catalog-v5.json npm run build` reads a local catalog instead of
+botmaker-catalog's `main`, for a preview while the live one is not schema 5 yet. After a change to how code
 blocks render (Expressive Code), build clean: `rm -rf dist .astro node_modules/.astro` first, or a stale content
 cache keeps the old renders and their stylesheet 404s.
 

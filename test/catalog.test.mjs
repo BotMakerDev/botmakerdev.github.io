@@ -5,74 +5,77 @@ import { fileURLToPath } from 'node:url';
 import { bmkDownload, readCatalog, loadCatalog, withFiles } from '../src/lib/catalog.mjs';
 
 const fixture = (name) => new URL(`./fixtures/${name}`, import.meta.url);
-const v4 = () => JSON.parse(readFileSync(fixture('catalog-v4.json'), 'utf8'));
+const v5 = () => JSON.parse(readFileSync(fixture('catalog-v5.json'), 'utf8'));
+const SDK = 'BotMakerDev/botmaker-sdk';
 
 function respond(status, body) {
   return async () => ({ ok: status >= 200 && status < 300, status, text: async () => body });
 }
 
-test('schema 4 reads', () => {
-  const catalog = readCatalog(v4());
+test('schema 5 reads, each plugin named by its repository, with its icon at the newest commit', () => {
+  const catalog = readCatalog(v5());
   assert.equal(catalog.ok, true);
-  const sdk = catalog.plugins.find((p) => p.id === 'com.botmaker.sdk');
+  const sdk = catalog.plugins.find((p) => p.repo === SDK);
   assert.equal(sdk.rank, 'admin');
   assert.equal(sdk.newest.tag, sdk.releases[0].tag);
   assert.equal(sdk.newest.tag, 'v1.5.0');
   assert.equal(sdk.releases.length, 2);
+  assert.equal(sdk.icon,
+    'https://raw.githubusercontent.com/BotMakerDev/botmaker-sdk/8aea5e75b92bced769891f75e43c13cf557a3eb3/icon.png');
+  assert.equal('id' in sdk, false);
   assert.deepEqual(catalog.bots, []);
 });
 
-test('schema 3 is unreadable', () => {
-  const catalog = readCatalog(JSON.parse(readFileSync(fixture('catalog-v3.json'), 'utf8')));
+test('schema 4, whose plugins carried an id, is unreadable', () => {
+  const catalog = readCatalog(JSON.parse(readFileSync(fixture('catalog-v4.json'), 'utf8')));
   assert.equal(catalog.ok, false);
-  assert.match(catalog.reason, /schema 3/);
+  assert.match(catalog.reason, /schema 4/);
 });
 
 test('a row without releases is left out, the others kept', () => {
-  const json = v4();
+  const json = v5();
   delete json.plugins[0].releases;
-  json.plugins.push({ ...json.plugins[1], id: 'x.empty', releases: [] });
+  json.plugins.push({ ...json.plugins[1], repo: 'x/empty', releases: [] });
   const catalog = readCatalog(json);
-  assert.deepEqual(catalog.plugins.map((p) => p.id), ['com.botmaker.sdk']);
+  assert.deepEqual(catalog.plugins.map((p) => p.repo), [SDK]);
 });
 
 test('an unknown rank is left out, the others kept', () => {
-  const json = v4();
+  const json = v5();
   json.plugins[0].rank = 'gold';
-  assert.deepEqual(readCatalog(json).plugins.map((p) => p.id), ['com.botmaker.sdk']);
+  assert.deepEqual(readCatalog(json).plugins.map((p) => p.repo), [SDK]);
 });
 
-test('a repository that is not owner/name is left out', () => {
-  const json = v4();
-  json.plugins[0].repo = 'javascript:alert(1)';
-  assert.deepEqual(readCatalog(json).plugins.map((p) => p.id), ['com.botmaker.sdk']);
-  json.plugins[0].repo = 'BotMakerDev/..';
-  assert.deepEqual(readCatalog(json).plugins.map((p) => p.id), ['com.botmaker.sdk']);
-});
-
-test('a plugin id that cannot name a page is left out', () => {
-  for (const id of ['../../etc', 'a/b', '..', 'with space']) {
-    const json = v4();
-    json.plugins[0].id = id;
-    assert.deepEqual(readCatalog(json).plugins.map((p) => p.id), ['com.botmaker.sdk'], id);
+test('a repository that cannot name a page is left out', () => {
+  for (const repo of ['javascript:alert(1)', 'BotMakerDev/..', '../../etc', 'a/b/c', 'with space/x', 'com.botmaker.basics']) {
+    const json = v5();
+    json.plugins[0].repo = repo;
+    assert.deepEqual(readCatalog(json).plugins.map((p) => p.repo), [SDK], repo);
   }
 });
 
+test('a plugin whose newest commit is not hex shows no icon', () => {
+  const json = v5();
+  json.plugins[1].releases[0].commit = '../../x';
+  assert.equal(readCatalog(json).plugins[1].icon, undefined);
+});
+
 test('a description is kept as the text it is', () => {
-  const json = v4();
+  const json = v5();
   json.plugins[0].description = '<script>alert(1)</script>';
   assert.equal(readCatalog(json).plugins[0].description, '<script>alert(1)</script>');
 });
 
-test('a bot reads, with the repository it was forked from', () => {
-  const json = v4();
+test('a bot reads, with the repository it was forked from and its plugins by repository', () => {
+  const json = v5();
   json.bots.push({
     repo: 'someone/farm-bot', rank: 'community', stars: 2, forkOf: 'BotMakerDev/farm-bot',
-    releases: [{ tag: 'v1.0.0', commit: 'abc', plugins: [{ id: 'com.botmaker.sdk', version: 'v1.5.0' }] }],
+    releases: [{ tag: 'v1.0.0', commit: 'abc', plugins: [{ repo: SDK, version: 'v1.5.0' }, { id: 'com.botmaker.sdk' }] }],
   });
   const [bot] = readCatalog(json).bots;
   assert.equal(bot.forkOf, 'BotMakerDev/farm-bot');
   assert.equal(bot.newest.tag, 'v1.0.0');
+  assert.deepEqual(bot.newest.plugins, [{ repo: SDK, version: 'v1.5.0' }]);
   assert.equal(bot.description, '');
 });
 
@@ -98,7 +101,7 @@ test('a catalog that does not answer fails the build', async () => {
 test('CATALOG_FILE reads a local file and fetches nothing', async () => {
   const catalog = await loadCatalog({
     fetch: async () => assert.fail('fetched'),
-    file: fileURLToPath(fixture('catalog-v4.json')),
+    file: fileURLToPath(fixture('catalog-v5.json')),
   });
   assert.equal(catalog.ok, true);
 });
@@ -107,7 +110,7 @@ const SHA = 'a'.repeat(64);
 const firestone = (releases) => ({ repo: 'someone/firestone-bot', rank: 'community', stars: 0, releases });
 
 test('a bot offers the .bmk of its newest release that has one, and its icon at the newest commit', () => {
-  const json = v4();
+  const json = v5();
   json.bots.push(firestone([
     { tag: 'v1.1.0', commit: 'bbbbbbb', plugins: [] },
     { tag: 'v1.0.0', commit: 'aaaaaaa', plugins: [], bmkSha256: SHA },
@@ -119,7 +122,7 @@ test('a bot offers the .bmk of its newest release that has one, and its icon at 
 });
 
 test('a bot with no .bmk, a pin that is not a sha256, or a commit that is not hex offers neither', () => {
-  const json = v4();
+  const json = v5();
   json.bots.push(firestone([{ tag: 'v1.0.0', commit: '../../x', plugins: [], bmkSha256: 'not-a-sha' }]));
   const [bot] = readCatalog(json).bots;
   assert.equal(bot.bmk, undefined);
@@ -157,7 +160,7 @@ test('a release page that fails otherwise fails the build', async () => {
 });
 
 test('withFiles looks up the .bmk of the bots that pin one, and keeps an icon only when it is there', async () => {
-  const json = v4();
+  const json = v5();
   json.bots.push(firestone([{ tag: 'v1.0.0', commit: 'aaaaaaa', plugins: [], bmkSha256: SHA }]));
   json.bots.push({ ...firestone([{ tag: 'v2.0.0', commit: 'ccccccc', plugins: [] }]), repo: 'someone/plain-bot' });
   json.bots.push({ ...firestone([{ tag: 'v3.0.0', commit: 'ddddddd', plugins: [], bmkSha256: SHA }]), repo: 'someone/gone-bot' });
@@ -175,8 +178,15 @@ test('withFiles looks up the .bmk of the bots that pin one, and keeps an icon on
   assert.equal(bots[2].icon, undefined);
 });
 
+test('withFiles keeps a plugin\'s icon only when it is there', async () => {
+  const fetch = async (url) => ({ ok: !url.includes('basics'), status: url.includes('basics') ? 404 : 200 });
+  const { plugins } = await withFiles(readCatalog(v5()), { fetch });
+  assert.equal(plugins[0].icon, undefined);
+  assert.match(plugins[1].icon, /botmaker-sdk\/8aea5e7.*\/icon\.png$/);
+});
+
 test('an icon that fails otherwise than 404 fails the build', async () => {
-  const json = v4();
+  const json = v5();
   json.bots.push(firestone([{ tag: 'v1.0.0', commit: 'aaaaaaa', plugins: [] }]));
   await assert.rejects(withFiles(readCatalog(json), { fetch: respond(503, '') }), /HTTP 503/);
 });

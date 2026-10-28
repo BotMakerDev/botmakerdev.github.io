@@ -5,7 +5,7 @@ sidebar:
   order: 3
 ---
 
-The [BotMaker SDK](/plugins/com.botmaker.sdk/) adds its blocks to the block menu under **FROM PLUGINS ▸
+The [BotMaker SDK](/plugins/BotMakerDev/botmaker-sdk/) adds its blocks to the block menu under **FROM PLUGINS ▸
 BotMaker SDK**, one submenu per class, each listing the class's methods. A block is one call: **Wait ▸ seconds**
 writes `Wait.seconds(…)`. Typing in the menu's search box finds a block by name across every submenu. A method
 with several forms is one block; Studio picks the form when it writes it, and you change its values on the block.

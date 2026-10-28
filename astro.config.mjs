@@ -13,6 +13,11 @@ import { DARK_EDITOR, MANUAL } from './src/lib/code-themes.mjs';
 export default defineConfig({
   site: 'https://botmakerdev.github.io',
   trailingSlash: 'always',
+  // A plugin's page was named by its id until the catalog's schema 5 (2026-10-27) named plugins by repository.
+  redirects: {
+    '/plugins/com.botmaker.sdk/': '/plugins/BotMakerDev/botmaker-sdk/',
+    '/plugins/com.botmaker.basics/': '/plugins/BotMakerDev/botmaker-plugin-basics/',
+  },
   integrations: [
     starlight({
       title: 'BotMaker docs',

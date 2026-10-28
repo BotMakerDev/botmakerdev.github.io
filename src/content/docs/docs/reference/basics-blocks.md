@@ -5,12 +5,12 @@ sidebar:
   order: 2
 ---
 
-[Basics](/plugins/com.botmaker.basics/) adds no blocks. It adds fourteen of Java's own value types, each with an
+[Basics](/plugins/BotMakerDev/botmaker-plugin-basics/) adds no blocks. It adds fourteen of Java's own value types, each with an
 editor, so that wherever Studio asks for a value of one of them (a variable block, a block's value, a parameter in
 **Project ▸ Parameters…**) you pick it instead of typing it. Nothing of Basics runs in your program: what it
 writes is plain Java.
 
-The [SDK](/plugins/com.botmaker.sdk/) brings Basics with it. Do not add Basics beside a plugin that already brings
+The [SDK](/plugins/BotMakerDev/botmaker-sdk/) brings Basics with it. Do not add Basics beside a plugin that already brings
 it: the copy you add would win, and the plugin would run against a version it was not built for.
 
 ## The types

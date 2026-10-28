@@ -6,15 +6,16 @@ import {
   OPEN_WAIT_MS, downloadLabel, filterRows, letterOf, mergeLive, renderRow, toRows, watchOpen,
 } from '../src/scripts/gallery.mjs';
 
-const v4 = () => JSON.parse(readFileSync(new URL('./fixtures/catalog-v4.json', import.meta.url), 'utf8'));
+const v5 = () => JSON.parse(readFileSync(new URL('./fixtures/catalog-v5.json', import.meta.url), 'utf8'));
+const SDK = 'BotMakerDev/botmaker-sdk';
 
 const farmBot = {
   repo: 'someone/farm-bot', rank: 'community', stars: 3, forkOf: 'BotMakerDev/farm-bot',
   description: 'Waters the crops every morning.',
-  releases: [{ tag: 'v1.2.0', commit: 'abc1234', plugins: [{ id: 'com.botmaker.sdk' }] }],
+  releases: [{ tag: 'v1.2.0', commit: 'abc1234', plugins: [{ repo: SDK, version: 'v1.5.0' }] }],
 };
 
-function withBot(json = v4()) {
+function withBot(json = v5()) {
   json.bots.push(farmBot);
   return json;
 }
@@ -41,14 +42,25 @@ function stubDocument() {
 const all = (el) => [el, ...(el.children ?? []).flatMap(all)];
 
 test('rows: bots first, then plugins, each with its kind, rank and newest tag', () => {
-  const rows = toRows(readCatalog(withBot()), new Set(['com.botmaker.sdk']));
+  const rows = toRows(readCatalog(withBot()), new Set([SDK]));
   assert.deepEqual(rows.map((row) => row.kind), ['bot', 'plugin', 'plugin']);
   const [bot, , sdk] = rows;
   assert.equal(bot.tag, 'v1.2.0');
   assert.equal(bot.forkOf, 'BotMakerDev/farm-bot');
   assert.equal(sdk.tag, 'v1.5.0');
-  assert.equal(sdk.page, '/plugins/com.botmaker.sdk/');
+  assert.equal(sdk.page, '/plugins/BotMakerDev/botmaker-sdk/');
   assert.equal(rows[1].page, undefined);
+});
+
+test('a plugin row shows its icon over its letter', () => {
+  const [basics, sdk] = toRows(readCatalog(v5()), new Set([SDK]));
+  assert.equal(sdk.letter, 'B');
+  const nodes = all(renderRow(stubDocument(), sdk));
+  const icon = nodes.find((node) => node.className === 'gicon');
+  assert.ok(icon.textContent.startsWith('B'));
+  assert.equal(nodes.find((node) => node.tagName === 'IMG').attributes.src, sdk.icon);
+  const { icon: _, ...plain } = basics;
+  assert.ok(!all(renderRow(stubDocument(), plain)).some((node) => node.tagName === 'IMG'));
 });
 
 test('filterRows by kind', () => {
@@ -68,24 +80,24 @@ test('filterRows by a query matching the repository, the name or the description
 });
 
 test('failed re-read keeps the built list', () => {
-  const built = toRows(readCatalog(v4()), new Set(['com.botmaker.sdk']));
+  const built = toRows(readCatalog(v5()), new Set([SDK]));
   assert.equal(mergeLive(built, new Error('offline')), built);
   assert.equal(mergeLive(built, { ok: false, reason: 'schema 3' }), built);
   assert.equal(mergeLive(built, undefined), built);
 });
 
 test('a live result adds a newly listed bot, and keeps the pages the build made', () => {
-  const built = toRows(readCatalog(v4()), new Set(['com.botmaker.sdk']));
+  const built = toRows(readCatalog(v5()), new Set([SDK]));
   const rows = mergeLive(built, readCatalog(withBot()));
   assert.deepEqual(rows.map((row) => row.repo), ['someone/farm-bot', ...built.map((row) => row.repo)]);
-  assert.equal(rows.find((row) => row.id === 'com.botmaker.sdk').page, '/plugins/com.botmaker.sdk/');
+  assert.equal(rows.find((row) => row.repo === SDK).page, '/plugins/BotMakerDev/botmaker-sdk/');
 });
 
 test('a plugin listed after the build links its repository, not a page that does not exist', () => {
-  const built = toRows(readCatalog(v4()), new Set(['com.botmaker.sdk']));
-  const json = v4();
-  json.plugins.push({ ...json.plugins[1], id: 'org.weather', repo: 'someone/weather' });
-  const added = mergeLive(built, readCatalog(json)).find((row) => row.id === 'org.weather');
+  const built = toRows(readCatalog(v5()), new Set([SDK]));
+  const json = v5();
+  json.plugins.push({ ...json.plugins[1], repo: 'someone/weather' });
+  const added = mergeLive(built, readCatalog(json)).find((row) => row.repo === 'someone/weather');
   assert.equal(added.page, undefined);
   const links = all(renderRow(stubDocument(), added)).filter((el) => el.tagName === 'A');
   assert.deepEqual(links.map((a) => a.attributes.href), ['https://github.com/someone/weather']);
@@ -117,7 +129,7 @@ const SHA = 'b'.repeat(64);
 const bmkBot = { ...farmBot, releases: [{ tag: 'v1.2.0', commit: 'abc1234', plugins: [], bmkSha256: SHA }] };
 
 test('a bot row with a .bmk shows Open in Studio, Download .bmk, the install line and a hidden "Didn\'t open?"', () => {
-  const json = v4();
+  const json = v5();
   json.bots.push(bmkBot);
   const catalog = readCatalog(json);
   catalog.bots[0] = { ...catalog.bots[0], download: 'https://github.com/someone/farm-bot/releases/download/v1.2.0/farm-1.2.0.bmk' };
@@ -142,7 +154,7 @@ test('a bot row with a .bmk shows Open in Studio, Download .bmk, the install lin
 });
 
 test('a bot whose release is gone says so and links nothing; one with no .bmk shows neither', () => {
-  const json = v4();
+  const json = v5();
   json.bots.push(bmkBot, { ...farmBot, repo: 'someone/plain-bot' });
   const catalog = readCatalog(json);
   catalog.bots[0] = { ...catalog.bots[0], gone: true };
@@ -158,23 +170,23 @@ test('a bot whose release is gone says so and links nothing; one with no .bmk sh
 });
 
 test('the re-read keeps a Download only for the release the build looked up', () => {
-  const json = v4();
+  const json = v5();
   json.bots.push(bmkBot);
   const catalog = readCatalog(json);
   const url = 'https://github.com/someone/farm-bot/releases/download/v1.2.0/farm-1.2.0.bmk';
   catalog.bots[0] = { ...catalog.bots[0], download: url };
   const built = toRows(catalog);
   assert.equal(mergeLive(built, readCatalog(json))[0].download, url);
-  const newer = v4();
+  const newer = v5();
   newer.bots.push({ ...bmkBot, releases: [{ tag: 'v1.3.0', commit: 'def5678', plugins: [], bmkSha256: SHA }] });
   assert.equal(mergeLive(built, readCatalog(newer))[0].download, undefined);
-  const repinned = v4();
+  const repinned = v5();
   repinned.bots.push({ ...bmkBot, releases: [{ ...bmkBot.releases[0], bmkSha256: 'c'.repeat(64) }] });
   assert.equal(mergeLive(built, readCatalog(repinned))[0].download, undefined);
 });
 
 test('Download names the file\'s release when the newest one has no .bmk', () => {
-  const json = v4();
+  const json = v5();
   json.bots.push({ ...farmBot, releases: [{ tag: 'v1.3.0', commit: 'def5678', plugins: [] }, ...bmkBot.releases] });
   const [row] = toRows(readCatalog(json));
   assert.equal(downloadLabel(row), 'Download .bmk (v1.2.0)');
@@ -226,7 +238,7 @@ test('the re-read keeps what the build found of the icon at the same tag, and sh
   const { icon, ...noIcon } = catalog.bots[0];
   const built = toRows({ ...catalog, bots: [noIcon] });
   assert.equal(mergeLive(built, readCatalog(json))[0].icon, undefined);
-  const newer = v4();
+  const newer = v5();
   newer.bots.push({ ...farmBot, releases: [{ tag: 'v1.3.0', commit: 'def5678', plugins: [] }] });
   assert.equal(mergeLive(built, readCatalog(newer))[0].icon,
     'https://raw.githubusercontent.com/someone/farm-bot/def5678/icon.png');

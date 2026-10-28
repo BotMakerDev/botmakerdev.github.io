@@ -1,20 +1,25 @@
 ---
-// One page per plugin: every plugin the catalog lists, and every one with a page written by hand
-// (src/lib/written.mjs). A written page is its file; any other is generated from its catalog row. The releases
-// come from the catalog, so they show only when it reads.
-import Site from '../../layouts/Site.astro';
-import Figure from '../../components/Figure.astro';
-import { RANK_LABEL, loadCatalog } from '../../lib/catalog.mjs';
-import { WRITTEN } from '../../lib/written.mjs';
+// One page per plugin, at /plugins/<owner>/<repo>/: every plugin the catalog lists, and every one with a page
+// written by hand (src/lib/written.mjs). A plugin is its repository (catalog schema 5), so that names the page. A
+// written page is its file; any other is generated from its catalog row. The releases and the icon come from the
+// catalog, so they show only when it reads.
+import Site from '../../../layouts/Site.astro';
+import Figure from '../../../components/Figure.astro';
+import { RANK_LABEL, loadCatalog, withFiles } from '../../../lib/catalog.mjs';
+import { WRITTEN } from '../../../lib/written.mjs';
+import { letterOf } from '../../../scripts/gallery.mjs';
 
 export async function getStaticPaths() {
-  const catalog = await loadCatalog();
+  const catalog = await withFiles(await loadCatalog());
   const listed = catalog.ok ? catalog.plugins : [];
-  const ids = new Set([...WRITTEN.keys(), ...listed.map((plugin) => plugin.id)]);
-  return [...ids].map((id) => ({
-    params: { id },
-    props: { plugin: listed.find((p) => p.id === id), written: WRITTEN.get(id) },
-  }));
+  const repos = new Set([...WRITTEN.keys(), ...listed.map((plugin) => plugin.repo)]);
+  return [...repos].map((repo) => {
+    const [owner, name] = repo.split('/');
+    return {
+      params: { owner, repo: name },
+      props: { plugin: listed.find((p) => p.repo === repo), written: WRITTEN.get(repo) },
+    };
+  });
 }
 
 const { plugin, written } = Astro.props;
@@ -30,7 +35,10 @@ const features = front?.features ?? [];
   <section class="first">
     <div class="wrap">
       <p class="eyebrow"><a href="/plugins/">Plugins</a> / {name}</p>
-      <h1>{front ? <>{front.headline}<br /><em>{front.emphasis}</em></> : name}</h1>
+      <div class="phead">
+        <span class="gicon" aria-hidden="true">{letterOf(name)}{plugin?.icon && <img src={plugin.icon} alt="" width="44" height="44" />}</span>
+        <h1>{front ? <>{front.headline}<br /><em>{front.emphasis}</em></> : name}</h1>
+      </div>
       {lede && <p class="lede">{lede}</p>}
       <div class="ctas">
         <a class="btn" href={`https://github.com/${repo}`}>Repository</a>

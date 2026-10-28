@@ -1,0 +1,46 @@
+{
+  "schemaVersion" : 5,
+  "builtAt" : "2026-10-28T09:00:00Z",
+  "plugins" : [ {
+    "repo" : "BotMakerDev/botmaker-plugin-basics",
+    "rank" : "admin",
+    "coordinate" : "com.github.BotMakerDev:botmaker-plugin-basics",
+    "name" : "BotMaker Basics Plugin",
+    "description" : "Value editors for the JDK's own types: durations, times, dates.",
+    "stars" : 0,
+    "releases" : [ {
+      "tag" : "v0.4.0",
+      "commit" : "de3473b9fd1387e2066d3712bf01de1746949a93",
+      "jarSha256" : "0000000000000000000000000000000000000000000000000000000000000000",
+      "pomSha256" : "0000000000000000000000000000000000000000000000000000000000000000",
+      "minContractVersion" : "v0.10.0"
+    } ]
+  }, {
+    "repo" : "BotMakerDev/botmaker-sdk",
+    "rank" : "admin",
+    "coordinate" : "com.github.BotMakerDev:botmaker-sdk",
+    "name" : "botmaker-sdk",
+    "description" : "Game automation: screens, pictures, reading text, flows and activities.",
+    "tags" : [ "automation" ],
+    "stars" : 1,
+    "releases" : [ {
+      "tag" : "v1.5.0",
+      "commit" : "8aea5e75b92bced769891f75e43c13cf557a3eb3",
+      "jarSha256" : "0000000000000000000000000000000000000000000000000000000000000000",
+      "pomSha256" : "0000000000000000000000000000000000000000000000000000000000000000",
+      "minContractVersion" : "v0.10.0",
+      "editorDependencies" : [ "io.javalin:javalin:6.7.0", "com.google.zxing:core:3.5.3" ],
+      "plugins" : [ {
+        "repo" : "BotMakerDev/botmaker-plugin-basics",
+        "version" : "v0.4.0"
+      } ]
+    }, {
+      "tag" : "v1.4.2",
+      "commit" : "83f361986442ba24b6c761b8c82a8ed367c04b85",
+      "jarSha256" : "0000000000000000000000000000000000000000000000000000000000000000",
+      "pomSha256" : "0000000000000000000000000000000000000000000000000000000000000000",
+      "minContractVersion" : "v0.10.0"
+    } ]
+  } ],
+  "bots" : [ ]
+}
