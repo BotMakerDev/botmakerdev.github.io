@@ -58,6 +58,26 @@ export function installerSnippet({ pages = PAGES, repo }) {
   return `curl -fsSL ${pages}/${repo}/install.sh | sudo bash`;
 }
 
+/**
+ * The AUR packages among `names` that the AUR lists today. A package is named in tools.json before its first
+ * upload (the upload needs an AUR account, and registration can be closed), so the page shows an Arch command only
+ * once the AUR answers for it. An AUR that does not answer lists nothing: the Arch lines drop out, the build goes on.
+ *
+ * @returns {Promise<Set<string>>}
+ */
+export async function aurListed(names, { fetch = globalThis.fetch } = {}) {
+  if (names.length === 0) return new Set();
+  const query = names.map((name) => `arg[]=${encodeURIComponent(name)}`).join('&');
+  try {
+    const response = await fetch(`https://aur.archlinux.org/rpc/v5/info?${query}`);
+    if (!response.ok) return new Set();
+    const { results = [] } = await response.json();
+    return new Set(results.map((r) => r.Name).filter((name) => names.includes(name)));
+  } catch {
+    return new Set();
+  }
+}
+
 /** Installs a tool's Arch User Repository package (tools.json `aur`) with an AUR helper. */
 export function aurSnippet({ aur }) {
   if (!aur) throw new Error('no AUR package named');

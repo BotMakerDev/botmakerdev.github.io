@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import {
   dnfSnippet, aptSnippet, download, appImageSnippet, downloadSnippet, allInOne, assertOneSigningKey, withCode,
-  requiredTools, installerSnippet, aurSnippet,
+  requiredTools, installerSnippet, aurSnippet, aurListed,
 } from '../src/lib/tools.mjs';
 import { systemOf } from '../src/lib/system.mjs';
 
@@ -56,6 +56,19 @@ test('the installer and AUR snippets', () => {
     'curl -fsSL https://botmakerdev.github.io/botmaker-studio/install.sh | sudo bash');
   assert.equal(aurSnippet({ aur: 'botmaker-studio-bin' }), 'yay -S botmaker-studio-bin');
   assert.throws(() => aurSnippet({}), /no AUR package/);
+});
+
+test('only the AUR packages the AUR lists are listed; an AUR that fails lists none', async () => {
+  const answer = (body, ok = true) => async () => ({ ok, json: async () => body });
+  const names = ['botmaker-studio-bin', 'botmaker-bin'];
+  assert.deepEqual(
+    [...await aurListed(names, { fetch: answer({ results: [{ Name: 'botmaker-bin' }, { Name: 'other' }] }) })],
+    ['botmaker-bin'],
+  );
+  assert.equal((await aurListed(names, { fetch: answer({ resultcount: 0, results: [] }) })).size, 0);
+  assert.equal((await aurListed(names, { fetch: answer({}, false) })).size, 0);
+  assert.equal((await aurListed(names, { fetch: async () => { throw new Error('offline'); } })).size, 0);
+  assert.equal((await aurListed([], { fetch: async () => { throw new Error('never called'); } })).size, 0);
 });
 
 test('a one-click download is the tagged release file, named from its pattern', () => {

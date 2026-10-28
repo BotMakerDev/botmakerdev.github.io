@@ -9,7 +9,7 @@ import { OWNER, latestTag } from '../lib/versions.mjs';
 import { GUIDES } from '../lib/nav.mjs';
 import {
   allInOne, aptSnippet, appImageSnippet, assertOneSigningKey, aurSnippet, dnfSnippet, download, downloadSnippet,
-  installerSnippet, requiredTools,
+  aurListed, installerSnippet, requiredTools,
 } from '../lib/tools.mjs';
 
 // A version is shown for what you download, and only for that: a repository that cuts no release would make
@@ -28,6 +28,10 @@ const others = tools.filter((tool) => tool !== studio);
 const studioNeeds = requiredTools(studio, tools);
 // The AUR package pulls its requirements' AUR packages, so each one must have one.
 for (const tool of studioNeeds) if (!tool.aur) throw new Error(`botmaker-studio requires ${tool.repo}, which names no AUR package`);
+// An Arch command only for a package the AUR lists today; Studio's only once its requirements' are listed too.
+const listed = await aurListed(tools.flatMap((tool) => (tool.aur ? [tool.aur] : [])));
+const onAur = (tool) => Boolean(tool.aur) && listed.has(tool.aur);
+const studioOnAur = onAur(studio) && studioNeeds.every(onAur);
 
 const everything = allInOne(tools);
 await assertOneSigningKey(tools.filter((tool) => tool.package).map((tool) => tool.repo));
@@ -41,7 +45,7 @@ const dmg = download(studio, 'macos');
 const firstProgram = GUIDES.firstProgram;
 
 const systems = [
-  { id: 'linux', name: 'Linux', note: 'Fedora, RHEL · Debian, Ubuntu · Arch · AppImage' },
+  { id: 'linux', name: 'Linux', note: `Fedora, RHEL · Debian, Ubuntu${studioOnAur ? ' · Arch' : ''} · AppImage` },
   { id: 'windows', name: 'Windows', note: 'Windows 10 and 11 · .msi installer' },
   { id: 'macos', name: 'macOS', note: 'Apple Silicon · .dmg' },
 ];
@@ -73,10 +77,14 @@ const systems = [
             <Snippet code={installerSnippet(studio)} />
             <p class="note">It adds BotMaker's package repositories for dnf or apt, then installs Studio and
               the <code>botmaker</code> command it needs. Run it again to upgrade.</p>
-            <h4 class="distro">Arch · Manjaro · EndeavourOS</h4>
-            <Snippet code={aurSnippet(studio)} />
-            <p class="note">From the Arch User Repository, with <code>yay</code> or any AUR helper; it
-              brings <code>{studioNeeds.map((tool) => tool.aur).join(' ')}</code> along.</p>
+            {studioOnAur && (
+              <>
+                <h4 class="distro">Arch · Manjaro · EndeavourOS</h4>
+                <Snippet code={aurSnippet(studio)} />
+                <p class="note">From the Arch User Repository, with <code>yay</code> or any AUR helper; it
+                  brings <code>{studioNeeds.map((tool) => tool.aur).join(' ')}</code> along.</p>
+              </>
+            )}
             <details class="by-hand">
               <summary>Or add the repositories by hand</summary>
               <h4 class="distro">Fedora · RHEL · CentOS Stream</h4>
@@ -95,8 +103,8 @@ const systems = [
           </li>
           <li>
             <h3>Open Studio</h3>
-            <p>BotMaker Studio is in your applications. Installed with dnf, apt or from the AUR, each later version
-              arrives with your system updates.</p>
+            <p>BotMaker Studio is in your applications. Installed with {studioOnAur ? 'dnf, apt or from the AUR' : 'dnf or apt'},
+              each later version arrives with your system updates.</p>
           </li>
           <li>
             <h3>Make your first program</h3>
@@ -171,7 +179,7 @@ const systems = [
                 <Snippet code={dnfSnippet(tool, requiredTools(tool, tools))} />
                 <h4 class="distro">Debian · Ubuntu</h4>
                 <Snippet code={aptSnippet(tool, requiredTools(tool, tools))} />
-                {tool.aur && (
+                {onAur(tool) && (
                   <>
                     <h4 class="distro">Arch</h4>
                     <Snippet code={aurSnippet(tool)} />
@@ -212,7 +220,7 @@ const systems = [
       </div>
       <p class="note">
         Upgrading is your package manager's job from here: <code>sudo dnf upgrade</code>,
-        <code>{'sudo apt-get update && sudo apt-get upgrade'}</code>, or <code>yay -Syu</code> on Arch. These repositories carry the latest release only;
+        or <code>{'sudo apt-get update && sudo apt-get upgrade'}</code>{studioOnAur && <> (<code>yay -Syu</code> on Arch)</>}. These repositories carry the latest release only;
         every older version stays on its repository's Releases page. The Android apps are not here: a phone
         installs them from the cards above.
       </p>

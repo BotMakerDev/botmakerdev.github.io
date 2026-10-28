@@ -15,9 +15,8 @@ download. It picks your system for you; the others are a tab away.
   curl -fsSL https://botmakerdev.github.io/botmaker-studio/install.sh | sudo bash
   ```
 
-  On Arch, `yay -S botmaker-studio-bin` from the AUR. Either way, Studio then updates with your system
-  (`sudo dnf upgrade`, `sudo apt upgrade`, `yay -Syu`). Any other distribution takes the AppImage, which needs
-  no root and updates itself from inside Studio.
+  Studio then updates with your system (`sudo dnf upgrade`, `sudo apt upgrade`). Any other distribution takes
+  the AppImage, which needs no root and updates itself from inside Studio.
 - **Windows** and **macOS:** the installer from Studio's latest release.
 
 Studio bundles its own Java and JavaFX, so there is nothing else to install. The same page lists the other tools:
