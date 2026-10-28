@@ -1,6 +1,6 @@
 {
   "tools": [
-    { "repo": "botmaker-studio", "name": "BotMaker Studio", "blurb": "The IDE.", "package": "botmaker-studio" },
+    { "repo": "botmaker-studio", "name": "BotMaker Studio", "blurb": "The IDE.", "package": "botmaker-studio", "requires": ["botmaker-cli"] },
     { "repo": "botmaker-cli", "name": "botmaker (CLI)", "blurb": "The command.", "package": "botmaker" },
     { "repo": "botmaker-pilot", "name": "BotPilot (Android)", "blurb": "The phone app.", "asset": "botpilot.apk", "site": false }
   ]

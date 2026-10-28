@@ -20,18 +20,48 @@ const aptKeyLines = (pages, { repo }) =>
 const aptSourceLine = (pages, { repo, package: name }) =>
   `echo "deb [signed-by=${KEYRING}] ${pages}/${repo}/deb stable main" | sudo tee /etc/apt/sources.list.d/${name}.list`;
 
-/** Adds a tool's dnf repository and installs its package. */
-export function dnfSnippet({ pages = PAGES, repo, package: name }) {
-  return `${dnfRepoLine(pages, { repo, package: name })}\nsudo dnf install ${name}`;
+/**
+ * The packaged tools a tool's package requires (tools.json `requires`, by repository), whose repositories its
+ * snippets add too: Studio's package requires `botmaker`, which only botmaker-cli's repository serves, so a
+ * snippet adding Studio's repository alone ends in "nothing provides botmaker".
+ */
+export function requiredTools(tool, tools) {
+  return (tool.requires ?? []).map((repo) => {
+    const required = tools.find((t) => t.repo === repo);
+    if (!required?.package) throw new Error(`${tool.repo} requires ${repo}, which tools.json lists with no package`);
+    return required;
+  });
 }
 
-/** Adds the signing key and a tool's apt repository, then installs its package. */
-export function aptSnippet({ pages = PAGES, repo, package: name }) {
+/** Adds a tool's dnf repository, and those of the tools it requires, then installs its package. */
+export function dnfSnippet({ pages = PAGES, repo, package: name }, requires = []) {
+  return [
+    ...[{ repo, package: name }, ...requires].map((t) => dnfRepoLine(pages, t)),
+    `sudo dnf install ${name}`,
+  ].join('\n');
+}
+
+/** Adds the signing key and a tool's apt repository, and those of the tools it requires, then installs its package. */
+export function aptSnippet({ pages = PAGES, repo, package: name }, requires = []) {
   return [
     ...aptKeyLines(pages, { repo }),
-    aptSourceLine(pages, { repo, package: name }),
+    ...[{ repo, package: name }, ...requires].map((t) => aptSourceLine(pages, t)),
     `sudo apt-get update && sudo apt-get install ${name}`,
   ].join('\n');
+}
+
+/**
+ * Runs a tool's own installer (tools.json `installer`), served by its Pages site at `<pages>/<repo>/install.sh`:
+ * it adds every repository the package needs for dnf or apt, then installs; run again, it upgrades.
+ */
+export function installerSnippet({ pages = PAGES, repo }) {
+  return `curl -fsSL ${pages}/${repo}/install.sh | sudo bash`;
+}
+
+/** Installs a tool's Arch User Repository package (tools.json `aur`) with an AUR helper. */
+export function aurSnippet({ aur }) {
+  if (!aur) throw new Error('no AUR package named');
+  return `yay -S ${aur}`;
 }
 
 /** Downloads a release asset of the latest release. */

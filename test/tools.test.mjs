@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import {
   dnfSnippet, aptSnippet, download, appImageSnippet, downloadSnippet, allInOne, assertOneSigningKey, withCode,
+  requiredTools, installerSnippet, aurSnippet,
 } from '../src/lib/tools.mjs';
 import { systemOf } from '../src/lib/system.mjs';
 
@@ -26,6 +27,35 @@ test('the apt snippet adds the key and the repository, then installs', () => {
       + ' | sudo tee /etc/apt/sources.list.d/botmaker-studio.list\n'
       + 'sudo apt-get update && sudo apt-get install botmaker-studio',
   );
+});
+
+test('a tool\'s snippets add the repositories of the tools it requires', () => {
+  const studio = tools.find((t) => t.repo === 'botmaker-studio');
+  const needs = requiredTools(studio, tools);
+  assert.deepEqual(needs.map((t) => t.package), ['botmaker']);
+  assert.equal(
+    dnfSnippet({ pages, ...studio }, needs),
+    'sudo curl -fsSL -o /etc/yum.repos.d/botmaker-studio.repo https://botmakerdev.github.io/botmaker-studio/botmaker-studio.repo\n'
+      + 'sudo curl -fsSL -o /etc/yum.repos.d/botmaker.repo https://botmakerdev.github.io/botmaker-cli/botmaker.repo\n'
+      + 'sudo dnf install botmaker-studio',
+  );
+  const apt = aptSnippet({ pages, ...studio }, needs).split('\n');
+  assert.equal(apt.filter((line) => line.includes('/etc/apt/keyrings/botmaker.asc https')).length, 1);
+  assert.match(apt[3], /botmaker-cli\/deb stable main" \| sudo tee \/etc\/apt\/sources\.list\.d\/botmaker\.list$/);
+  assert.equal(apt.at(-1), 'sudo apt-get update && sudo apt-get install botmaker-studio');
+});
+
+test('a requirement must be a packaged tool', () => {
+  assert.deepEqual(requiredTools({ repo: 'botmaker-cli' }, tools), []);
+  assert.throws(() => requiredTools({ repo: 'x', requires: ['botmaker-pilot'] }, tools), /x requires botmaker-pilot, which tools.json lists with no package/);
+  assert.throws(() => requiredTools({ repo: 'x', requires: ['nope'] }, tools), /x requires nope/);
+});
+
+test('the installer and AUR snippets', () => {
+  assert.equal(installerSnippet({ pages, repo: 'botmaker-studio' }),
+    'curl -fsSL https://botmakerdev.github.io/botmaker-studio/install.sh | sudo bash');
+  assert.equal(aurSnippet({ aur: 'botmaker-studio-bin' }), 'yay -S botmaker-studio-bin');
+  assert.throws(() => aurSnippet({}), /no AUR package/);
 });
 
 test('a one-click download is the tagged release file, named from its pattern', () => {

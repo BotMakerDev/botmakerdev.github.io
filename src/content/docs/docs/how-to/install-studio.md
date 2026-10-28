@@ -8,8 +8,16 @@ sidebar:
 The [install page](/install/) has the steps for your system, with the current version and the exact command or
 download. It picks your system for you; the others are a tab away.
 
-- **Linux:** a `dnf` repository for Fedora and friends, an `apt` repository for Debian and Ubuntu, or the AppImage,
-  which needs no root and updates itself from inside Studio.
+- **Linux:** one command for Fedora, RHEL, Debian and Ubuntu, which adds BotMaker's `dnf` or `apt` repositories and
+  installs Studio with the `botmaker` command it needs:
+
+  ```sh
+  curl -fsSL https://botmakerdev.github.io/botmaker-studio/install.sh | sudo bash
+  ```
+
+  On Arch, `yay -S botmaker-studio-bin` from the AUR. Either way, Studio then updates with your system
+  (`sudo dnf upgrade`, `sudo apt upgrade`, `yay -Syu`). Any other distribution takes the AppImage, which needs
+  no root and updates itself from inside Studio.
 - **Windows** and **macOS:** the installer from Studio's latest release.
 
 Studio bundles its own Java and JavaFX, so there is nothing else to install. The same page lists the other tools:

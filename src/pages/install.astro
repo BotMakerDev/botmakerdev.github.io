@@ -8,7 +8,8 @@ import data from '../data/tools.json';
 import { OWNER, latestTag } from '../lib/versions.mjs';
 import { GUIDES } from '../lib/nav.mjs';
 import {
-  allInOne, aptSnippet, appImageSnippet, assertOneSigningKey, dnfSnippet, download, downloadSnippet,
+  allInOne, aptSnippet, appImageSnippet, assertOneSigningKey, aurSnippet, dnfSnippet, download, downloadSnippet,
+  installerSnippet, requiredTools,
 } from '../lib/tools.mjs';
 
 // A version is shown for what you download, and only for that: a repository that cuts no release would make
@@ -22,7 +23,11 @@ const tools = await Promise.all(
 
 const studio = tools.find((tool) => tool.repo === 'botmaker-studio');
 if (!studio?.package) throw new Error('tools.json has no packaged botmaker-studio entry');
+if (!studio.installer || !studio.aur) throw new Error('tools.json names no installer or AUR package for botmaker-studio');
 const others = tools.filter((tool) => tool !== studio);
+const studioNeeds = requiredTools(studio, tools);
+// The AUR package pulls its requirements' AUR packages, so each one must have one.
+for (const tool of studioNeeds) if (!tool.aur) throw new Error(`botmaker-studio requires ${tool.repo}, which names no AUR package`);
 
 const everything = allInOne(tools);
 await assertOneSigningKey(tools.filter((tool) => tool.package).map((tool) => tool.repo));
@@ -36,7 +41,7 @@ const dmg = download(studio, 'macos');
 const firstProgram = GUIDES.firstProgram;
 
 const systems = [
-  { id: 'linux', name: 'Linux', note: 'Fedora, RHEL · Debian, Ubuntu · AppImage' },
+  { id: 'linux', name: 'Linux', note: 'Fedora, RHEL · Debian, Ubuntu · Arch · AppImage' },
   { id: 'windows', name: 'Windows', note: 'Windows 10 and 11 · .msi installer' },
   { id: 'macos', name: 'macOS', note: 'Apple Silicon · .dmg' },
 ];
@@ -63,11 +68,22 @@ const systems = [
         <h2 class="system-title">Linux</h2>
         <ol class="steps">
           <li>
-            <h3>Install it for your distribution</h3>
-            <h4 class="distro">Fedora · RHEL · CentOS Stream</h4>
-            <Snippet code={dnfSnippet(studio)} />
-            <h4 class="distro">Debian · Ubuntu · Linux Mint · Pop!_OS</h4>
-            <Snippet code={aptSnippet(studio)} />
+            <h3>Install it with one command</h3>
+            <h4 class="distro">Fedora · RHEL · Debian · Ubuntu · Linux Mint · Pop!_OS</h4>
+            <Snippet code={installerSnippet(studio)} />
+            <p class="note">It adds BotMaker's package repositories for dnf or apt, then installs Studio and
+              the <code>botmaker</code> command it needs. Run it again to upgrade.</p>
+            <h4 class="distro">Arch · Manjaro · EndeavourOS</h4>
+            <Snippet code={aurSnippet(studio)} />
+            <p class="note">From the Arch User Repository, with <code>yay</code> or any AUR helper; it
+              brings <code>{studioNeeds.map((tool) => tool.aur).join(' ')}</code> along.</p>
+            <details class="by-hand">
+              <summary>Or add the repositories by hand</summary>
+              <h4 class="distro">Fedora · RHEL · CentOS Stream</h4>
+              <Snippet code={dnfSnippet(studio, studioNeeds)} />
+              <h4 class="distro">Debian · Ubuntu</h4>
+              <Snippet code={aptSnippet(studio, studioNeeds)} />
+            </details>
             <h4 class="distro">Any other distribution: the AppImage</h4>
             <div class="ctas download">
               <a class="btn primary" href={appImage.url}>Download the AppImage</a>
@@ -79,8 +95,8 @@ const systems = [
           </li>
           <li>
             <h3>Open Studio</h3>
-            <p>BotMaker Studio is in your applications. Installed with dnf or apt, each later version arrives with
-              your system updates.</p>
+            <p>BotMaker Studio is in your applications. Installed with dnf, apt or from the AUR, each later version
+              arrives with your system updates.</p>
           </li>
           <li>
             <h3>Make your first program</h3>
@@ -152,9 +168,15 @@ const systems = [
             {tool.package && (
               <>
                 <h4 class="distro">Fedora · RHEL</h4>
-                <Snippet code={dnfSnippet(tool)} />
+                <Snippet code={dnfSnippet(tool, requiredTools(tool, tools))} />
                 <h4 class="distro">Debian · Ubuntu</h4>
-                <Snippet code={aptSnippet(tool)} />
+                <Snippet code={aptSnippet(tool, requiredTools(tool, tools))} />
+                {tool.aur && (
+                  <>
+                    <h4 class="distro">Arch</h4>
+                    <Snippet code={aurSnippet(tool)} />
+                  </>
+                )}
               </>
             )}
             {!tool.package && tool.asset && (
@@ -190,7 +212,7 @@ const systems = [
       </div>
       <p class="note">
         Upgrading is your package manager's job from here: <code>sudo dnf upgrade</code>,
-        or <code>{'sudo apt-get update && sudo apt-get upgrade'}</code>. These repositories carry the latest release only;
+        <code>{'sudo apt-get update && sudo apt-get upgrade'}</code>, or <code>yay -Syu</code> on Arch. These repositories carry the latest release only;
         every older version stays on its repository's Releases page. The Android apps are not here: a phone
         installs them from the cards above.
       </p>

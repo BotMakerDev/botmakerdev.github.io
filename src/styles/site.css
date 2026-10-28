@@ -157,6 +157,8 @@ section.first { padding-top: 64px; }
 .steps .note { margin-top: 10px; }
 .distro { margin: 18px 0 6px; font: 600 13px var(--font-mono); color: var(--muted); }
 .card .distro { margin-top: 14px; }
+.by-hand { margin: 14px 0 0; }
+.by-hand > summary { cursor: pointer; color: var(--muted); font-size: 14px; }
 .download { margin-top: 12px; }
 .download .note { margin: 0; }
 

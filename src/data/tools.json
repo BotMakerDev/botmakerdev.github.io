@@ -12,6 +12,11 @@
     "for something that is not installed from a repository; then `asset` names the release asset to download",
     "instead. `site: false` for a repository that publishes no Pages site.",
     "",
+    "`requires` lists, by repository, the packaged tools a package requires: its snippets add their repositories",
+    "too, because only those serve the package it needs. `installer: true` when the repository's Pages site",
+    "serves `install.sh`, which adds every repository and installs in one command. `aur` names its package on",
+    "the Arch User Repository.",
+    "",
     "`downloads` names, per system (`linux`, `windows`, `macos`), the file a release attaches for a one-click",
     "download; `{version}` stands for the release's tag, read off GitHub like every version here. The names are",
     "the ones the repository's release workflow writes, and the link check fetches every one, so an asset renamed",
@@ -25,6 +30,9 @@
       "name": "BotMaker Studio",
       "blurb": "The IDE: snap blocks together and get real Java, run it, publish it.",
       "package": "botmaker-studio",
+      "requires": ["botmaker-cli"],
+      "installer": true,
+      "aur": "botmaker-studio-bin",
       "downloads": {
         "linux": "BotMaker-Studio-{version}-linux-x64.AppImage",
         "windows": "BotMaker-Studio-{version}-windows-x64.msi",
@@ -36,6 +44,7 @@
       "name": "botmaker (CLI)",
       "blurb": "The command: new plugins and bots, validate, run, publish, release, doctor. One jar, every system.",
       "package": "botmaker",
+      "aur": "botmaker-bin",
       "also": "No install at all: `jbang botmaker@BotMakerDev`."
     },
     {
