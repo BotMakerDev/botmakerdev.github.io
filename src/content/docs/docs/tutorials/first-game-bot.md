@@ -17,9 +17,10 @@ Studio, do [Your first program](/docs/tutorials/first-program/) first: this one 
    it.
 4. Press **Create**.
 
-The toolbar now has the SDK's buttons: 🎮 for the game, 🎯 **Capture Source**, ✂ **Capture Templates**,
-🖼 **Manage Pictures**, 🔀 **Activity Flow**, 🗺 **Screens**, ⚙ **Bot Settings** and 📋 **Project Setup**. Project
-Setup lists what the bot still needs before it can run; it is a good place to come back to.
+The toolbar's second row now has a **BotMaker SDK** tab with the SDK's buttons: 🎮 for the game, 📋 **Project Setup**, 🎯 **Capture Source**, ⚙ **Bot Settings**,
+🔀 **Activity Flow**, 🗺 **Screens**, 🖼 **Manage Pictures**, ✂ **Capture Templates** and 🎮 **Pilot**. Project Setup lists what
+the bot still needs before it can run; it is a good place to come back to. To find any button by name, press
+**Ctrl+Shift+A** (**Navigate ▸ Find Action**).
 
 ## 2. Pick the game
 
