@@ -32,6 +32,29 @@ Some games need one more step:
 Before a launch, Studio checks that the game can start: it waits out a download the launcher is running, offers
 to open a launcher that is signed out, and offers to install a game that is not installed.
 
+### Install or update the game
+
+Under the picked game, a line says whether it is installed, with **Install** and **Update**:
+
+- **Steam** opens its own install dialog; an update Steam has pending is started.
+- **Lutris** opens its installer for the game. Lutris has no update command: update the game in Lutris.
+- **Heroic**: an Epic game is installed and updated by Heroic's own `legendary` (restart Heroic to see it); a GOG or
+  Amazon game opens in Heroic, where you press Install.
+- **Android**: BotMaker keeps the game's `.apk`/`.xapk` files in its APK library (`~/.local/share/botmaker/apps`
+  on Linux, the two newest versions of each game; a file you install from also goes there). It installs from the
+  library first, then Google Play when the emulator has it, then APKPure, then the game's store page in your
+  browser: download the file there and BotMaker picks it up from your Downloads folder. An update installs only
+  a newer version.
+
+**Download from APKPure** is off until you tick it. APKPure is a third-party copy of Google Play that has been
+found serving modified apps ([apkeep's warning](https://github.com/EFForg/apkeep/blob/master/USAGE-apkpure.md));
+BotMaker asks once and remembers, and you can untick it. **Get Google Play…** shows how to add Google Play to the
+emulator: on Waydroid, re-initialising it with its Google Play image and registering it with Google; on an Android
+Studio emulator, a device made from a Google Play system image.
+
+The assistant does the same through `setup`: `readiness`, `install_game` (or a file you name in the chat) and
+`update_game`. It never allows APKPure itself.
+
 ## 2. Point the bot at the game's window
 
 Press 🎯 **Capture Source**. Pick the game's window from **Windows**, an emulator from **Emulators**, a whole
