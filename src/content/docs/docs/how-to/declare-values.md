@@ -132,7 +132,7 @@ A link is named the same way, after the factory:
 
 | Step | Writes | Example |
 |---|---|---|
-| `.with(wither, reader)` | `.wither(part)` wherever the part differs from what the factory makes | `.with(Flow.Step::described, Flow.Step::description)` |
+| `.with(wither, reader)` | `.wither(part)` wherever the part differs from what the factory makes | `.with(BotSettings::displayBackend, settings -> settings.runIn().displayBackend())` |
 | `.flag(wither, isOn)` | `.wither()` wherever the value has it on and the factory's value has not | `.flag(Flow.Step::goesHome, Flow.Step::goHome)` |
 
 A `.with` or `.flag` on a method that is also marked `@Link` replaces the inferred link in its place, so the two
