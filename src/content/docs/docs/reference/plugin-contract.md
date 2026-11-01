@@ -66,17 +66,19 @@ is a plugin.
 Every step is optional. Each surface is named by **holder classes**: the step's interface has one method saying what
 the holder gives, so a holder handed to the wrong step does not compile.
 
-| Step | The holder implements | What it contributes |
-|---|---|---|
-| `.types(…)` | `TypeHolder`: `types()`, and `components()` for parts | Value types a project's values may be (`value` package). |
-| `.values(…)` | `ValueHolder`: `values()` | The plugin's managed values in the bot's Java (`source` package). |
-| `.editors(…)` | `EditorHolder`: `editors()`, narrowest first | Editors for one value, shown where a block or a parameter needs one (`slot` package). |
-| `.toolbar(…)` | `ToolbarHolder`: `toolbar()` | Buttons on Studio's toolbar, given as data (`toolbar` package). |
-| `.runOverlay(…)` | `RunOverlayHolder`: `runOverlay()` | What is drawn over the game while the bot runs (`run` package). |
-| `.overlay(…)` | `OverlayHolder`: `overlay()`, one holder | A panel in the overlay editor, beside the window the bot watches (`overlay` package). |
-| `.assistant(…)` | `AssistantHolder`: `tools()` | Tools for the AI assistant that drives Studio (`assist` package); `.assistantGuide(…)` adds its guide. |
-| `.trial(…)` | a method reference | The entry Studio calls to try one statement with **▶ Try**. |
-| `.onProjectOpened(…)`, `.onProjectClosing(…)` | method references | What the plugin does when a project opens and closes (below). |
+| Step | The holder implements | What it contributes | Reference |
+|---|---|---|---|
+| `.types(…)` | `TypeHolder`: `types()`, and `components()` for parts | Value types a project's values may be (`value` package). | [Declare a plugin's values](/docs/how-to/declare-values/) |
+| `.values(…)` | `ValueHolder`: `values()` | The plugin's managed values in the bot's Java (`source` package). | [Managed values](/docs/reference/managed-values/) |
+| `.editors(…)` | `EditorHolder`: `editors()`, narrowest first | Editors for one value, shown where a block or a parameter needs one (`slot` package). | [Slot editors](/docs/reference/slot-editors/) |
+| `.toolbar(…)` | `ToolbarHolder`: `toolbar()` | Buttons on the plugin's toolbar tab, given as data (`toolbar` package). | [Toolbar items](/docs/reference/toolbar-items/) |
+| `.overlay(…)` | `OverlayHolder`: `overlay()`, one holder | A part of the overlay editor, beside the window the bot watches (`overlay` package). | [Overlays](/docs/reference/overlays/) |
+| `.runOverlay(…)` | `RunOverlayHolder`: `runOverlay()` | What is shown over the game while the bot runs (`run` package). | [Overlays](/docs/reference/overlays/#the-run-overlay) |
+| `.assistant(…)`, `.assistantGuide(…)` | `AssistantHolder`: `tools()` | Tools for the AI assistant that drives Studio, and how a bot built on the plugin is laid out (`assist` package). | [Assistant tools](/docs/reference/assistant-tools/) |
+| `.trial(…)` | a method reference | The entry Studio calls to try one statement with **▶ Try**. | [Assistant tools](/docs/reference/assistant-tools/#-try-the-trial-entry) |
+| `.readiness(…)` | a method reference | Whether the bot can start now, shown before a person presses Start. | [Lifecycle and services](/docs/reference/plugin-services/#saying-whether-a-bot-can-start) |
+| `.onProjectOpened(…)`, `.onProjectClosing(…)` | method references | What the plugin does when a project opens and closes. | [Lifecycle and services](/docs/reference/plugin-services/) |
+| `.catalog(…)` | `CatalogHolder`: `catalog()`, one holder | A palette built by hand instead of the one Studio finds; rarely wanted. | [The palette](#the-palette) |
 
 **Nothing is built before Studio asks.** A plugin is constructed while a project opens, and by tools that have
 no JavaFX at all, such as `botmaker plugin validate` and the catalog's checks. A holder is a concrete class with a
@@ -130,41 +132,15 @@ The `meta` package holds the marks Studio and the bot's author write as the bot 
 
 ## Changing your API
 
-Removing or reshaping a public method, constructor, field or class takes two releases:
-
-1. **Release N** keeps the old element, marked `@Deprecated(forRemoval = true)`, and adds a `@Migrate` rule for it
-   anywhere in your plugin. The rule is written the way a bot's author writes one, naming its owner with `value =`.
-   Your own build compiles it against the element that is still there.
-2. **Release N+1** deletes the element and its rule together.
-
-A plugin whose pom names `botmaker-plugin-parent` publishes a sources jar, and Studio reads your rules from it.
-Studio offers to rewrite a bot's uses of the deprecated element, and the bot compiles against both releases.
-A rule the bot's author writes for the same element wins over yours. A bot that jumps from before N straight past
-it does not see your rule, and gets Studio's starting rules to finish by hand.
-
-```java
-@Migrate(GameScreen.class)
-static GameScreen marker(@Migrate.Self GameScreen self, ImageTemplate marker) {
-    return self.markers(List.of(marker));
-}
-```
+Removing or reshaping a public method, constructor, field or class takes two releases: release N keeps the old
+element `@Deprecated(forRemoval = true)` beside a `@Migrate` rule that rewrites a bot's uses, and release N+1 deletes
+both. [Migration rules](/docs/reference/plugin-migrations/) shows how to write one.
 
 ## What Studio hands a plugin
 
-When a project opens, Studio calls the method given to `.onProjectOpened(…)` with the project's `StudioServices`,
-and the one given to `.onProjectClosing(…)` when it closes; a plugin that opened a port or a process releases it
-there. One instance serves every project in turn, so keep the opening step cheap: a project's opening waits on it, and an exception in it is reported without
-stopping the project from opening. `StudioServices` is what only Studio can answer:
-
-| Service | What it gives |
-|---|---|
-| `projectDir()`, `resourcesDir()` | The project's folder and its resources folder. |
-| `theme()`, `dialogs()` | The current look, and windows owned by Studio's. |
-| `runs()` | The bot's runs: start, stop, pause and resume one, its run properties, and the trace lines it writes. |
-| `pluginValues()` | Reading and changing the plugin's managed values in the bot's Java. |
-| `history()` | Studio's undo history, so a plugin's change undoes like any other. |
-| `status(…)` | A line in Studio's status bar. |
-| `log()` | The plugin's log: `info`, `warn` and `error` lines Studio shows under the plugin in **Plugins & Libraries**. |
+When a project opens, Studio calls the method given to `.onProjectOpened(…)` with the project's `StudioServices`:
+the project's folders, the theme, dialogs, the bot's runs, the plugin's managed values, the undo history, the status
+line and the plugin's log. [Lifecycle and services](/docs/reference/plugin-services/) lists each.
 
 A plugin jar may also carry its changelog and icon: a plugin whose pom names `botmaker-plugin-parent` gets its
 `CHANGELOG.md` and `icon.png` copied in by the build. Studio shows the changelog's new sections when a user
