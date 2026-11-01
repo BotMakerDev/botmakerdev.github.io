@@ -75,6 +75,23 @@ static Rect area(int x, int y, int width, int height) {
 - **A managed value** the rule changes is written beside the original as a copy marked `@Migrated`, and the original
   stays until its author switches the uses. Any other use is rewritten in place.
 
+## When nothing replaces it
+
+Some elements go with nothing in their place. Mark such an element `@Migrate.Dropped` in release N, with one sentence
+for the bot's author, instead of writing a rule:
+
+```java
+@Deprecated(forRemoval = true)
+@Migrate.Dropped("popups are handled by the run itself now")
+public Run popups(Runnable popups) { … }
+```
+
+When a bot upgrades past release N+1, Studio lists each use of the element with "dropped by *your plugin*: *your
+sentence*", and its author changes those uses by hand or lets Studio's default repair mark them.
+
+`botmaker plugin validate` warns about each element deprecated for removal that has neither a rule nor this mark. It
+is a warning only: the plugin still passes, and the catalog still lists it.
+
 ## Trying a rule
 
 Build release N into your local Maven repository, and open a bot that uses the old element with **Dev mode** on
