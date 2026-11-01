@@ -21,8 +21,8 @@ one you prefer, and **✕** removes one. **▶ Launch game** starts it without r
 
 Some games need one more step:
 
-- **A Windows game with no launcher:** **Add a Windows program…** puts its `.exe` into Faugus, with Faugus's own
-  defaults, and Faugus starts it from then on. A program in a [Bottles](https://usebottles.com/) bottle is
+- **A Windows game with no launcher** (Linux): **Add a game in Lutris…** opens Lutris. Add the game there, from a
+  store's tab, an installer or its `.exe`, and it is listed here; Lutris starts it from then on. A program in a [Bottles](https://usebottles.com/) bottle is
   started with Bottles.
 - **An Android game not installed yet:** search Google Play for it, or **Install from file…** for an APK, and pick
   the instance to install it on. Studio starts the instance first if it is stopped.

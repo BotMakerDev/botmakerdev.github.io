@@ -20,9 +20,11 @@ For a release to be listed, its pull request must change exactly one entry, its 
 Release it names (or, for a release a GitHub Action made, own the repository), and that release must be published
 (not a draft or a prerelease). Then:
 
-- **a bot** must declare a catalog plugin at a released version, compile, and have a `main`;
-- **a plugin** must pass the same checks as `botmaker plugin validate`, its jar must carry the entry's id, and
-  JitPack must serve it.
+- **a bot** must declare a catalog plugin at a released version, compile, and have a `main`; its `.bmk`, when the
+  release has one, must be the file its commit builds;
+- **a plugin** must pass the same checks as `botmaker plugin validate`, the pom in its jar must declare the plugin
+  under the coordinate the entry's repository is served as (`com.github.<owner>:<repo>`), and JitPack must serve
+  it.
 
 ## An entry holds only your decisions
 
@@ -34,7 +36,8 @@ request changing that one file. Only whoever controls the repository today, or a
 ## Every release, pinned
 
 The catalog keeps every release it approved, not only the newest. Each is **pinned**: the commit its tag pointed to
-when it was approved and, for a plugin, the fingerprint (SHA-256) of the jar and the pom JitPack served then. If a
+when it was approved and, for a plugin, the fingerprint (SHA-256) of the jar and the pom JitPack served then; for a
+bot, that of its `.bmk`. If a
 tag is moved or a jar is rebuilt afterwards, it no longer matches, and Studio refuses it. What you saw approved is
 what you get.
 

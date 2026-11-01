@@ -41,8 +41,8 @@ Choose **Project ▸ Publish to Gallery…**. It runs the same steps as the comm
 
 ## A bot you started from someone else's
 
-If you started from a published bot, your project is a copy linked to its author. Save it to your own copy on
-GitHub first; publishing it then lists your copy as a bot of its own, shown as "based on" the original, and the
+If you started from a published bot, your project is a copy linked to its author (the git remote `upstream`). Save
+it to your own copy on GitHub first (**Save to my copy**, which becomes the remote `origin`); publishing it then lists your copy as a bot of its own, shown as "based on" the original, and the
 author's later versions can still be merged in.
 
 ## Stop listing it

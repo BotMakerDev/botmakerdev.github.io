@@ -10,8 +10,8 @@ BotMaker SDK**, one submenu per class, each listing the class's methods. A block
 writes `Wait.seconds(…)`. Typing in the menu's search box finds a block by name across every submenu. A method
 with several forms is one block; Studio picks the form when it writes it, and you change its values on the block.
 
-The classes are grouped below by what they are for. Every class is in `com.botmaker.sdk.api`, and Studio writes
-the import.
+The classes are grouped below by what they are for. Every class is in a package under `com.botmaker.sdk.api`
+(`ImageClicker` in `com.botmaker.sdk.api.vision`), and Studio writes the import.
 
 ## On the game's screens
 

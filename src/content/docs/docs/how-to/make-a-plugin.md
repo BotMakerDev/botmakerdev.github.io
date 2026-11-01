@@ -70,7 +70,7 @@ botmaker plugin run --project MyBot   # builds, adds it to ~/BotMakerProjects/My
 
 or do it by hand: run `mvn install`, open a project in Studio, and in **Project ▸ Plugins & Libraries…** tick
 **Dev mode**. Studio then loads development builds from your computer's Maven repository and offers yours as
-*(local build)*. After each rebuild, press **Reload** to pick it up. Dev mode is per project and on this computer
+*(local build)*. After each rebuild, press **Reload plugins** to pick it up. Dev mode is per project and on this computer
 only; nothing is released.
 
 ## 4. Publish it

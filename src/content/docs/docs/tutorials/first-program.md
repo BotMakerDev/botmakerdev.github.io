@@ -15,9 +15,9 @@ Studio, then start it.
 
 ## 2. Start a blank project
 
-Studio opens on its list of projects.
+Studio opens on its list of bots, **My bots**.
 
-1. Press **Create New Project**.
+1. Press **＋ New bot**. The *Create New Project* window opens.
 2. Type a name: `MyFirstProject`. A name starts with a letter and holds only letters and digits.
 3. Choose **Blank — a main() and nothing else**. Leave the *Plugins* list unticked: this program needs none.
 4. Press **Create**.

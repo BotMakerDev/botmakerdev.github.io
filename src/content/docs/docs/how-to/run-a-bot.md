@@ -59,5 +59,5 @@ linked to them, so their later versions can still be merged in.
 ## Where it is kept
 
 An opened bot is unpacked into BotMaker's data folder, for running only. Only its newest version is kept: once a
-newer one opens and passes its check, the older one is deleted. **Remove** on its card deletes it; its settings stay,
+newer one opens and passes its check, the older one is deleted. **Remove from My bots** on its card deletes it; its settings stay,
 and opening it again brings it back.

@@ -67,12 +67,29 @@ changes.
 
 List the bots the catalog lists, with their rank.
 
+### bot export
+
+```
+botmaker bot export [--dir=<directory>] [--out=<dir>]
+```
+
+Write the bot as a `.bmk` file, for people who only run bots. Run it in the bot's folder, at a tagged commit. The
+file holds the pom, the icon, the sources and resources, and every jar the bot runs with that Maven Central does not
+serve byte for byte; Central's jars are listed and fetched the first time the file opens. `bot publish` makes one
+for each release already. See [Run a bot](/docs/how-to/run-a-bot/).
+
+| Option | |
+|---|---|
+| `--dir` | The bot project. Default: the current folder. |
+| `--out` | Where the file is written. Default: the bot's folder. |
+
 ## botmaker plugin
 
 ### plugin new
 
 ```
 botmaker plugin new [--dir=<directory>] [--owner=<account>] [--package=<pkg>]
+                    [--class-prefix=<Prefix>] [--minimal]
                     [--plugin-name=<name>] [--plugin-version=<version>] [--parent=<version>]
                     <artifact-id>
 ```
@@ -86,6 +103,8 @@ alone is a working command line.
 | `--dir` | Where to generate. Default: the current folder. |
 | `--owner` | The GitHub account the repository goes under; the `groupId` is `com.github.<owner>`. Default: the account `gh` is signed in to. |
 | `--package` | The Java package. Default: `com.github.<owner>.<name with no punctuation>`. |
+| `--class-prefix` | What the classes are named after: `<Prefix>Plugin`, `<Prefix>Types`, … Default: the artifact id in CamelCase, less a trailing `-plugin`. |
+| `--minimal` | A plugin class that declares nothing, its one test, the pom, a changelog and an icon; no example. |
 | `--plugin-name` | The name a user reads, the pom's `<name>`. Default: the artifact id, titled. |
 | `--plugin-version` | The new project's own version. Default: `0.1.0-SNAPSHOT`. |
 | `--parent` | The `botmaker-plugin-parent` version its pom names, which pins the contract and the toolkit together. Default: the release this `botmaker` was built with. |

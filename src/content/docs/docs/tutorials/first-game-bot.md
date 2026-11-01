@@ -11,7 +11,7 @@ Studio, do [Your first program](/docs/tutorials/first-program/) first: this one 
 
 ## 1. Start a project with the SDK
 
-1. On Studio's list of projects, press **Create New Project**.
+1. On Studio's **My bots**, press **＋ New bot**.
 2. Name it `MyFirstBot` and choose **Blank**.
 3. In the *Plugins* list, tick **BotMaker SDK**. It brings the [Basics](/plugins/BotMakerDev/botmaker-plugin-basics/) plugin with
    it.
@@ -42,10 +42,11 @@ name the picture `COLLECT`.
 The picture is a PNG in `src/main/resources/images/`, and the bot knows it by a constant in its own Java:
 
 ```java
-public static final ImageTemplate COLLECT = new ImageTemplate("src/main/resources/images/collect.png");
+public static final ImageTemplate COLLECT = new ImageTemplate("images/collect.png");
 ```
 
-That line is in `Pictures.java`, which the SDK keeps for you. 🖼 **Manage Pictures** renames or recuts a picture,
+That line is in `Pictures.java`, which the SDK keeps for you in the package `plugins.com_github_botmakerdev.botmaker_sdk`
+under your main class's. 🖼 **Manage Pictures** renames or recuts a picture,
 and a rename carries every block that uses it.
 
 ## 5. Make an activity
