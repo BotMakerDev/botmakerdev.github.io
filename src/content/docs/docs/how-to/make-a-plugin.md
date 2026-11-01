@@ -29,7 +29,8 @@ the ones you are likely to change:
 
 Next to the sources sit `CHANGELOG.md` and `icon.png`. Studio shows the icon in **Plugins & Libraries** and the
 changelog's new sections when a user upgrades your plugin, so keep both current; replace the default puzzle piece
-with your own 64-pixel PNG. `DECLARE.md` walks through each kind of thing a plugin can declare.
+with your own 64-pixel PNG. `DECLARE.md` walks through each kind of thing a plugin can declare;
+[Declare a plugin's values](/docs/how-to/declare-values/) covers value types in full.
 
 The plugin's identity is its pom's `groupId:artifactId`, `com.github.<owner>:<name>`: what JitPack serves the
 repository `<owner>/<name>` as, so it never changes when you publish. There is no separate id. The pom also says

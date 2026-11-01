@@ -84,6 +84,11 @@ constructor taking no arguments; Studio builds it the first time it needs that s
 `static final` fields and the constructor empty. The toolkit's `PluginTests.assertDeclared(MyPlugin.class)` runs
 the same check in your plugin's own `mvn verify`.
 
+A value type says what a new one is, how a person edits it, and which Java call it is written as:
+`.writtenAs(Greeting::to)` reads the factory's parts by name, and chains each method marked `@Link`.
+[Declare a plugin's values](/docs/how-to/declare-values/) covers every form, and
+[Values are Java](/docs/explanation/values-are-java/) why Studio, not the plugin, writes the call.
+
 ## The palette
 
 A plugin names none of its blocks. Studio finds the classes marked `@Palette` in its jar and offers every public
