@@ -42,9 +42,12 @@ Under the picked game, a line says whether it is installed, with **Install** and
   Amazon game opens in Heroic, where you press Install.
 - **Android**: BotMaker keeps the game's `.apk`/`.xapk` files in its APK library (`~/.local/share/botmaker/apps`
   on Linux, the two newest versions of each game; a file you install from also goes there). It installs from the
-  library first, then Google Play when the emulator has it, then APKPure, then the game's store page in your
-  browser: download the file there and BotMaker picks it up from your Downloads folder. An update installs only
-  a newer version.
+  library first, then Google Play's own files through [goopdl](https://github.com/Villoh/goopdl) (Aurora Store's
+  anonymous accounts: no Google account, and no Google Play needed on the emulator; splits, asset packs and OBB
+  files included), then Google Play on the emulator when it has it, then APKPure, then the game's store page in
+  your browser: download the file there and BotMaker picks it up from your Downloads folder. An update installs
+  only a newer version, and the result says which of these served it. goopdl needs Python 3.11 or newer; BotMaker
+  installs it in a folder of its own the first time, every package pinned by its digest.
 
 **Download from APKPure** is off until you tick it. APKPure is a third-party copy of Google Play that has been
 found serving modified apps ([apkeep's warning](https://github.com/EFForg/apkeep/blob/master/USAGE-apkpure.md));
