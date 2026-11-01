@@ -58,6 +58,17 @@ Studio emulator, a device made from a Google Play system image.
 The assistant does the same through `setup`: `readiness`, `install_game` (or a file you name in the chat) and
 `update_game`. It never allows APKPure itself.
 
+### Emulator checks
+
+For a game on Waydroid or an Android Studio emulator, **Emulator checks** under the picked game lists what the
+emulator needs: Waydroid set up and running, Android started, internet inside it, Google Play, the ARM translator, the
+screen size. A failed check says what was found. **Fix** repairs it when BotMaker can, and only when you press it;
+if the fix changes the system, your desktop's password window opens. **Undo** puts back the translator a fix replaced.
+A failure BotMaker can't repair shows the commands to run. BotMaker does not install Waydroid.
+
+The assistant reads the same list with `setup`'s `emulator_checks` and runs a fix with `fix`; the password window still
+opens on your desktop, so you decide. `launch_game` refuses an emulator it cannot start and names the check.
+
 ## 2. Point the bot at the game's window
 
 Press 🎯 **Capture Source**. Pick the game's window from **Windows**, an emulator from **Emulators**, a whole
