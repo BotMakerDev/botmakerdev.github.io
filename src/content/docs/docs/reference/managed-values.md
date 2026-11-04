@@ -28,11 +28,20 @@ public @interface GreetValue {
     Id value();
 
     /** Every value this plugin keeps in a bot. */
-    enum Id {
+    enum Id implements ManagedId<Holder> {
         WELCOME
+    }
+
+    /** Every class of the bot's this plugin's values sit in. */
+    enum Holder {
+        GREETINGS
     }
 }
 ```
+
+`Id` names its `Holder` enum, so a value's `.in(…)` takes only one of these constants. A constant is UPPER_SNAKE and
+names one class of the bot's, each `_` part capitalised: `GREETINGS` is `Greetings`, `FLOW_LAYOUT` is `FlowLayout`.
+Another spelling, or two constants whose class names differ only by case, is refused when the plugin is declared.
 
 The declaration refuses a mark without `RUNTIME` retention, one whose `@Target` leaves out where the value sits
 (`FIELD` for a parameter, `METHOD` for a method value, `TYPE` for an open set), and one whose `value()` is not that
@@ -57,15 +66,15 @@ runtime claims it, and your windows open it.
 
 ```java
 public static final ManagedParam<Greeting> WELCOME = ManagedValue.param(GreetValue.Id.WELCOME)
-        .in("Greetings")
+        .in(GreetValue.Holder.GREETINGS)
         .startsAs(ExampleValues::welcome)
         .shown("Greetings", "Who the bot greets first", Param.Visibility.PUBLIC)
         .because("This plugin reads this parameter. Change its value in the Runner or Project ▸ Parameters.");
 ```
 
 1. `param(id)`: the mark's constant.
-2. `.in("Greetings")`: the simple name of the bot's class that holds it. It is the bot's class, so your plugin never
-   compiles against it.
+2. `.in(GreetValue.Holder.GREETINGS)`: the bot's class that holds it, as a constant of your `Holder`. It is the
+   bot's class, so your plugin never compiles against it.
 3. `.startsAs(Owner::method)`: its first value, as a method reference, which also gives its full type.
 4. `.shown(category, description, visibility)`: where the Parameters window lists it.
 5. Optionally `.when(scope -> …)`: a parameter that applies only to some projects. Studio writes it only while the
@@ -80,13 +89,13 @@ own code names it.
 
 ```java
 public static final ManagedMethod<FlowLayout> FLOW_LAYOUT = ManagedValue.method(SdkValue.Id.FLOW_LAYOUT)
-        .in(HOLDER)
+        .in(SdkValue.Holder.SDK)
         .holds(FlowLayout.class, FlowLayout.NONE)
         .because("These are where the Activity Flow's cards sit. Drag them in 🔀 Activity Flow, which keeps"
                 + " them in step with the activities' names.");
 ```
 
-`HOLDER` is `"Sdk"`. In the bot it is a method marked with the id, whose one `return` Studio rewrites:
+`SdkValue.Holder.SDK` is the class `Sdk`. In the bot it is a method marked with the id, whose one `return` Studio rewrites:
 
 ```java
 @SdkValue(SdkValue.Id.FLOW_LAYOUT)
@@ -113,13 +122,13 @@ after `openSet(id)` picks what a member is:
 ```java
 public static final ManagedOpenSet.OfConstants<ImageTemplate> PICTURES = ManagedValue.openSet(SdkValue.Id.PICTURES)
         .of(ImageTemplate.class)
-        .in("Pictures")
+        .in(SdkValue.Holder.PICTURES)
         .because("Picture constants are managed in 🖼 Manage Pictures.");
 ```
 
 For a set whose members are told apart by name rather than by value, such as two flows that both start empty,
 `.referredToAs(Owner::byName)` before `.in(…)` makes a use of a constant read as that constant, and Studio writes
-it back as the constant.
+it back as the constant. An open set is a holder of its own: give it a `Holder` constant no other value uses.
 
 Open sets change **by binding, never by spelling**: a rename changes the declaration and every use the compiler
 resolves to it, qualified uses and static imports included, and a change that would stop the bot compiling is
