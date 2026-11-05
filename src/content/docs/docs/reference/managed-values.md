@@ -22,7 +22,7 @@ meta-annotated `@ManagedMarker`, so the compiler checks every id. From the examp
 @Documented
 @ManagedMarker
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.FIELD)
+@Target(ElementType.METHOD)
 public @interface GreetValue {
 
     Id value();
@@ -44,7 +44,7 @@ names one class of the bot's, each `_` part capitalised: `GREETINGS` is `Greetin
 Another spelling, or two constants whose class names differ only by case, is refused when the plugin is declared.
 
 The declaration refuses a mark without `RUNTIME` retention, one whose `@Target` leaves out where the value sits
-(`FIELD` for a parameter, `METHOD` for a method value, `TYPE` for an open set), and one whose `value()` is not that
+(`METHOD` for a parameter or a method value, `TYPE` for an open set), and one whose `value()` is not that
 enum. The bot's code carries the annotation, which is why a plugin with managed values puts the contract and its own
 `api` package at `compile` scope.
 
@@ -55,7 +55,7 @@ so the compiler offers only what that shape has.
 
 | Who changes it | Declare with | You get | In the bot |
 |---|---|---|---|
-| the person running the bot, in the Runner or **Project ▸ Parameters** | `ManagedValue.param` | `ManagedParam<T>` | a `@Param` static field |
+| the person running the bot, in the Runner or **Project ▸ Parameters** | `ManagedValue.param` | `ManagedParam<T>` | a method of a `@Param` group, its body the value |
 | a window of your plugin, one value | `ManagedValue.method` | `ManagedMethod<T>` | `public static T id() { return …; }` |
 | a window of your plugin, a set the user grows | `ManagedValue.openSet` | a `ManagedOpenSet<T>` | a class of constants, an enum, a class of enums, or a class of classes |
 
@@ -79,11 +79,15 @@ public static final ManagedParam<Greeting> WELCOME = ManagedValue.param(GreetVal
 4. `.shown(category, description, visibility)`: where the Parameters window lists it.
 5. Optionally `.when(scope -> …)`: a parameter that applies only to some projects. Studio writes it only while the
    condition holds.
-6. `.because(reason)`: the sentence a user reads when Studio stops them renaming or deleting the field.
+6. `.because(reason)`: the sentence a user reads when Studio stops them renaming or deleting the method.
 
-The field is named after the id in camel case (`WELCOME` is `welcome`). Studio appends it to the holder whenever the
-holder has no field with that mark. The Parameters window never renames, retypes or removes it, because the bot's
-own code names it.
+The method is named after the id in camel case (`WELCOME` is `welcome`) and sits in the group `Greetings`, in the bot's
+package `params.<groupId>.<artifactId>`. Studio appends it whenever the group has no method with that mark. The
+Parameters window never renames, retypes or removes it, because the bot's own code names it.
+
+`params/` is private to each computer and never committed, published or put in a `.bmk`. The committed
+`starting-params/` mirrors it with the author's starting values and fills what `params/` lacks; a new parameter's
+starting copy holds its type's blank value, not the value on the author's computer.
 
 ### A method value
 
@@ -136,7 +140,7 @@ refused.
 
 ## At run time
 
-The bot reads a parameter as a plain field (`Greetings.welcome`) and a member as a constant (`Pictures.ORE`). A
+The bot reads a parameter as a plain method (`new Greetings().welcome()`) and a member as a constant (`Pictures.ORE`). A
 method value reaches your runtime through `ManagedValues`:
 
 ```java
