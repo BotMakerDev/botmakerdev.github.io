@@ -83,6 +83,23 @@ for each release already. See [Run a bot](/docs/how-to/run-a-bot/).
 | `--dir` | The bot project. Default: the current folder. |
 | `--out` | Where the file is written. Default: the bot's folder. |
 
+### bot run
+
+```
+botmaker bot run [<folder>] [--entry=<title>]
+```
+
+Run a bot from the terminal, with Studio open or closed. BotMaker's core opens the bot and runs its `main`, or the
+run a plugin declares with that toolbar title. The bot's output is printed as it comes, and the end says how the run
+ended and where its run log is. Ctrl+C stops the run. Studio must have been started once on this computer.
+
+| Exit code | |
+|---|---|
+| `0` | The run ended. |
+| `1` | The bot did not start: its compile failed, or the start was refused. |
+| `2` | The bot could not be opened, or BotMaker's core did not answer. |
+| `130` | Stopped by Ctrl+C. |
+
 ## botmaker plugin
 
 ### plugin new
@@ -215,9 +232,11 @@ source <(botmaker completion)
 botmaker mcp-bridge [--studio=<command>] [--umbrella=<dir>]
 ```
 
-Serve Studio's MCP tools over stdio, across Studio's restarts, for an assistant such as Claude Code. In the MCP
-client's configuration: `{"type":"stdio","command":"botmaker","args":["mcp-bridge"]}`. It forwards to the Studio
-running on this computer, and its `start_studio` tool starts Studio the way `--studio` or `--umbrella` says.
+Serve BotMaker's MCP tools over stdio, for an assistant such as Claude Code. In the MCP client's configuration:
+`{"type":"stdio","command":"botmaker","args":["mcp-bridge"]}`. It forwards to BotMaker's core on this computer and
+starts the core when none is running, so an assistant can open, edit and run a bot with Studio closed. Studio's own
+tools appear while Studio is open, and the `start_studio` tool starts it the way `--studio` or `--umbrella` says.
+Studio must have been started once on this computer.
 
 ### release
 
