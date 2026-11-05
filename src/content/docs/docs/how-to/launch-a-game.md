@@ -91,8 +91,7 @@ Open ⚙ **Bot Settings**, section **Run the game in**:
 
 The games the bot supports are its author's list. Somebody who only runs the bot picks one of them in the bot's
 **Runner** window (to see it as they do, press **👁 Preview**). With no pick, a run starts the first game on the
-list that this computer can launch. Both are plain Java, in two files named `Sdk.java` under the bot's package
-(`src/main/java/<your package>/`).
+list that this computer can launch. Both are plain Java under the bot's package (`src/main/java/<your package>/`).
 
 The author's list is the bot's own data, committed with it, in `plugins/com_github_botmakerdev/botmaker_sdk/Sdk.java`:
 
@@ -103,11 +102,12 @@ public static List<Launcher> launchTargets() {
 }
 ```
 
-The pick is a parameter, private to each computer, in `params/com_github_botmakerdev/botmaker_sdk/Sdk.java`:
+The pick is a parameter, private to each computer, in the SDK's group `Game`,
+`params/com_github_botmakerdev/botmaker_sdk/Game.java`:
 
 ```java
 @SdkValue(SdkValue.Id.LAUNCH_TARGET)
-@Param.Shown(category = "Game", description = "Which of the bot's games this computer launches")
+@Param.Shown(description = "Which of the bot's games this computer launches")
 public LaunchChoice launchTarget() {
     return LaunchChoice.of("");
 }

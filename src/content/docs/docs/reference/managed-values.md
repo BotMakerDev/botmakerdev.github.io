@@ -68,7 +68,7 @@ runtime claims it, and your windows open it.
 public static final ManagedParam<Greeting> WELCOME = ManagedValue.param(GreetValue.Id.WELCOME)
         .in(GreetValue.Holder.GREETINGS)
         .startsAs(ExampleValues::welcome)
-        .shown("Greetings", "Who the bot greets first", Param.Visibility.PUBLIC)
+        .shown("Who the bot greets first", Param.Visibility.PUBLIC)
         .because("This plugin reads this parameter. Change its value in the Runner or Project ▸ Parameters.");
 ```
 
@@ -76,7 +76,9 @@ public static final ManagedParam<Greeting> WELCOME = ManagedValue.param(GreetVal
 2. `.in(GreetValue.Holder.GREETINGS)`: the bot's class that holds it, as a constant of your `Holder`. It is the
    bot's class, so your plugin never compiles against it.
 3. `.startsAs(Owner::method)`: its first value, as a method reference, which also gives its full type.
-4. `.shown(category, description, visibility)`: where the Parameters window lists it.
+4. `.shown(description, visibility)`: the note the Parameters window shows, and whether the Runner shows it.
+   The window lists it under its group's class name: a parameter's category is the class that holds it. Put your
+   parameters in several groups by giving them different `Holder` constants.
 5. Optionally `.when(scope -> …)`: a parameter that applies only to some projects. Studio writes it only while the
    condition holds.
 6. `.because(reason)`: the sentence a user reads when Studio stops them renaming or deleting the method.
