@@ -8,7 +8,7 @@ sidebar:
 A bot made with the [SDK](/plugins/BotMakerDev/botmaker-sdk/) walks its game by a map: its `Screens` class, one
 constant per screen, written for you by 🗺 **Screens** and by the assistant. This guide says how a screen is told
 apart, how a button with no picture of its own is pressed, how the bot learns what a button's looks mean, and how
-to check the whole map against the game.
+to check the whole map against the game, and how to tell the bot what it wants.
 
 ## 1. Tell each screen by its parts
 
@@ -67,3 +67,31 @@ The walk is never stuck for ever: each way gets 30 s, the whole walk 30 minutes 
 at any time: what it found so far is kept. Its problems reach the end-of-run dialog and the
 [Reports tab](/docs/how-to/read-your-bots-reports/) like any run's; *Failed moves* shows the ways that did not
 arrive. The assistant runs it with `run_bot entry="Explore map"` and reads the result with `reports`.
+
+## 5. Say what the bot wants
+
+A map says how to get somewhere; a **plan** says where to go. Instead of a flow that lists every step, a bot can say
+what it wants, and a run picks the next thing to do itself.
+
+- **Facts.** What the game shows is kept as facts, the methods of a `@Facts` group such as `Progress`. A screen's
+  readout says where each one is read and how long a reading holds:
+  `Readout.digits(Zones.GOLD, Digits.GOLD).into(Progress::gold).staleAfter(Duration.ofMinutes(30))`.
+- **Actions.** What is done on a screen is a `Do` beside the button it presses, with the goals it serves:
+  `Do.press(claim).serves(Goals.CLAIMED_TODAY).daily(LocalTime.of(5, 0))`. `.needs`, `.first`, `.last`, `.over`,
+  `.every` and `.once` say when it is a choice. One marked `.onSight()` is done whenever a walk passes its screen,
+  such as closing an ad.
+- **Goals**, in `Goals.java`, are checks: `Goal.of(Need.atLeast(Progress::gold, 100))`, or
+  `Goal.done(() -> Screens.HOME.claim).within(Duration.ofDays(1))`.
+- **Plans**, in `Plans.java`, are tiers of goals: `Plan.of(Plan.tier(Goals.RESTED), Plan.tier(Goals.CLAIMED_TODAY,
+  Goals.ENOUGH_GOLD))`. The first tier with a goal left to do is worked on first.
+
+Pick the plan under **routine** in the Runner. A run walks to the best action, reads a fact it does not know on the
+way, presses, checks the goal, and waits until the next goal comes due. Each decision is a line of the run's trace.
+
+🎯 **Goals**, on the SDK's toolbar tab, shows a plan as a run sees it: the tiers as rows of goal chips, one card per
+goal with the actions serving it in the order a run tries them, and the route to the action you pick. Drag a chip to
+another tier, or a row onto another to try it first. **+ Goal** and **+ Plan** write new ones. A ⚠ line names what
+no run can do: a goal no action serves, `.over`s that go round in a circle, goals that need each other too deeply.
+
+When the assistant presses a button with `try_input` and a goal's fact turns true, it proposes the `.serves` to add,
+and 🗺 Screens badges the button 🎯. Nothing is written until you add it.

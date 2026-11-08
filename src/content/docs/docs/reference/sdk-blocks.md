@@ -104,7 +104,8 @@ lengths, new each time: the pause that looks human.
 
 ## The bot
 
-**Bot:** `runFlow` runs the bot's flow, and is what its `main` calls; while `main` calls nothing, the block menu
+**Bot:** `runFlow` runs what the Runner's **routine** picks, a flow or a
+[plan](/docs/how-to/map-a-game/#5-say-what-the-bot-wants), and is what its `main` calls; while `main` calls nothing, the block menu
 offers it first as **▶ Run activity flow**. `stop` ends the bot from wherever it is, optionally saying what the
 person running it should change.
 
