@@ -33,7 +33,7 @@ it (`Screens.HOME.collect`).
 
 ## Pictures
 
-A picture is a constant of the bot's `Pictures` class, cut with ✂ **Capture Templates**. A group is several
+A picture is a constant of the bot's `Pictures` class, cut in 🗺 **Screens** (✂ Cut on a screen's panel, or 🖼 Pictures in its left rail). A group is several
 pictures, any of which may show. Each block looks on the bot's capture source unless it is given another.
 
 **ImageFinder:** `find`, `findAny`, `findBest`, `findAll` answer whether a picture (or a group's) is on screen,

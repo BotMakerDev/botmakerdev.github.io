@@ -37,8 +37,7 @@ while the pointer is over it. Do not cut each look as a picture of its own. The 
 kept in `Sdk.shades()`:
 
 - **What the game shows.** When two buttons show the same change from their cut pictures, `which_screen` proposes
-  a shade. Keep it in 🗺 Screens' *Shades the game shows* (no screen picked) or with `edit_map learn_shade`, and
-  pick what it means: *Disabled*, *Selected*, or a state of your bot's own (`States`), such as *Maxed*. A run never
+  a shade. Ask the assistant to keep it (`edit_map learn_shade`), and pick what it means: *Disabled*, *Selected*, or a state of your bot's own (`States`), such as *Maxed*. A run never
   presses a button shown in a state that blocks it.
 - **How buttons answer the bot.** In a screen's *How buttons answer the bot*, **Try on this screen** hovers,
   holds and Tabs two buttons, and proposes each change they show alike: keep it, and a run takes that look for the
@@ -47,9 +46,9 @@ kept in `Sdk.shades()`:
 
 ## 4. Check the map
 
-A game update moves a button or redraws a screen, and the bot's map is wrong until you notice. **▶ Explore map**,
-on the SDK's toolbar tab, checks it for you: it starts the game and walks the whole map without your bot's `main`,
-every screen and every way between screens once.
+A game update moves a button or redraws a screen, and the bot's map is wrong until you notice. **Explore map**, in
+🗺 Screens' 🔭 Explore (the ▾ beside ▶ Keep exploring), checks it for you: it starts the game and walks the whole
+map without your bot's `main`, every screen and every way between screens once.
 
 It says what did not go as the map says:
 
@@ -94,7 +93,7 @@ Work a press cannot say, such as a puzzle or a fight, is a `Custom` input on its
 The bot's `main` calls `Bot.run(Sdk.class)`. Pick the plan under **plan** in the Runner. A run walks to the best action, reads a fact it does not know on the
 way, presses, checks the goal, and waits until the next goal comes due. Each decision is a line of the run's trace.
 
-🎯 **Goals**, on the SDK's toolbar tab, shows a plan as a run sees it: the tiers as rows of goal chips, one card per
+🎯 **Goals**, in the left rail of 🗺 Screens, shows a plan as a run sees it: the tiers as rows of goal chips, one card per
 goal with the actions serving it in the order a run tries them, and the route to the action you pick. Drag a chip to
 another tier, or a row onto another to try it first. **+ Goal** and **+ Plan** write new ones. A ⚠ line names what
 no run can do: a goal no action serves, `.over`s that go round in a circle, goals that need each other too deeply.

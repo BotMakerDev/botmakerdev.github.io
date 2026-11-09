@@ -17,7 +17,8 @@ Studio, do [Your first program](/docs/tutorials/first-program/) first: this one 
 4. Press **Create**.
 
 The toolbar's second row now has a **BotMaker SDK** tab with the SDK's buttons: 🎮 for the game, 📋 **Project Setup**, 🎯 **Capture Source**, ⚙ **Bot Settings**,
-🗺 **Screens**, 🎯 **Goals**, 🖼 **Manage Pictures** and 🎮 **Pilot**. Project Setup lists what
+🗺 **Screens** and 🎮 **Pilot**. 🗺 Screens' left rail also holds 🎯 **Goals**, 🔭 **Explore** and 🖼 **Pictures**.
+Project Setup lists what
 the bot still needs before it can run; it is a good place to come back to. To find any button by name, press
 **Ctrl+Shift+A** (**Navigate ▸ Find Action**).
 
@@ -35,7 +36,7 @@ looked for in that window, and every click lands in it.
 
 ## 4. Cut out the button
 
-Press 🖼 **Manage Pictures** and cut a new picture: drag a box around the button the bot should click and name the
+Open 🗺 **Screens**, press 🖼 **Pictures** in its left rail, and cut a new picture: drag a box around the button the bot should click and name the
 picture `COLLECT`.
 
 The picture is a PNG in `src/main/resources/images/`, and the bot knows it by a constant in its own Java:
@@ -45,7 +46,7 @@ public static final ImageTemplate COLLECT = new ImageTemplate("images/collect.pn
 ```
 
 That line is in `Pictures.java`, which the SDK keeps for you in the package `plugins.com_github_botmakerdev.botmaker_sdk`
-under your main class's. 🖼 **Manage Pictures** renames or recuts a picture,
+under your main class's. 🖼 **Pictures** renames or recuts a picture,
 and a rename carries every block that uses it.
 
 ## 5. Put the button on the map
