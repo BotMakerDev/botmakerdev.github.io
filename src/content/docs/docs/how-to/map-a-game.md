@@ -75,7 +75,10 @@ and a run picks the next thing to do itself.
 
 - **Facts.** What the game shows is kept as facts, the methods of a `@Facts` group such as `Progress`. A screen's
   readout says where each one is read and how long a reading holds:
-  `Readout.digits(Zones.GOLD, Digits.GOLD).into(Progress::gold).staleAfter(Duration.ofMinutes(30))`.
+  `Readout.digits(Area.of(Pictures.GOLD_ICON, 1.2, 0, 3, 1), Digits.GOLD).into(Progress::gold).staleAfter(Duration.ofMinutes(30))`.
+  The `Area` is measured from a picture the screen shows: here 1.2 of the gold icon's widths right of it, 3 icons wide
+  and 1 high, so it follows the icon at any size. You never type those numbers: cut the icon (or pick one already
+  saved), then cut the number beside it, and Studio works them out.
 - **Actions.** What is done on a screen is a `Do` beside the button it presses, with the goals it serves:
   `Do.press(claim).serves(Goals.CLAIMED_TODAY).daily(LocalTime.of(5, 0))`. `.needs`, `.first`, `.last`, `.over`,
   `.every` and `.once` say when it is a choice. One marked `.onSight()` is done whenever a walk passes its screen,
