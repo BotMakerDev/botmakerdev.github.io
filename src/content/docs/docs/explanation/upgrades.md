@@ -17,7 +17,7 @@ Your program uses a plugin in two ways:
 
 - **It calls the plugin's code.** `ImageClicker.click(Pictures.COLLECT)` is a call. If the new release renames or
   reshapes `click`, the line no longer compiles.
-- **It holds the plugin's values.** The SDK keeps your pictures, screens and flows as Java in your program, marked
+- **It holds the plugin's values.** The SDK keeps your pictures, screens and plans as Java in your program, marked
   with the plugin's annotation (`@SdkValue`). If the new release declares those values another way, the old ones no
   longer read.
 
@@ -46,7 +46,7 @@ pretend to: it writes the guess and marks the function it happened in.
 
 ```java
 @Refactor("the call to Mouse.click(x, y) was removed by the SDK's new release, and the value it produced is now false")
-public static Activities.Collect body() { … }
+public static void solvePuzzle() { … }
 ```
 
 The **Review** tab lists every mark still to look at. Marking one reviewed sets `done = true` rather than deleting

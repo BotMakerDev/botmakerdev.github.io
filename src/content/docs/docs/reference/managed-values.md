@@ -5,7 +5,7 @@ sidebar:
   order: 5
 ---
 
-A managed value is a value your plugin keeps **in the bot's own Java**: a parameter, a flow, a set of pictures.
+A managed value is a value your plugin keeps **in the bot's own Java**: a parameter, the bot's settings, a set of pictures.
 Studio writes it into a class of the bot's, finds it again by your plugin's mark, and lets nothing but your plugin
 change it. There is no file of your own beside the bot: the value is Java, so a developer without BotMaker can read,
 diff and refactor it, and the compiler checks every use of it.
@@ -40,7 +40,7 @@ public @interface GreetValue {
 ```
 
 `Id` names its `Holder` enum, so a value's `.in(…)` takes only one of these constants. A constant is UPPER_SNAKE and
-names one class of the bot's, each `_` part capitalised: `GREETINGS` is `Greetings`, `FLOW_LAYOUT` is `FlowLayout`.
+names one class of the bot's, each `_` part capitalised: `GREETINGS` is `Greetings`, `SCREEN_MAP` is `ScreenMap`.
 Another spelling, or two constants whose class names differ only by case, is refused when the plugin is declared.
 
 The declaration refuses a mark without `RUNTIME` retention, one whose `@Target` leaves out where the value sits
@@ -94,19 +94,19 @@ starting copy holds its type's blank value, not the value on the author's comput
 ### A method value
 
 ```java
-public static final ManagedMethod<FlowLayout> FLOW_LAYOUT = ManagedValue.method(SdkValue.Id.FLOW_LAYOUT)
+public static final ManagedMethod<BotSettings> SETTINGS = ManagedValue.method(SdkValue.Id.SETTINGS)
         .in(SdkValue.Holder.SDK)
-        .holds(FlowLayout.class, FlowLayout.NONE)
-        .because("These are where the Activity Flow's cards sit. Drag them in 🔀 Activity Flow, which keeps"
-                + " them in step with the activities' names.");
+        .holds(BotSettings.class, BotSettings.DEFAULTS)
+        .because("These are the bot's settings — delays, confidence, input and its private display. Change"
+                + " them in ⚙ Bot Settings.");
 ```
 
 `SdkValue.Holder.SDK` is the class `Sdk`. In the bot it is a method marked with the id, whose one `return` Studio rewrites:
 
 ```java
-@SdkValue(SdkValue.Id.FLOW_LAYOUT)
-public static FlowLayout flowLayout() {
-    return FlowLayout.of(Map.ofEntries(…));
+@SdkValue(SdkValue.Id.SETTINGS)
+public static BotSettings settings() {
+    return BotSettings.DEFAULTS;
 }
 ```
 
@@ -122,7 +122,7 @@ after `openSet(id)` picks what a member is:
 |---|---|---|
 | `.of(E.class)` | a constant of class `E` | `Pictures.ORE` |
 | `.ofEnum(E.class, Owner::byName)` | a constant of the holder, itself an enum implementing `E` | `Modes.FAST` |
-| `.ofEnumGroups(E.class, Owner::byName).groupedAs(G.class, Owner::byGroup)` | a constant of an enum nested in the class | `Activities.Collect.WON` |
+| `.ofEnumGroups(E.class, Owner::byName).groupedAs(G.class, Owner::byGroup)` | a constant of an enum nested in the class | `Stages.Forest.ENTRY` |
 | `.ofClasses(E.class).fields(…).setup(…)` | a class nested in the class | `Screens.Market` |
 
 ```java
@@ -132,7 +132,7 @@ public static final ManagedOpenSet.OfConstants<ImageTemplate> PICTURES = Managed
         .because("Picture constants are managed in 🖼 Manage Pictures.");
 ```
 
-For a set whose members are told apart by name rather than by value, such as two flows that both start empty,
+For a set whose members are told apart by name rather than by value, such as two plans that both start empty,
 `.referredToAs(Owner::byName)` before `.in(…)` makes a use of a constant read as that constant, and Studio writes
 it back as the constant. An open set is a holder of its own: give it a `Holder` constant no other value uses.
 

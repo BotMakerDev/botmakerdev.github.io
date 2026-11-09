@@ -22,13 +22,11 @@ named by `.overlay(MyOverlay.class)`. A second holder is refused. From the SDK:
 public final class SdkOverlay implements OverlayHolder {
 
     public static final OverlayPart PART = OverlayPart.of()
-            .targets(ActivityBody.class, "Activities")
             .watched(SdkOverlay::watched)
             .changeWatched(() -> SourcePicker::choose)
             .frames(SdkOverlay::frames)
             .tool(SdkTools.PICTURE)
             .tool(SdkTools.POINT)
-            .tool(SdkTools.FLOW)
             .tool(SdkTools.SCREENS)
             .probe(ImageFinder::find, ImageTemplate.class, SdkProbes::find)
             .probe(ImageWaiter::waitFor, ImageTemplate.class, Duration.class, SdkProbes::find)
@@ -56,9 +54,10 @@ Every step is optional. A part that declares nothing is no part.
 
 ### Targets
 
-Targets are found by type, never by name. The SDK passes each activity's body to `Flow.activity` as an
-`ActivityBody` method reference, `Flow.activity(COLLECT, Collect::body, …)`, so Studio offers `Collect.body()` as a
-chip labelled `Collect`. Studio reads that off the compiler's bindings: no method name crosses as text.
+Targets are found by type, never by name. `.targets(Chore.class, "Chores")` names a functional interface of the
+plugin's; where the bot's Java passes a method reference as that type, `Farm.daily(Crops::water)`, Studio offers
+`Crops.water()` as a chip labelled `Crops`. Studio reads that off the compiler's bindings: no method name crosses as
+text. The SDK declares no targets.
 
 ### The watched screen and frames
 

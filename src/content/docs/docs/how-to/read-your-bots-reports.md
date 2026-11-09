@@ -34,7 +34,7 @@ Open the bot and pick the **Reports** tab at the bottom. Choose where to read fr
 runner's reports) or **Runs on this computer** (your own runs). Then:
 
 - **Group by** picks what to count problems by: the bot's line, the called method, the level, the bot version, a
-  run detail (the flow, the platform, the game's version) or a value a plugin adds.
+  run detail (the plan, the platform, the game's version) or a value a plugin adds.
 - **Chart** draws it as **Bars**, **Bars by day**, **Lines**, a **Heatmap**, a **Donut** or a **Table**.
 - Click a value in the chart to list its problems, with when each was first and last seen.
 

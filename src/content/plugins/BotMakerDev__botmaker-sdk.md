@@ -1,7 +1,7 @@
 ---
 repo: BotMakerDev/botmaker-sdk
 name: BotMaker SDK
-summary: Game automation. Screens, pictures, reading text, flows and activities, the run overlay.
+summary: Game automation. Screens, pictures, reading text, goals and plans, the run overlay.
 headline: Let a program play
 emphasis: the repetitive part.
 features:
@@ -14,9 +14,9 @@ features:
   - title: Reading text
     text: Numbers and labels read straight off the screen, ready to compare.
     alt: A readout on a game screen, with the number the SDK read from it.
-  - title: Flows and activities
-    text: What to do, in what order, how often. Whoever runs the bot switches activities on and off.
-    alt: A flow in Studio, its activities as cards joined by arrows.
+  - title: Goals and plans
+    text: Say what the bot wants, in tiers of what matters most. It picks the next action itself, and whoever runs the bot picks the plan.
+    alt: The SDK's Goals window in Studio, a plan's tiers as rows of goals.
   - title: Launching the game
     text: Start the game the way you already do, with Steam, Bottles, Waydroid or a phone over adb. On Linux it can run in a private session, so your desktop stays yours.
     alt: The launch settings in Studio, with a game picked to start before the bot runs.

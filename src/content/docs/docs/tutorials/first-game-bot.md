@@ -5,8 +5,7 @@ sidebar:
   order: 2
 ---
 
-In this tutorial you will make a bot that clicks one button in a game, over and over, and stops when the button
-is gone. You need Studio, a game you can start on this computer, and about twenty minutes. If you have never used
+In this tutorial you will make a bot that comes back to a game every ten minutes and clicks its reward button. You need Studio, a game you can start on this computer, and about twenty minutes. If you have never used
 Studio, do [Your first program](/docs/tutorials/first-program/) first: this one assumes you know the canvas.
 
 ## 1. Start a project with the SDK
@@ -18,7 +17,7 @@ Studio, do [Your first program](/docs/tutorials/first-program/) first: this one 
 4. Press **Create**.
 
 The toolbar's second row now has a **BotMaker SDK** tab with the SDK's buttons: 🎮 for the game, 📋 **Project Setup**, 🎯 **Capture Source**, ⚙ **Bot Settings**,
-🔀 **Activity Flow**, 🗺 **Screens**, 🖼 **Manage Pictures**, ✂ **Capture Templates** and 🎮 **Pilot**. Project Setup lists what
+🗺 **Screens**, 🎯 **Goals**, 🖼 **Manage Pictures** and 🎮 **Pilot**. Project Setup lists what
 the bot still needs before it can run; it is a good place to come back to. To find any button by name, press
 **Ctrl+Shift+A** (**Navigate ▸ Find Action**).
 
@@ -36,8 +35,8 @@ looked for in that window, and every click lands in it.
 
 ## 4. Cut out the button
 
-Press ✂ **Capture Templates** and choose **▢ Capture one**. Drag a box around the button the bot should click and
-name the picture `COLLECT`.
+Press 🖼 **Manage Pictures** and cut a new picture: drag a box around the button the bot should click and name the
+picture `COLLECT`.
 
 The picture is a PNG in `src/main/resources/images/`, and the bot knows it by a constant in its own Java:
 
@@ -49,51 +48,50 @@ That line is in `Pictures.java`, which the SDK keeps for you in the package `plu
 under your main class's. 🖼 **Manage Pictures** renames or recuts a picture,
 and a rename carries every block that uses it.
 
-## 5. Make an activity
+## 5. Put the button on the map
 
-An activity is one thing the bot does, ending with an *outcome* that says how it went.
+The bot does not follow a script. It knows the game's screens, what it wants, and the actions that get it there.
 
-1. Press 🔀 **Activity Flow**, then **Add activity**.
-2. Name it `Collect`. Its outcomes start with `NEXT`; add a second one, `NOTHING_LEFT`.
-3. Press **Create**. The activity is a card on the canvas, with one port per outcome.
-4. Select the card. In its **Runs** row, press **Create method…**: Studio writes the activity's body, a function
-   that returns one of its outcomes, and opens it on the canvas.
-
-Fill the body with blocks. Under **FROM PLUGINS ▸ BotMaker SDK** in the block menu, each class of the SDK has its
-own submenu. Build this:
-
-1. An **If Statement** whose condition is *not* **ImageClicker ▸ click** with the picture `COLLECT`, and inside
-   it a **Return** of `NOTHING_LEFT`. The click answers whether it found the picture.
-2. After it, **Wait ▸ seconds**, set to one second.
-3. Last, a **Return** of `NEXT`.
-
-In Java, that is:
+Press 🗺 **Screens** and add the screen the button is on, `Home`, with the pictures that tell it apart. Give it the
+button `COLLECT`, and an action that presses it. The map is Java in `Screens.java`, beside `Pictures.java`:
 
 ```java
-public static Activities.Collect body() {
-    if (!ImageClicker.click(Pictures.COLLECT)) {
-        return Activities.Collect.NOTHING_LEFT;
-    }
-    Wait.seconds(1.0);
-    return Activities.Collect.NEXT;
+public static final class Home extends Screen {
+    public final Button collect = Button.of(Pictures.COLLECT);
+    public final Do claim = Do.press(collect).serves(Goals.CLAIMED_LATELY);
+    // … the pictures that say the game is on Home
 }
 ```
 
-Back in 🔀 Activity Flow, drag the card's `NEXT` port onto the card itself, so the bot collects again. Leave
-`NOTHING_LEFT` unwired: an outcome with nowhere to go ends the run.
+`Do` is an action. `serves` says which goal it moves forward. Work a press cannot say, such as a puzzle, is a
+`Custom` input on the screen: a plain method of yours, `Custom.of(MyFirstBot::solvePuzzle)`.
 
-## 6. Run it
+## 6. Say what the bot wants
 
-The bot's `main` starts the flow. Open `main`: while it calls nothing, its block menu opens on **START THE BOT**
-with **▶ Run activity flow**. Add it, then press **▶ Run** on the toolbar.
+Press 🎯 **Goals**. Add a goal that is met when `claim` went through in the last ten minutes, and a plan with that
+goal in its first tier. They are Java too, in `Goals.java` and `Plans.java`:
+
+```java
+public static final Goal CLAIMED_LATELY = Goal.done(() -> Screens.HOME.claim).within(Duration.ofMinutes(10));
+
+public static final Plan COLLECT = Plan.of(Plan.tier(Goals.CLAIMED_LATELY));
+```
+
+A plan is tiers of goals. Each round the bot takes the first tier with a goal that is not met, walks the map to an
+action that serves it, and presses it. When nothing is due, it waits for the soonest goal that will be.
+
+## 7. Run it
+
+The bot's `main` starts the run. Open `main`: while it calls nothing, its block menu opens on **START THE BOT**
+with **▶ Run the bot's plan** (`Bot.run(Sdk.class)`). Add it. Pick `COLLECT` under **plan** in the Runner (▶ **Run…**),
+then run.
 
 The run overlay draws over the game what the bot matched and where it clicked, and lists its steps. To stop the
 bot at any moment, from anywhere, press **Pause** (**F12** on a Mac); **View ▸ Stop Key** changes the key.
 
 ## What next
 
-- 🗺 **Screens** maps the game's screens and the ways between them, so the bot can walk to a screen by name
-  (`Navigate.to`) instead of clicking its way there.
-- More activities, wired outcome to card, make a loop: collect until nothing is left, then fight, then rest.
+- Map more screens and the buttons between them: the bot walks the map to wherever an action is.
+- Add goals that read the game, such as gold at least 100, and order them in tiers: [Map a game](/docs/how-to/map-a-game/).
 - [Blocks of the SDK](/docs/reference/sdk-blocks/) lists every block the SDK adds.
 - When the bot works, [publish it](/docs/how-to/publish-a-bot/).

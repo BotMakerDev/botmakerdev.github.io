@@ -133,7 +133,7 @@ A link is named the same way, after the factory:
 | Step | Writes | Example |
 |---|---|---|
 | `.with(wither, reader)` | `.wither(part)` wherever the part differs from what the factory makes | `.with(BotSettings::displayBackend, settings -> settings.runIn().displayBackend())` |
-| `.flag(wither, isOn)` | `.wither()` wherever the value has it on and the factory's value has not | `.flag(Flow.Step::goesHome, Flow.Step::goHome)` |
+| `.flag(wither, isOn)` | `.wither()` wherever the value has it on and the factory's value has not | `.flag(Combo::repeating, Combo::repeats)` |
 
 A `.with` or `.flag` on a method that is also marked `@Link` replaces the inferred link in its place, so the two
 forms mix. A flag only turns something on; a setting that is on by default is declared by its negative (`.off()`).
@@ -193,7 +193,7 @@ A call, on `PluginType.value(…)` after `editor` or on `ComponentType.part(…)
 |---|---|---|
 | `writtenAsRecord()` | `new Point(3, 4)`, the canonical constructor, each part by its accessor | a public record with no factory |
 | `writtenAsEach(Combo::of, Combo::keys)` | `Combo.of(a, b, c)` | a varargs factory |
-| `.constants(Flow.NONE)` | the constant, for a value equal to it | after any of the call steps above |
+| `.constants(Plan.NONE)` | the constant, for a value equal to it | after any of the call steps above |
 
 A type that is no call, on `PluginType.value(…)` only:
 

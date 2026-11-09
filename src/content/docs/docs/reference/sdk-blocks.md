@@ -104,13 +104,9 @@ lengths, new each time: the pause that looks human.
 
 ## The bot
 
-**Bot:** `runFlow` runs what the Runner's **routine** picks, a flow or a
-[plan](/docs/how-to/map-a-game/#5-say-what-the-bot-wants), and is what its `main` calls; while `main` calls nothing, the block menu
-offers it first as **▶ Run activity flow**. `stop` ends the bot from wherever it is, optionally saying what the
-person running it should change.
-
-**ActivitySwitch:** `active` answers whether an activity runs now; `enable` and `disable` switch one on or off for
-the rest of the run (switched off, the flow takes its off-wire).
+**Bot:** `run` runs the [plan](/docs/how-to/map-a-game/#5-say-what-the-bot-wants) the Runner's **plan** picks, and
+is what its `main` calls; while `main` calls nothing, the block menu offers it first as **▶ Run the bot's plan**.
+`stop` ends the bot from wherever it is, optionally saying what the person running it should change.
 
 **Source:** `current` is the capture source the bot watches; `set` changes it until it is changed again.
 

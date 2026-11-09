@@ -38,7 +38,7 @@ it.
 
 | First step | Claims | For |
 |---|---|---|
-| `SlotEditor.onParameter(Marker.class)` | every argument passed to a parameter carrying `@Marker` | a value its type cannot tell apart: an activity name, an outcome name and a label are all `String` |
+| `SlotEditor.onParameter(Marker.class)` | every argument passed to a parameter carrying `@Marker` | a value its type cannot tell apart: a screen's name, a tag and a label are all `String` |
 | `SlotEditor.forType(Color.class)` | every value of that type | a type another plugin or the JDK owns |
 | `SlotEditor.when(Owner::matches)` | every value the predicate accepts | anything else; the predicate takes a `ValueContext` |
 

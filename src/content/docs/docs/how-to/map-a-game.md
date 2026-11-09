@@ -70,8 +70,8 @@ arrive. The assistant runs it with `run_bot entry="Explore map"` and reads the r
 
 ## 5. Say what the bot wants
 
-A map says how to get somewhere; a **plan** says where to go. Instead of a flow that lists every step, a bot can say
-what it wants, and a run picks the next thing to do itself.
+A map says how to get somewhere; a **plan** says where to go. A bot does not list every step: it says what it wants,
+and a run picks the next thing to do itself.
 
 - **Facts.** What the game shows is kept as facts, the methods of a `@Facts` group such as `Progress`. A screen's
   readout says where each one is read and how long a reading holds:
@@ -85,7 +85,10 @@ what it wants, and a run picks the next thing to do itself.
 - **Plans**, in `Plans.java`, are tiers of goals: `Plan.of(Plan.tier(Goals.RESTED), Plan.tier(Goals.CLAIMED_TODAY,
   Goals.ENOUGH_GOLD))`. The first tier with a goal left to do is worked on first.
 
-Pick the plan under **routine** in the Runner. A run walks to the best action, reads a fact it does not know on the
+Work a press cannot say, such as a puzzle or a fight, is a `Custom` input on its screen,
+`Custom.of(MyBot::solvePuzzle)`: a plain method of yours, pressed like a button.
+
+The bot's `main` calls `Bot.run(Sdk.class)`. Pick the plan under **plan** in the Runner. A run walks to the best action, reads a fact it does not know on the
 way, presses, checks the goal, and waits until the next goal comes due. Each decision is a line of the run's trace.
 
 🎯 **Goals**, on the SDK's toolbar tab, shows a plan as a run sees it: the tiers as rows of goal chips, one card per
