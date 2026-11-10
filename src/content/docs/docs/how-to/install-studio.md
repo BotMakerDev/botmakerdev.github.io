@@ -23,4 +23,17 @@ download. It picks your system for you; the others are a tab away.
 Studio bundles its own Java and JavaFX, so there is nothing else to install. The same page lists the other tools:
 the `botmaker` command, the dashboard, and the phone apps.
 
+## Use BotMaker from Claude Code
+
+BotMaker's MCP tools are also a Claude Code plugin. They give you your bots and their runs, plus the Android
+emulators on your computer (list, start, install a game, screenshot, tap), with or without Studio open:
+
+```sh
+claude plugin marketplace add BotMakerDev/botmaker-claude-plugin
+claude plugin install botmaker@botmaker
+```
+
+The plugin needs Java 25 or newer: `$BOTMAKER_JAVA`, `$JAVA_HOME` or `java` on your `PATH`. On first use it fetches
+the `botmaker` command's jar and checks its sha256.
+
 Next: [your first program](/docs/tutorials/first-program/).
