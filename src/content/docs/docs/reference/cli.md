@@ -238,6 +238,35 @@ starts the core when none is running, so an assistant can open, edit and run a b
 tools appear while Studio is open, and the `start_studio` tool starts it the way `--studio` or `--umbrella` says.
 Studio must have been started once on this computer.
 
+### ai
+
+```
+botmaker ai <tool> [-C <folder>] [--allow-shell] [-- <tool args>]
+```
+
+Start Claude Code (`claude`), Codex (`codex`), Gemini CLI (`gemini`) or opencode (`opencode`) in a bot's folder,
+this one unless `-C` names it, with BotMaker's MCP tools through this command's own `mcp-bridge` and the tool's own
+file edits turned off, as Studio's Assistant window starts it. `--allow-shell` lets it run shell commands (Codex
+always may, in its read-only sandbox). Arguments after `--` go to the tool: `botmaker ai codex -- exec "…"`. The
+terminal is the tool's until it exits, and its exit code is this command's, so a script tells this command's own
+refusals from the tool's failures by the message on stderr. Before the tool starts, exit 2: not a bot's folder (a plugin's
+included), no such tool, or, on Windows with a `.cmd` tool, an argument holding a line break, `"` or `%`; exit 1:
+the tool is not installed.
+
+### mcp install
+
+```
+botmaker mcp install <claude|codex|opencode|gemini> [--print] [--dev [--umbrella <dir>]]
+```
+
+Register BotMaker's MCP server, named `botmaker-studio`, in the tool's user settings, so every session of it has
+the tools: Claude Code through `claude mcp add --scope user`, Codex's `~/.codex/config.toml`, opencode's
+`~/.config/opencode/opencode.json`, Gemini CLI's `~/.gemini/settings.json`. Only that entry changes; a file it
+cannot safely rewrite is left alone, and the entry printed for you to add. `--print` only prints it. The entry
+holds this command's path: run it again after an upgrade. `--dev`, for BotMaker's own developers, registers a
+checkout's built jar with `--umbrella`; `--umbrella <dir>` implies `--dev`. It turns off no edit: use `botmaker ai`
+for that. Both `ai` and `mcp install` come after cli 0.12.0.
+
 ### release
 
 Cut or preview a release of BotMaker itself, across its modules. It is for BotMaker's maintainers, and previews

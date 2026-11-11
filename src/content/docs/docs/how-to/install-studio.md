@@ -36,4 +36,65 @@ claude plugin install botmaker@botmaker
 The plugin needs Java 25 or newer: `$BOTMAKER_JAVA`, `$JAVA_HOME` or `java` on your `PATH`. On first use it fetches
 the `botmaker` command's jar and checks its sha256.
 
+## Use BotMaker from another AI tool
+
+`botmaker ai` and `botmaker mcp install` come with the `botmaker` command's next release, after 0.12.0.
+
+Every AI tool gets the same MCP tools from the `botmaker` command, and one rule: it changes your bot through
+those tools only, and reads files freely. Studio's 🤖 Assistant window starts each tool that way; outside Studio,
+start it from the bot's folder with `botmaker ai`:
+
+```sh
+cd MyBot
+botmaker ai codex          # or opencode, claude, gemini
+```
+
+`botmaker ai` points the tool at BotMaker, with or without Studio open, and turns off its own file edits; it says
+which before handing you the terminal. `--allow-shell` lets the tool run shell commands too. To give it one task
+and get the answer, pass the tool's own arguments after `--`, on one line:
+
+```sh
+botmaker ai codex -- exec "open this bot and add a print of hello at the end of main"
+botmaker ai opencode -- run "list my projects"
+```
+
+On Windows, where npm installs the tool as a `.cmd`, such an argument may not hold a line break, a `"` or a `%`:
+`botmaker ai` refuses it rather than let Windows change it.
+
+### Codex
+
+Install it with `npm install -g @openai/codex` and log in with `codex login`. Under `botmaker ai codex` it runs in
+its read-only sandbox: it can read and run commands, not write files. Started by hand in the bot's folder, Codex
+reads the folder's `.codex/config.toml`, which asks for that sandbox too, only once you trust the folder in Codex.
+
+### opencode
+
+Install it (`curl -fsSL https://opencode.ai/install | bash`, or `npm install -g opencode-ai` on Windows) and log in
+with `opencode auth login`; it runs any model, a local one too.
+Under `botmaker ai opencode` its edits and shell commands are denied (shell asks first with `--allow-shell`).
+Started by hand, it reads the folder's `opencode.json`: edits denied, shell asks first.
+
+### Claude Code
+
+The plugin above, or `botmaker ai claude`: Edit and Write are denied, and shell commands unless `--allow-shell`.
+Started by hand, it reads the folder's `.claude/settings.json`, which denies edits under `src`.
+
+### Gemini CLI
+
+`botmaker ai gemini` excludes its `write_file` and `replace` tools (and its shell unless `--allow-shell`). This has
+not yet been tried against an installed Gemini CLI.
+
+### Your own sessions
+
+To have the tools in every session of a tool you start yourself, register them once:
+
+```sh
+botmaker mcp install codex   # or opencode, claude, gemini; --print shows the entry instead
+```
+
+This changes only BotMaker's entry in the tool's own settings; run it again after you move or upgrade the
+`botmaker` command, whose path the entry holds. It turns nothing off: in a bot's folder Studio opened,
+leaves `AGENTS.md` and each tool's file saying to work through the tools, and those keep a tool from slips, not
+from a determined one. `botmaker ai` is the guarded way.
+
 Next: [your first program](/docs/tutorials/first-program/).
