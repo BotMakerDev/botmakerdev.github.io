@@ -69,6 +69,20 @@ A failure BotMaker can't repair shows the commands to run. BotMaker does not ins
 The assistant reads the same list with `setup`'s `emulator_checks` and runs a fix with `fix`; the password window still
 opens on your desktop, so you decide. `launch_game` refuses an emulator it cannot start and names the check.
 
+### Emulators on Windows
+
+On Windows, use **LDPlayer 14** (recommended) or **MuMu Player 12**; BlueStacks 5, MSI App Player and MEmu 9 work too.
+GameLoop is not supported. The same **Emulator checks** cover them: installed and at the tested version, the instance,
+its ADB port and switch, memory, Android started, Google Play, a Google account, the ARM translator and the screen
+size, with **Fix** and **Undo** where BotMaker can repair it. LDPlayer, BlueStacks and MSI share one ADB port, so only
+one of them runs at a time.
+
+The toolbar's **📱 Emulators** window manages them all: each instance's configuration (screen, FPS, memory, accounts,
+games) and **Apply** to make it so, clone, rename and delete for LDPlayer, MuMu and MEmu, the running instances with
+their live screens, and Google sign-in on an instance: you type the password once, in BotMaker's own dialog. A 2-step
+code or a captcha is yours to answer there. On a signed-in instance BotMaker installs a game by pressing **Install** in
+Google Play, and never presses a price, **Buy** or **Pre-register**.
+
 ## 2. Point the bot at the game's window
 
 Press 🎯 **Capture Source**. Pick the game's window from **Windows**, an emulator from **Emulators**, a whole
