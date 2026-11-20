@@ -38,8 +38,6 @@ the `botmaker` command's jar and checks its sha256.
 
 ## Use BotMaker from another AI tool
 
-`botmaker ai` and `botmaker mcp install` come with the `botmaker` command's next release, after 0.12.0.
-
 Every AI tool gets the same MCP tools from the `botmaker` command, and one rule: it changes your bot through
 those tools only, and reads files freely. Studio's 🤖 Assistant window starts each tool that way; outside Studio,
 start it from the bot's folder with `botmaker ai`:
@@ -48,6 +46,12 @@ start it from the bot's folder with `botmaker ai`:
 cd MyBot
 botmaker ai codex          # or opencode, claude, gemini
 ```
+
+<figure class="shot">
+  <img class="only-light" src="/shots/assistant-light.webp" alt="Studio's Assistant window: the AI tool picked, every tool call of the session listed with how often it was used, and one edit_code call with its arguments and reply." loading="lazy" />
+  <img class="only-dark" src="/shots/assistant-dark.webp" alt="" loading="lazy" />
+  <figcaption>The <b>🤖 Assistant</b> window lists every call an AI tool made, with its arguments and what Studio answered.</figcaption>
+</figure>
 
 `botmaker ai` points the tool at BotMaker, with or without Studio open, and turns off its own file edits; it says
 which before handing you the terminal. `--allow-shell` lets the tool run shell commands too. To give it one task

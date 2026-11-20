@@ -39,7 +39,7 @@ test('ticking the SDK loads the sample program, and its imports', () => {
   const lines = java(togglePlugin(EMPTY, 'sdk', true));
   assert.ok(lines.includes('import com.botmaker.sdk.api.screens.Navigate;'));
   assert.ok(lines.includes('import com.botmaker.sdk.api.vision.ImageClicker;'));
-  assert.ok(lines.includes('import com.myprogram.plugins.sdk.Pictures;'));
+  assert.ok(lines.includes('import com.myprogram.plugins.com_github_botmakerdev.botmaker_sdk.Pictures;'));
   assert.ok(callLine(lines, 'ImageClicker.click(Pictures.COLLECT);'));
 });
 

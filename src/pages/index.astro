@@ -91,12 +91,12 @@ const pluginGuide = GUIDES.makePlugin;
         <div>
           <span class="num">01</span>
           <h3>Snap</h3>
-          <p>Drag blocks from the palette. Studio writes plain Java as you go: no hidden format, no export step.</p>
+          <p>Press + between two blocks and pick one. Studio writes plain Java as you go: no hidden format, no export step.</p>
         </div>
         <div>
           <span class="num">02</span>
           <h3>Open the code</h3>
-          <p>Switch to the Java any time. Change a line and the blocks follow. Use whichever is faster.</p>
+          <p>The file is plain Java: open it in any Java editor. Change a line there and Studio redraws the blocks.</p>
         </div>
         <div>
           <span class="num">03</span>
@@ -104,8 +104,18 @@ const pluginGuide = GUIDES.makePlugin;
           <p>A normal Maven project: any Java library, any other IDE, history built in. Your program outlives the editor.</p>
         </div>
       </div>
-      <Figure n={2} caption="Studio: a program as blocks, and the same program as Java beside it."
-              alt="BotMaker Studio with a program open, its blocks on the left and its Java on the right." />
+      <figure class="fig">
+        <video data-motion controls muted loop playsinline preload="none" width="1280" height="740"
+               poster="/video/blocks-demo-poster.webp"
+               aria-label="BotMaker Studio: a new blank bot gets a counting loop and a Print, two values change, and the run prints Hello, world! three times.">
+          <source src="/video/blocks-demo.webm" type="video/webm" />
+          <source src="/video/blocks-demo.mp4" type="video/mp4" />
+        </video>
+        <figcaption class="caption">Fig. 2 — Real Studio, 20 seconds: a new blank bot, a loop and a Print added, then ▶ Run.</figcaption>
+      </figure>
+      <Figure n={3} caption="Studio with a program open: the files, the blocks of main, and the console of its last run."
+              alt="BotMaker Studio: the project's files on the left, a counting loop holding a Print block in the middle, the run's output below."
+              src="/shots/program-light.webp" srcDark="/shots/program-dark.webp" />
     </div>
   </section>
 
@@ -149,4 +159,25 @@ const pluginGuide = GUIDES.makePlugin;
 
   const root = document.querySelector<HTMLElement>('[data-demo]');
   if (root) mount(root);
+
+  // The video plays by itself while on screen, unless the reader asked for less motion: then its poster stays
+  // until they press play. Once the reader pauses it, it stays paused.
+  const video = document.querySelector<HTMLVideoElement>('video[data-motion]');
+  if (video && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    let pausedByReader = false;
+    let pausingOffScreen = false;
+    video.addEventListener('pause', () => {
+      if (!pausingOffScreen) pausedByReader = true;
+      pausingOffScreen = false;
+    });
+    video.addEventListener('play', () => { pausedByReader = false; });
+    new IntersectionObserver(([seen]) => {
+      if (seen.isIntersecting) {
+        if (!pausedByReader) video.play().catch(() => {});
+      } else if (!video.paused) {
+        pausingOffScreen = true;
+        video.pause();
+      }
+    }, { threshold: 0.5 }).observe(video);
+  }
 </script>

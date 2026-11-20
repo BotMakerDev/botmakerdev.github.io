@@ -8,10 +8,13 @@ prefix=${2:-BotMaker}
 size=${3:-size}
 w=1600; h=960
 if [[ $size =~ ^([0-9]+)x([0-9]+)$ ]]; then w=${BASH_REMATCH[1]}; h=${BASH_REMATCH[2]}; size=size; fi
-js=$(mktemp "$here/raise-XXXX.js")
+js=$(mktemp "${TMPDIR:-/tmp}/raise-XXXX.js")
+trap 'rm -f "$js"' EXIT
+# The prefix goes into the script as a JSON string, so a quote in a title cannot break it.
+quoted=$(jq -Rn --arg p "$prefix" '$p')
 cat > "$js" <<EOF
 for (const w of workspace.windowList()) {
-  if (w.caption.startsWith("$prefix")) {
+  if (w.caption.startsWith($quoted)) {
     if ("$size" === "size") {
       w.setMaximize(false, false);
       w.frameGeometry = {x: 100, y: 60, width: $w, height: $h};
@@ -24,5 +27,4 @@ id=$(qdbus org.kde.KWin /Scripting org.kde.kwin.Scripting.loadScript "$js" docsh
 qdbus org.kde.KWin "/Scripting/Script$id" org.kde.kwin.Script.run >/dev/null
 sleep 1.2
 qdbus org.kde.KWin /Scripting org.kde.kwin.Scripting.unloadScript docshot >/dev/null
-rm -f "$js"
 spectacle -b -n -a -e -S -o "$1"

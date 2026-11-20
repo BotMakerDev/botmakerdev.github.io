@@ -9,6 +9,12 @@ Everything about a project's plugins is in one window: **Project ▸ Plugins & L
 **Installed** (what the project uses), **Browse** (what the catalog lists) and **Libraries** (ordinary Maven
 dependencies). The [Plugins](/plugins/) page says what each plugin brings.
 
+<figure class="shot">
+  <img class="only-light" src="/shots/plugins-light.webp" alt="The Installed tab of Plugins &amp; Libraries: the SDK with its version, an Upgrade button and Remove, and Basics, which comes with it." loading="lazy" />
+  <img class="only-dark" src="/shots/plugins-dark.webp" alt="" loading="lazy" />
+  <figcaption>The <b>Installed</b> tab: each plugin's version, and what upgrading or removing it does.</figcaption>
+</figure>
+
 ## Add one
 
 1. Open **Project ▸ Plugins & Libraries…** and choose the **Browse** tab.

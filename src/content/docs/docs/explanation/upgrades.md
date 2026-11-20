@@ -29,7 +29,7 @@ a copy.
 When you upgrade a plugin in **Project ▸ Plugins & Libraries…**:
 
 1. **Studio saves a version first.** Whatever happens next, the program as it was is one restore away in
-   **Project ▸ Versions**.
+   **Project ▸ Versions**, which shows each change as blocks or as Java, before and after.
 2. **It repairs the values.** It reads your program against the release you are moving to:
    - a value whose kind is gone, or that is declared another way now, is removed. If your own code still names it,
      it is kept instead, as ordinary code that is yours from then on;
@@ -38,6 +38,12 @@ When you upgrade a plugin in **Project ▸ Plugins & Libraries…**:
 3. **It repairs the calls** with the rules you wrote, described below.
 
 Nothing refuses the upgrade: what Studio could not check, it says.
+
+<figure class="shot">
+  <img class="only-light" src="/shots/versions-light.webp" alt="The Versions window: a list of saved versions on the left, the files one changed in the middle, and a removed function drawn as blocks on the right." loading="lazy" />
+  <img class="only-dark" src="/shots/versions-dark.webp" alt="" loading="lazy" />
+  <figcaption><b>Versions</b> after an SDK upgrade: the version Studio saved first, and a value the new release no longer has, shown before and after.</figcaption>
+</figure>
 
 ## Why a guess is marked, never hidden
 

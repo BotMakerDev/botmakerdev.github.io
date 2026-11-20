@@ -101,3 +101,16 @@ dialog[aria-label] { border-radius: var(--radius); }
 .groups ul { list-style: none; padding: 0; }
 .groups li { margin: 0.35rem 0; }
 @media (max-width: 50rem) { .groups { grid-template-columns: minmax(0, 1fr); } }
+
+/* A screenshot in a docs page: the light and the dark one, the page's theme showing its own (as .fig on the site),
+   and the docs' videos. */
+.sl-markdown-content .shot img,
+.sl-markdown-content video { display: block; max-width: 100%; height: auto; border: 1px solid var(--line-soft); border-radius: var(--radius); }
+.sl-markdown-content .shot figcaption { color: var(--muted); font-size: var(--sl-text-sm); margin-top: 0.4rem; }
+.sl-markdown-content .shot .only-dark { display: none; }
+:root[data-theme='dark'] .sl-markdown-content .shot .only-light { display: none; }
+:root[data-theme='dark'] .sl-markdown-content .shot .only-dark { display: block; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .sl-markdown-content .shot .only-light { display: none; }
+  :root:not([data-theme='light']) .sl-markdown-content .shot .only-dark { display: block; }
+}

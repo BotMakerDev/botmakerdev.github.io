@@ -5,8 +5,10 @@ here=$(dirname "$(readlink -f "$0")")
 cd "$here"
 HOLD=${HOLD:-3}; FADE=${FADE:-0.5}; W=1280; H=740
 mkdir -p out
+shopt -s nullglob
 frames=(frames/*.png)
 n=${#frames[@]}
+(( n > 0 )) || { echo "video.sh: no frames in $here/frames" >&2; exit 1; }
 inputs=(); filter=""
 for i in "${!frames[@]}"; do
   inputs+=(-loop 1 -t "$HOLD" -framerate 30 -i "${frames[$i]}")
@@ -14,7 +16,7 @@ for i in "${!frames[@]}"; do
 done
 prev="v0"; offset=0
 for ((i = 1; i < n; i++)); do
-  offset=$(echo "$offset + $HOLD - $FADE" | bc)
+  offset=$(awk -v o="$offset" -v h="$HOLD" -v f="$FADE" 'BEGIN { print o + h - f }')
   filter+="[$prev][v$i]xfade=transition=fade:duration=$FADE:offset=$offset[x$i];"
   prev="x$i"
 done

@@ -405,7 +405,9 @@ section.last { border-bottom: 0; }
 /* ---------- figures ---------- */
 
 .fig { margin: 44px 0 0; }
-.fig img { display: block; border: 1px solid var(--line-soft); border-radius: var(--radius); }
+.fig img,
+.fig video { display: block; max-width: 100%; height: auto; border: 1px solid var(--line-soft); border-radius: var(--radius); }
+.fig + .fig { margin-top: 28px; }
 .only-dark { display: none; }
 :root[data-theme='dark'] .fig .only-light { display: none; }
 :root[data-theme='dark'] .fig .only-dark { display: block; }

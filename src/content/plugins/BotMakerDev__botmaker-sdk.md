@@ -9,8 +9,10 @@ features:
     text: Every screen of the game and the ways between them. Say where to go, and the bot walks there.
     alt: The SDK's map window in Studio, with a game's screens as boxes and arrows between them.
   - title: Pictures
-    text: Cut a button out of a screenshot. The bot finds it on the screen, even when the window is another size.
-    alt: A picture being cut out of a game screenshot in Studio.
+    text: Cut a button out of a screenshot and it becomes a constant of your bot's Pictures class. The bot finds it on the screen, even when the window is another size.
+    alt: A game bot's Pictures class in Studio, each picture a constant shown as the image it holds.
+    src: /shots/bot-pictures-light.webp
+    srcDark: /shots/bot-pictures-dark.webp
   - title: Reading text
     text: Numbers and labels read straight off the screen, ready to compare.
     alt: A readout on a game screen, with the number the SDK read from it.

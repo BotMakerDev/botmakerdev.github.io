@@ -2,8 +2,11 @@
 
 The pictures in `public/shots/` and the video in `public/video/` are real Studio, driven by Claude Code through the dev
 Studio's `ui` tool. Re-make them after a UI change with these steps. The scripts assume KDE Plasma on Wayland
-(`spectacle`, KWin scripting over `qdbus`), ImageMagick 7 and ffmpeg. `place.js` holds this machine's screen layout
-(a 1920x1080 screen at x=1423): change its numbers, and the crop in `rec.sh`, for another layout.
+(`spectacle`, KWin scripting over `qdbus`), ImageMagick 7, ffmpeg and `jq`. `place.js` holds this machine's screen
+layout in logical pixels (a 1920x1080 screen at x=1423, the window at 1543,20 sized 1680x1000). `rec.sh`'s crop is in
+the full grab's physical pixels, here twice the logical ones: for a window at x,y of size w×h with a title bar t
+high (28 here), it is `2w x 2(h−t) + 2x + 2(y+t)`, x counted from the desktop's left edge.
+Change both for another layout, and check one frame before recording the rest.
 
 ## Before
 
@@ -14,8 +17,8 @@ Studio's `ui` tool. Re-make them after a UI change with these steps. The scripts
 
 ## Screenshots
 
-`shot.sh <out.png> [title-prefix] [WxH]` raises the window whose title starts with the prefix, sizes it (1600x960
-unless given) and captures it with no decoration and no shadow. Take each shot twice, once per theme (*View ▸ Theme
+`shot.sh <out.png> [title-prefix] [WxH|keep]` raises the window whose title starts with the prefix, sizes it (1600x960
+unless given; `keep` leaves its size alone) and captures it with no decoration and no shadow. Take each shot twice, once per theme (*View ▸ Theme
 ▸ Default* and *Dark*), at the same size, then convert:
 
 ```bash
@@ -37,7 +40,9 @@ In the Assistant, filter the calls before selecting one: a `ui` call's reply nam
 ## The video
 
 `rec.sh <name>` places Studio's main window, grabs the whole screen (popups included) and crops it to the window
-below its title bar, into `frames/<name>.png`. The frames, in order:
+below its title bar, into `frames/<name>.png` (ignored by git: empty `frames/` before a new take, since
+`video.sh` uses every PNG there). The frames, in order (no `08`: the frames taken while the run was going added
+nothing):
 
 1. `01-home`: the bot list.
 2. `02-new`: *＋ New bot*, the name `HelloLoop` typed, *Blank* picked.

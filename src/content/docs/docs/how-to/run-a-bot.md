@@ -8,6 +8,12 @@ sidebar:
 A published bot comes as one file, `<name>-<version>.bmk`. Open it in BotMaker and the bot shows in **My bots**,
 ready to run. You do not need to edit it, or to know Java.
 
+<figure class="shot">
+  <img class="only-light" src="/shots/home-light.webp" alt="Studio's bot list: two bots under My bots, each with Run and Edit in Studio, and a published bot under Get more bots." loading="lazy" />
+  <img class="only-dark" src="/shots/home-dark.webp" alt="" loading="lazy" />
+  <figcaption>Studio opens on its bot list: <b>My bots</b> above, <b>Get more bots</b> from the catalog below.</figcaption>
+</figure>
+
 ## Before you start
 
 [Install BotMaker](/install/). The `.bmk` holds the bot's sources and the libraries it runs with; the parts that

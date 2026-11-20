@@ -1,7 +1,7 @@
-// The demo's blocks. Each label is what Studio's palette shows and each Java line is what Studio writes for it,
-// read on 2026-10-24 from:
+// The demo's blocks. Each label is what Studio's block menu (the + between two blocks) shows and each Java line is
+// what Studio writes for it, read on 2026-10-24 and checked again on 2026-11-20 from:
 //
-//   core (Studio itself) — botmaker-studio/src/main/java/com/botmaker/studio/palette/BlockCatalog.java:
+//   core (Studio itself) — botmaker-java/src/main/java/com/botmaker/java/edit/palette/BlockCatalog.java:
 //     PRINT "Print" (System.out.println, StatementFactory), WHILE "While Loop", FOR_CLASSIC "Counting Loop";
 //     categories from BlockCategory (Output, Loops). A blank project's class and main are StarterSources'.
 //   basics — botmaker-plugin-basics/.../values/BasicsTypes.java: Basics brings no blocks of its own, only value
@@ -11,7 +11,8 @@
 //     vision/ImageClicker (click(ImageTemplate)) and time/Wait (seconds(double), its @PaletteDefault); not
 //     console/Debug, which has not been offered since 2026-09-30, so the sample loop prints with Studio's own
 //     Print. Studio's menu labels them Class.method (StatementMenu.facadeCall). A bot's
-//     pictures and screens are constants of its own Pictures and Screens classes in <package>.plugins.sdk, as
+//     pictures and screens are constants of its own Pictures and Screens classes in
+//     <package>.plugins.com_github_botmakerdev.botmaker_sdk (a package per plugin coordinate), as
 //     the SDK's sample bot has them (src/test/resources/samplebot).
 //
 // Nothing here is invented: a block Studio does not have, or a call the SDK's api does not compile, is a bug.
@@ -21,7 +22,7 @@ export const PACKAGE = 'com.myprogram';
 export const CLASS = 'MyProgram';
 
 const SDK = 'com.botmaker.sdk.api';
-const OWN = `${PACKAGE}.plugins.sdk`;
+const OWN = `${PACKAGE}.plugins.com_github_botmakerdev.botmaker_sdk`;
 
 /** A loop forever is three turns in the demo; nothing here runs for real. */
 export const FOREVER_TURNS = 3;

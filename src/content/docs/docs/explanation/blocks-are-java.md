@@ -13,7 +13,7 @@ out of step.
 
 When you drop a block, Studio does not save a block. It edits the Java file, through the same Java compiler
 toolkit an IDE uses (Eclipse JDT), and then draws the file again as blocks. Each statement in the file is one
-block; a loop or an `if` is a block that holds others. The palette offers statements; the file can hold anything
+block; a loop or an `if` is a block that holds others. The block menu offers statements; the file can hold anything
 Java can, and Studio draws what it understands as blocks and keeps the rest as it is.
 
 Because every edit is an edit to the source, errors are the compiler's own, shown on the block where they are, and
