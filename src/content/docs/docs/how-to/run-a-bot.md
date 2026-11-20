@@ -37,7 +37,7 @@ Beside the button, **Download .bmk** gets the file itself, to keep or to give to
 list. Drop the `.bmk` anywhere on it, or start BotMaker with the file:
 
 ```bash
-botmaker-studio --open=firestone-1.0.0.bmk
+botmaker-studio --open=SwordXStaff-0.1.2.bmk
 ```
 
 Before anything runs, the file is checked:
@@ -48,7 +48,7 @@ Before anything runs, the file is checked:
 - **A file the catalog does not list** (shared privately, or someone's unpublished bot) still opens, after a
   stronger warning: nobody checked it.
 
-The first time you open a bot by an author, a sheet asks first: "“Firestone” by its author (Community) runs code on
+The first time you open a bot by an author, a sheet asks first: "“SwordXStaff” by its author (Community) runs code on
 this computer." Choose **Run it** only for a bot you trust; a bot can do anything a program on your computer can.
 For a bot the catalog lists, BotMaker remembers your answer for its later versions; an unlisted file asks each
 time.
