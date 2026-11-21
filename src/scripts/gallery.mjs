@@ -5,16 +5,18 @@
 // Every text lands through textContent (or a text node), never as HTML: a description is whatever its author
 // wrote. A re-read that fails, for any reason, changes nothing on the page.
 
-import { CATALOG_URL, RANK_LABEL, readCatalog } from '../lib/catalog-read.mjs';
+import { CATALOG_URL, PLATFORM_LABEL, RANK_LABEL, readCatalog } from '../lib/catalog-read.mjs';
 
 /**
  * A row's `icon` is its icon.png's address, shown over its `letter`; a plugin's `page` is the one the build made for
  * its repository. A bot's `bmkTag` is the release whose `.bmk` the build looked up, `download` where it is and
- * `gone` when it no longer is.
+ * `gone` when it no longer is. `updated` is the day of the newest release; a bot's `platforms` are its newest
+ * release's ids (absent: every system) and `downloads` its `.bmk` downloads (absent: none counted).
  *
  * @typedef {{kind: 'bot' | 'plugin', repo: string, name: string, description: string,
  *   rank: string, tag: string, stars: number, letter: string, forkOf?: string, page?: string, icon?: string,
- *   bmkTag?: string, bmkSha256?: string, download?: string, gone?: true}} Row
+ *   bmkTag?: string, bmkSha256?: string, download?: string, gone?: true, updated?: string, platforms?: string[],
+ *   downloads?: number}} Row
  */
 
 /** The Download link's text: it names the file's release when that is not the newest one the row shows. */
@@ -63,9 +65,25 @@ export function watchOpen(win, doc, onMissed, ms = OPEN_WAIT_MS) {
 /** The square an entry without an icon shows: its name's first letter or digit. */
 export const letterOf = (name) => (/[A-Za-z0-9]/.exec(name)?.[0] ?? '?').toUpperCase();
 
+/**
+ * The row's facts line: the systems its newest release runs on (none named: every one, so none shown), its
+ * downloads and the day it was last released; empty when the catalog says none of them.
+ *
+ * @param {Row} row
+ */
+export function factsLine(row) {
+  const facts = [];
+  if (row.platforms?.length) facts.push(`Runs on ${row.platforms.map((id) => PLATFORM_LABEL[id]).join(', ')}`);
+  if (Number.isInteger(row.downloads)) facts.push(`${row.downloads} ${row.downloads === 1 ? 'download' : 'downloads'}`);
+  if (row.updated) facts.push(`updated ${row.updated}`);
+  return facts.join(' · ');
+}
+
 function botRow(bot) {
   return {
     kind: 'bot', name: bot.repo.split('/')[1],
+    ...(bot.newest.platforms?.length ? { platforms: bot.newest.platforms } : {}),
+    ...(Number.isInteger(bot.downloads) ? { downloads: bot.downloads } : {}),
     ...(bot.forkOf ? { forkOf: bot.forkOf } : {}),
     ...(bot.bmk ? { bmkTag: bot.bmk.tag, bmkSha256: bot.bmk.sha256 } : {}),
     ...(bot.download ? { download: bot.download } : {}),
@@ -85,6 +103,7 @@ export function toRows(catalog, pages = new Set()) {
   const common = (entry) => ({
     repo: entry.repo, description: entry.description, rank: entry.rank, tag: entry.newest.tag, stars: entry.stars,
     ...(entry.icon ? { icon: entry.icon } : {}),
+    ...(entry.updated ? { updated: entry.updated } : {}),
   });
   const pictured = (row) => ({ ...row, letter: letterOf(row.name) });
   return [
@@ -163,6 +182,8 @@ export function renderRow(doc, row) {
   if (row.forkOf) {
     main.append(el(doc, 'p', { class: 'note' }, 'based on ', el(doc, 'a', { href: repoUrl(row.forkOf) }, row.forkOf)));
   }
+  const facts = factsLine(row);
+  if (facts) main.append(el(doc, 'p', { class: 'note gfacts' }, facts));
   if (row.download) {
     main.append(
       el(doc, 'p', { class: 'gget' },

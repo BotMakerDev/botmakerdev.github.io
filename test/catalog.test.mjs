@@ -190,3 +190,49 @@ test('an icon that fails otherwise than 404 fails the build', async () => {
   json.bots.push(firestone([{ tag: 'v1.0.0', commit: 'aaaaaaa', plugins: [] }]));
   await assert.rejects(withFiles(readCatalog(json), { fetch: respond(503, '') }), /HTTP 503/);
 });
+
+test('schema 6 reads, and a schema newer than the site knows is unreadable', () => {
+  const json = v5();
+  json.schemaVersion = 6;
+  assert.equal(readCatalog(json).ok, true);
+  json.schemaVersion = 7;
+  assert.equal(readCatalog(json).ok, false);
+});
+
+test('a yanked release, or one an advisory not withdrawn names, is not offered', () => {
+  const json = v5();
+  json.schemaVersion = 6;
+  json.bots.push(firestone([
+    { tag: 'v1.2.0', commit: 'ccccccc', plugins: [], bmkSha256: SHA, yanked: { reason: 'crashes', at: '2026-11-21T10:00:00Z' } },
+    { tag: 'v1.1.0', commit: 'bbbbbbb', plugins: [], bmkSha256: SHA },
+    { tag: 'v1.0.0', commit: 'aaaaaaa', plugins: [], bmkSha256: SHA },
+  ]));
+  // Named under the slug the bot had before a rename.
+  json.bots.at(-1).formerly = ['Someone/old-firestone'];
+  json.advisories = [
+    { id: 'BMA-2026-0001', repo: 'someone/old-firestone', releases: ['v1.1.0'], severity: 'high', summary: 's' },
+    { id: 'BMA-2026-0002', repo: 'someone/firestone-bot', releases: ['v1.0.0'], severity: 'low', summary: 's',
+      withdrawn: 'a mistake' },
+  ];
+  const [bot] = readCatalog(json).bots;
+  assert.deepEqual(bot.releases.map((r) => r.tag), ['v1.0.0']);
+  assert.deepEqual(bot.bmk, { tag: 'v1.0.0', sha256: SHA });
+  json.advisories[1].withdrawn = undefined;
+  assert.deepEqual(readCatalog(json).bots, []);
+});
+
+test('a bot reads its downloads, its day of update and its newest release\'s known platforms', () => {
+  const json = v5();
+  json.schemaVersion = 6;
+  json.bots.push({ ...firestone([{ tag: 'v1.0.0', commit: 'aaaaaaa', plugins: [], platforms: ['windows', 'beos', 'linux'] }]),
+    downloads: 12, updatedAt: '2026-11-20T09:00:00Z' });
+  json.bots.push({ ...firestone([{ tag: 'v1.0.0', commit: 'aaaaaaa', plugins: [] }]), repo: 'someone/other',
+    updatedAt: 'yesterday' });
+  const [counted, plain] = readCatalog(json).bots;
+  assert.equal(counted.downloads, 12);
+  assert.equal(counted.updated, '2026-11-20');
+  assert.deepEqual(counted.newest.platforms, ['linux', 'windows']);
+  assert.equal('downloads' in plain, false);
+  assert.equal('updated' in plain, false);
+  assert.deepEqual(plain.newest.platforms, []);
+});

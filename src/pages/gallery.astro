@@ -5,7 +5,7 @@
 import Site from '../layouts/Site.astro';
 import { RANK_LABEL, loadCatalog, withFiles } from '../lib/catalog.mjs';
 import { WRITTEN } from '../lib/written.mjs';
-import { GONE, INSTALL, downloadLabel, openLink, toRows } from '../scripts/gallery.mjs';
+import { GONE, INSTALL, downloadLabel, factsLine, openLink, toRows } from '../scripts/gallery.mjs';
 import { GUIDES } from '../lib/nav.mjs';
 
 // Each bot's .bmk and each entry's icon are looked up, so a card offers only a file that is there.
@@ -56,6 +56,7 @@ const publishGuide = GUIDES.publishBot;
               <p class="gname"><b>{row.page ? <a href={row.page}>{row.name}</a> : row.name}</b> <span class="kind">{row.kind === 'bot' ? 'Bot' : 'Plugin'}</span></p>
               {row.description && <p class="d">{row.description}</p>}
               {row.forkOf && <p class="note">based on <a href={`https://github.com/${row.forkOf}`}>{row.forkOf}</a></p>}
+              {factsLine(row) && <p class="note gfacts">{factsLine(row)}</p>}
               {row.download ? (
                 <>
                   <p class="gget"><a class="btn sm primary" href={openLink(row.repo)} data-open={row.repo}>Open in Studio</a> <a class="gfile" href={row.download}>{downloadLabel(row)}</a> <span class="note" data-missed={row.repo} hidden>Didn't open? <a href={INSTALL}>Install BotMaker Studio</a></span></p>

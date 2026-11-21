@@ -249,3 +249,19 @@ test('letterOf takes the first letter or digit', () => {
   assert.equal(letterOf('-9lives'), '9');
   assert.equal(letterOf('---'), '?');
 });
+
+test('a row\'s facts line: platforms, downloads and day of update, each only when the catalog says it', async () => {
+  const { factsLine } = await import('../src/scripts/gallery.mjs');
+  const json = withBot();
+  json.schemaVersion = 6;
+  // farmBot is shared by every test: change a copy.
+  json.bots[0] = { ...structuredClone(farmBot), downloads: 1, updatedAt: '2026-11-20T09:00:00Z' };
+  json.bots[0].releases[0].platforms = ['linux', 'macos'];
+  const [bot] = toRows(readCatalog(json));
+  assert.equal(factsLine(bot), 'Runs on Linux, macOS · 1 download · updated 2026-11-20');
+  assert.ok(all(renderRow(stubDocument(), bot)).some((node) => node.className === 'note gfacts'
+    && node.textContent === factsLine(bot)));
+  const [plain] = toRows(readCatalog(withBot()));
+  assert.equal(factsLine(plain), '');
+  assert.ok(!all(renderRow(stubDocument(), plain)).some((node) => node.className === 'note gfacts'));
+});
