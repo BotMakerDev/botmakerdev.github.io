@@ -17,16 +17,23 @@ features:
     srcDark: /shots/bot-pictures-dark.webp
   - title: Reading text
     text: Numbers and labels read straight off the screen, ready to compare.
-    alt: A readout on a game screen, with the number the SDK read from it.
+    alt: The game's top bar with gold, gems, energy and power boxed, beside the Progress facts the SDK read from them.
+    src: /shots/reading-light.webp
+    srcDark: /shots/reading-dark.webp
   - title: Goals and plans
     text: Say what the bot wants, in tiers of what matters most. It picks the next action itself, and whoever runs the bot picks the plan.
-    alt: The SDK's Goals window in Studio, a plan's tiers as rows of goals.
+    alt: The Screens window's Goals view, a plan's three tiers of goals, each with its check, its action and whether it is met.
+    src: /shots/goals-light.webp
+    srcDark: /shots/goals-dark.webp
   - title: Launching the game
     text: Start the game the way you already do, with Steam, Bottles, Waydroid or a phone over adb. On Linux it can run in a private session, so your desktop stays yours.
-    alt: The launch settings in Studio, with a game picked to start before the bot runs.
+    alt: Studio's Game window, with Sword x Staff picked on Waydroid, the emulator's checks passed, and the Lutris games of this computer to pick from.
+    src: /shots/launch-light.webp
+    srcDark: /shots/launch-dark.webp
   - title: Run overlay
     text: Watch it work, step by step, with what it matched and where it clicked. One key stops it, always.
     alt: A game window during a run, with the SDK's match boxes and step list drawn over it.
+    src: /shots/run-overlay.webp
 ---
 
 The SDK turns Studio into a workshop for game bots. You show it what the screens look like; it finds its way

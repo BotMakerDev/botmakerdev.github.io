@@ -1,0 +1,58 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="base.css">
+<script>if (location.hash === '#dark') document.documentElement.classList.add('dark');</script>
+<style>
+.rail { display: flex; gap: 6px; padding: 12px 20px; border-bottom: 1px solid var(--line); background: var(--panel); }
+.rail span { padding: 6px 14px; border-radius: 6px; }
+.rail .on { background: var(--accent); color: #fff; font-weight: 600; }
+.head { display: flex; align-items: center; gap: 14px; padding: 20px 28px 6px; }
+.head h2 { font-size: 20px; }
+.pick { border: 1px solid var(--line); background: var(--panel); border-radius: 6px; padding: 5px 34px 5px 12px; position: relative; }
+.pick::after { content: "▾"; position: absolute; right: 12px; color: var(--muted); }
+.tiers { padding: 10px 28px; display: flex; flex-direction: column; gap: 16px; }
+.tier { display: grid; grid-template-columns: 150px 1fr; gap: 16px; align-items: start; }
+.tier h3 { font-size: 15px; padding-top: 14px; }
+.tier h3 small { display: block; font-weight: 400; color: var(--muted); font-size: 13px; }
+.cards { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+html, body { height: 580px; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; }
+.card.next { border: 2px solid var(--accent); box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 20%, transparent); }
+.card .t { display: flex; justify-content: space-between; align-items: center; font-weight: 600; margin-bottom: 4px; }
+.st { font-size: 12px; font-weight: 600; padding: 2px 9px; border-radius: 999px; }
+.met { background: color-mix(in srgb, var(--ok) 22%, transparent); color: var(--ok); }
+.unmet { background: color-mix(in srgb, var(--accent) 22%, transparent); color: var(--accent); }
+.later { background: var(--chip); color: var(--muted); }
+.unk { background: color-mix(in srgb, var(--warn) 22%, transparent); color: var(--warn); }
+.check { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+.act { font-size: 13px; border-top: 1px solid var(--line); padding-top: 8px; }
+.act b { color: var(--accent); font-weight: 600; }
+</style></head><body>
+<div class="rail"><span>🗺 Map</span><span class="on">🎯 Goals</span><span>🔭 Explore</span><span>🧩 Elements</span></div>
+<div class="head"><h2>Plan</h2><span class="pick">Daily</span><span class="muted">The run serves the first goal not met, from the top tier down</span></div>
+<div class="tiers">
+  <div class="tier"><h3>Tier 1<small>first, always</small></h3><div class="cards">
+    <div class="card"><div class="t">Login reward claimed <span class="st met">met</span></div>
+      <div class="check mono">Progress::loginClaimed is true</div>
+      <div class="act">Action · <b>Home ▸ claimLogin</b></div></div>
+    <div class="card next"><div class="t">Energy spent <span class="st unmet">next</span></div>
+      <div class="check mono">Progress::energy below 20</div>
+      <div class="act">Action · <b>Stage ▸ startBattle</b></div></div>
+  </div></div>
+  <div class="tier"><h3>Tier 2<small>once tier 1 is met</small></h3><div class="cards">
+    <div class="card"><div class="t">Daily quests claimed <span class="st later">not now</span></div>
+      <div class="check mono">Progress::questsClaimed is true</div>
+      <div class="act">Action · <b>Quest ▸ claimAll</b> <span class="muted">· after 04:00</span></div></div>
+    <div class="card"><div class="t">Weapon enhanced <span class="st unmet">not met</span></div>
+      <div class="check mono">Progress::weaponLevel at least 5</div>
+      <div class="act">Action · <b>Enhance ▸ enhance</b></div></div>
+  </div></div>
+  <div class="tier"><h3>Tier 3<small>when nothing above waits</small></h3><div class="cards">
+    <div class="card"><div class="t">Chests opened <span class="st unk">not read yet</span></div>
+      <div class="check mono">Progress::chests is 0</div>
+      <div class="act">Action · <b>Storage chest ▸ openAll</b></div></div>
+    <div class="card"><div class="t">Furniture upgraded <span class="st unmet">not met</span></div>
+      <div class="check mono">Progress::gold below 50,000</div>
+      <div class="act">Action · <b>House ▸ upgradeFurniture</b></div></div>
+  </div></div>
+</div>
+</body></html>

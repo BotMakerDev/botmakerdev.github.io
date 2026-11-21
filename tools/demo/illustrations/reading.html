@@ -1,0 +1,39 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="base.css">
+<script>if (location.hash === '#dark') document.documentElement.classList.add('dark');</script>
+<style>
+html, body { height: 616px; }
+.wrap { display: flex; gap: 40px; padding: 48px; height: 100%; align-items: center; }
+.game { position: relative; width: 864px; height: 520px; border-radius: 14px; overflow: hidden;
+  background: url(home.webp) 0 0 / 864px auto no-repeat; box-shadow: 0 6px 30px rgba(0,0,0,.25); flex: none; }
+.box { position: absolute; border: 3px solid #3fb950; border-radius: 6px; box-shadow: 0 0 0 2px rgba(0,0,0,.35); }
+.tag { position: absolute; left: -3px; top: calc(100% + 6px); background: #3fb950; color: #08210f; white-space: nowrap;
+  font: 600 15px "Noto Sans Mono", monospace; padding: 2px 8px; border-radius: 5px; }
+.panel { flex: 1; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 26px 28px; }
+.panel h2 { font-size: 20px; margin-bottom: 4px; }
+.row { display: grid; grid-template-columns: 110px 1fr auto; align-items: center; gap: 12px; padding: 14px 0;
+  border-top: 1px solid var(--line); }
+.row:first-of-type { border-top: 0; }
+.name { font-weight: 600; }
+.val { font: 600 22px "Noto Sans Mono", monospace; }
+.age { font-size: 13px; }
+.code { margin-top: 18px; background: var(--code); border-radius: 8px; padding: 12px 14px; font-size: 14px; }
+</style></head><body>
+<div class="wrap">
+  <div class="game">
+    <div class="box" style="left:478px;top:44px;width:90px;height:40px"><span class="tag">gold 37.1K</span></div>
+    <div class="box" style="left:614px;top:44px;width:66px;height:40px"><span class="tag">gems 130</span></div>
+    <div class="box" style="left:728px;top:44px;width:120px;height:40px;"><span class="tag" style="left:auto;right:-3px">energy 300/300</span></div>
+    <div class="box" style="left:184px;top:86px;width:70px;height:40px"><span class="tag">power 757</span></div>
+  </div>
+  <div class="panel">
+    <h2>Progress</h2>
+    <p class="muted" style="margin-bottom:14px">Read on <b>Home</b>, each fact where the screen shows it</p>
+    <div class="row"><span class="name">gold</span><span class="val">37,100</span><span class="age muted">read 2 s ago</span></div>
+    <div class="row"><span class="name">gems</span><span class="val">130</span><span class="age muted">read 2 s ago</span></div>
+    <div class="row"><span class="name">energy</span><span class="val">300 / 300</span><span class="age muted">read 2 s ago</span></div>
+    <div class="row"><span class="name">power</span><span class="val">757</span><span class="age muted">read 2 s ago</span></div>
+    <div class="code mono">Readout.into(Progress::gold).staleAfter(Duration.ofMinutes(5))</div>
+  </div>
+</div>
+</body></html>

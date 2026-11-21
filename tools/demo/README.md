@@ -36,7 +36,25 @@ magick shot.png -resize '1600x>' -quality 82 public/shots/<name>-light.webp
 | `plugins` | *Plugins & Libraries* | 900x560 |
 | `screens-map` | 🗺 *Screens* on the SwordXStaff catalog bot after ⋯ ▸ *Tidy*, the panel hidden, *Fit* then *+* twice; window title prefix `Screens` | keep |
 
+| `launch` | the SDK's 🎮 game button: the *Game* window, *Lutris* picked, the emulator's checks passed; window title prefix `Game` | keep (1005x905) |
+
 In the Assistant, filter the calls before selecting one: a `ui` call's reply names the sandbox path.
+
+## Illustrations
+
+Three SDK figures are illustrations, not screenshots, until a bot really reads text, keeps a plan and runs a chore:
+`reading`, `goals` and `run-overlay`. Each is an HTML page in `illustrations/`, laid over two of the SwordXStaff
+bot's own screen shots (`home.webp`, `battle.webp`, the game chat blurred). Render them with headless Chrome, the
+theme by the hash:
+
+```bash
+cd tools/demo/illustrations
+google-chrome --headless=new --hide-scrollbars --window-size=1600,616 --screenshot=$PWD/reading-dark.png "file://$PWD/reading.html#dark"
+# goals: 1600,580; overlay: 1600,960 (one theme)
+magick reading-dark.png -quality 82 ../../../public/shots/reading-dark.webp
+```
+
+Replace each with a real shot once Studio can show it.
 
 ## The video
 
