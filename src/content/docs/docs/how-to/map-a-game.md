@@ -10,6 +10,12 @@ constant per screen, written for you by 🗺 **Screens** and by the assistant. T
 apart, how a button with no picture of its own is pressed, how the bot learns what a button's looks mean, and how
 to check the whole map against the game, and how to tell the bot what it wants.
 
+<figure class="shot">
+  <img class="only-light" src="/shots/screens-map-light.webp" alt="The Screens window: a game's seventy screens as thumbnails in rows, each joined to the screens its buttons lead to." loading="lazy" />
+  <img class="only-dark" src="/shots/screens-map-dark.webp" alt="" loading="lazy" />
+  <figcaption>🗺 <b>Screens</b> on a mapped game: each screen as the game shows it, and the ways between them. ⋯ ▸ <b>Tidy</b> lays the cards out again.</figcaption>
+</figure>
+
 ## 1. Tell each screen by its parts
 
 A screen is told by **its parts that mark**: a picture, words or an app's element only it shows. In 🗺 Screens, pick

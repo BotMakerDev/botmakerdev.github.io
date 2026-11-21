@@ -7,7 +7,9 @@ emphasis: the repetitive part.
 features:
   - title: Screens map
     text: Every screen of the game and the ways between them. Say where to go, and the bot walks there.
-    alt: The SDK's map window in Studio, with a game's screens as boxes and arrows between them.
+    alt: The SDK's Screens window in Studio, a game's seventy screens as thumbnails in rows, joined by the ways between them.
+    src: /shots/screens-map-light.webp
+    srcDark: /shots/screens-map-dark.webp
   - title: Pictures
     text: Cut a button out of a screenshot and it becomes a constant of your bot's Pictures class. The bot finds it on the screen, even when the window is another size.
     alt: A game bot's Pictures class in Studio, each picture a constant shown as the image it holds.

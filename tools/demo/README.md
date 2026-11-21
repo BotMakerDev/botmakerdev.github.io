@@ -34,6 +34,7 @@ magick shot.png -resize '1600x>' -quality 82 public/shots/<name>-light.webp
 | `assistant` | *Assistant*, calls filtered to `edit_code`, a call selected | default |
 | `params` | *Parameters* | 1000x720 |
 | `plugins` | *Plugins & Libraries* | 900x560 |
+| `screens-map` | 🗺 *Screens* on the SwordXStaff catalog bot after ⋯ ▸ *Tidy*, the panel hidden, *Fit* then *+* twice; window title prefix `Screens` | keep |
 
 In the Assistant, filter the calls before selecting one: a `ui` call's reply names the sandbox path.
 
