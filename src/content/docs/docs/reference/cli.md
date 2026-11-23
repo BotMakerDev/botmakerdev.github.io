@@ -267,7 +267,36 @@ holds this command's path: run it again after an upgrade. `--dev`, for BotMaker'
 checkout's built jar with `--umbrella`; `--umbrella <dir>` implies `--dev`. It turns off no edit: use `botmaker ai`
 for that. Both `ai` and `mcp install` come after cli 0.12.0.
 
-### release
+### update
 
-Cut or preview a release of BotMaker itself, across its modules. It is for BotMaker's maintainers, and previews
-unless `--execute` is passed.
+```sh
+botmaker update
+```
+
+Replace this `botmaker` with its latest release. The download is checked against the release's
+`checksums_sha256.txt` first. A copy from a package manager, JBang or the Claude plugin is left to them.
+
+## botmaker studio
+
+```sh
+botmaker studio [<project>] [--studio=<command>]
+```
+
+Start the released Studio on its own, optionally on a project of `~/BotMakerProjects`. What it prints goes to a log
+in BotMaker's cache folder, whose path is said. `botmaker studio set --command <command>` says once where Studio
+is, if not where its installer puts it.
+
+### studio update
+
+```sh
+botmaker studio update [--check] [--studio=<path>]
+```
+
+Update the installed Studio to its latest release, the way it was installed: the rpm or deb from its `dnf` or
+`apt` repository (or the release's package when there is none), the AppImage replaced in place, the MSI run, the
+`.app` replaced from the dmg. Each download is checked against the release's `checksums_sha256.txt`. Root is
+asked by `sudo` at a terminal, else `pkexec`. It refuses while Studio runs. `--check` says the installed and latest
+versions and how it would update, and installs nothing. Studio's *Help ▸ Check for Updates* does the same.
+
+Releasing BotMaker itself is no longer a `botmaker` command: its maintainers use
+[sluice](https://github.com/BotMakerDev/sluice) (`sluice preview`, `sluice release`).

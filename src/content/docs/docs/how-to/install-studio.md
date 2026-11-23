@@ -20,6 +20,11 @@ download. It picks your system for you; the others are a tab away.
   updates itself from inside Studio.
 - **Windows** and **macOS:** the installer from Studio's latest release.
 
+However it was installed, Studio updates itself: *Help ▸ Check for Updates*, or `botmaker studio update` with Studio
+closed (`--check` only says where it stands). It updates the way Studio was installed — the package from its
+repository, the AppImage in place, the MSI, the `.app` from the dmg — and checks each download against the release's
+checksums first.
+
 Studio bundles its own Java and JavaFX, so there is nothing else to install. The same page lists the other tools:
 the `botmaker` command, the dashboard, and the phone apps.
 
