@@ -259,7 +259,7 @@ the tool is not installed.
 botmaker mcp install <claude|codex|opencode|gemini> [--print] [--dev [--umbrella <dir>]]
 ```
 
-Register BotMaker's MCP server, named `botmaker-studio`, in the tool's user settings, so every session of it has
+Register BotMaker's MCP server, named `botmaker`, in the tool's user settings, so every session of it has
 the tools: Claude Code through `claude mcp add --scope user`, Codex's `~/.codex/config.toml`, opencode's
 `~/.config/opencode/opencode.json`, Gemini CLI's `~/.gemini/settings.json`. Only that entry changes; a file it
 cannot safely rewrite is left alone, and the entry printed for you to add. `--print` only prints it. The entry
