@@ -56,7 +56,7 @@ plain column. Do not remove a rule because this site does not use it.
 ## What this repository is not
 
 **It does not replace a project's own page.** `botmaker-cli`, `botmaker-studio`, `botmaker-dashboard`
-and `botmaker-remote-server` each publish their own site at `/<repo>/` on this origin, carrying the dnf
+and `botmaker-remote-claude` each publish their own site at `/<repo>/` on this origin, carrying the dnf
 and apt repositories, the signing key and the checksums. Those addresses are installed on people's
 machines, so this site emits nothing under them (`test/reserved-paths.test.mjs`, run in CI after the
 build).

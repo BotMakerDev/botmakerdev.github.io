@@ -54,10 +54,10 @@
       "package": "botmaker-dashboard"
     },
     {
-      "repo": "botmaker-remote-server",
-      "name": "Remote Server",
-      "blurb": "Serves the tmux session `claude` as terminals over WebSocket, on the Tailscale address only.",
-      "package": "botmaker-remote-server"
+      "repo": "botmaker-remote-claude",
+      "name": "Remote Claude",
+      "blurb": "Claude Code from your phone: serves the tmux session `claude` over WebSocket, on the Tailscale address only.",
+      "package": "botmaker-remote-claude"
     },
     {
       "repo": "botmaker-pilot",
